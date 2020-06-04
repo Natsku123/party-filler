@@ -22,7 +22,7 @@ services:
     volumes:
       - "backend:/app"
     ports:
-      - "8800:8800"
+      - "8800:80"
   db:
     image: mysql/mysql-server:latest
     restart: always
