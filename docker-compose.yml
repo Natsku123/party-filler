@@ -1,0 +1,36 @@
+version: "3.3"
+services:
+  frontend:
+    container_name: sample
+    build:
+      context: frontend
+      dockerfile: frontend/Dockerfile.production
+    volumes:
+      - '.:/app'
+      - '/app/node_modules'
+    ports:
+      - 3001:3000
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+  backend:
+    build:
+      context: backend
+      dockerfile: backend/Dockerfile
+    environment:
+      DB_NAME: ${database}
+      DB_USER: ${db_user}
+      DB_PASS: ${db_password}
+    deploy:
+      replicas: 1
+    ports:
+      - "8800:8800"
+  db:
+    image: mysql/mysql-server:latest
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${database}
+      MYSQL_USER: ${db_user}
+      MYSQL_PASSWORD: ${db_password}
+      MYSQL_ROOT_PASSWORD: ${root_password}
+    volumes:
+      - "/srv/docker/data/party-finder/mysql:/var/lib/mysql"

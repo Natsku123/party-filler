@@ -1,0 +1,6 @@
+frontend/node_modules
+frontend/build
+.dockerignore
+frontend/Dockerfile
+frontend/Dockerfile.production
+backend/Dockerfile
