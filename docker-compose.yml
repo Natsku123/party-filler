@@ -1,7 +1,6 @@
 version: "3.3"
 services:
   frontend:
-    container_name: sample
     build:
       context: frontend
       dockerfile: frontend/Dockerfile.production
@@ -15,13 +14,13 @@ services:
   backend:
     build:
       context: backend
-      dockerfile: backend/Dockerfile
+      dockerfile: backend/Dockerfile.production
     environment:
       DB_NAME: ${database}
       DB_USER: ${db_user}
       DB_PASS: ${db_password}
-    deploy:
-      replicas: 1
+    volumes:
+      - "backend:/app"
     ports:
       - "8800:8800"
   db:
