@@ -75,3 +75,105 @@ class Database:
 
         cursor.close()
         return status
+
+    @connect
+    def remove_party(self, *, cnx=None, party_id=None):
+        if cnx is None:
+            raise ValueError("Database connection cannot be None!")
+        if party_id is None:
+            raise ValueError("PartyID cannot be None!")
+
+        cursor = cnx.cursor()
+
+        delete_hook = ("DELETE FROM parties WHERE id=%s;")
+
+        try:
+            cursor.execute(delete_hook, (party_id,))
+            cnx.commit()
+            return_value = {"status": "success"}
+        except mysql.connector.Error as err:
+            logger.error(err)
+
+            return_value = {"status": "Error: " + str(err)}
+        finally:
+            cursor.close()
+
+        return return_value
+
+    @connect
+    def get_webhook(self, *, cnx=None, ide=None):
+        if cnx is None:
+            raise ValueError("Database connection cannot be None!")
+        if ide is None:
+            raise ValueError("Webhook identifier cannot be None!")
+
+        cursor = cnx.cursor(dictionary=True)
+
+        hook_query = ("SELECT * FROM webhooks WHERE identifier=%s LIMIT 1;")
+
+        try:
+            cursor.execute(hook_query, (ide,))
+            return_value = {"status": "success",
+                            "webhook": cursor.fetchone()[0]}
+        except mysql.connector.Error as err:
+            logger.error(err)
+
+            return_value = {"status": "Error: " + str(err)}
+        finally:
+            cursor.close()
+
+        return return_value
+
+    @connect
+    def get_all_webhooks(self, *, cnx=None):
+        if cnx is None:
+            raise ValueError("Database connection cannot be None!")
+
+        cursor = cnx.cursor(dictionary=True)
+
+        query = ("SELECT * FROM `webhooks`;")
+
+        try:
+            cursor.execute(query, ())
+            return_value = {"status": "success", "webhooks": cursor.fetchall()}
+        except mysql.connector.Error as err:
+            logger.error(err)
+
+            return_value = {"status": "Error: " + str(err)}
+        finally:
+            cursor.close()
+
+        return return_value
+
+    @connect
+    def add_webhook(self, *, cnx=None, webhook=None):
+        if cnx is None:
+            raise ValueError("Database connection cannot be None!")
+        if webhook is None:
+            raise ValueError("Webhook object cannot be None!")
+
+        cursor = cnx.cursor(dictionary=True)
+
+
+
+        add_hook = (
+            "INSERT INTO webhooks (identifier, name, type, channel, icon_url) VALUES (%(ide)s, %(name)s, %(type)s, %(channel)s, %(icon_url)s);")
+
+        try:
+            logger.debug(webhook)
+            cursor.execute(add_hook, {
+                "ide": ide,
+                "name": webhook.get('name', ""),
+                "type": webhook.get('type', ""),
+                "channel": webhook.get("channel", ""),
+                "icon_url": webhook.get("icon_url", "")
+            })
+            cnx.commit()
+        except mysql.connector.Error as err:
+
+            logger.error(err)
+            cursor.close()
+            return "ERROR: " + str(err.msg)
+
+        cursor.close()
+        return ide
