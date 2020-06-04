@@ -32,4 +32,4 @@ services:
       MYSQL_PASSWORD: ${db_password}
       MYSQL_ROOT_PASSWORD: ${root_password}
     volumes:
-      - "data/party-finder/mysql:/var/lib/mysql"
+      - "/srv/docker/data/party-finder/mysql:/var/lib/mysql"
