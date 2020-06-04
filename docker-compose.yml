@@ -3,7 +3,7 @@ services:
   frontend:
     build:
       context: frontend
-      dockerfile: frontend/Dockerfile.production
+      dockerfile: frontend/Dockerfile
     volumes:
       - 'frontend:/app'
       - 'frontend/app/node_modules:/app/node_modules'
@@ -14,7 +14,7 @@ services:
   backend:
     build:
       context: backend
-      dockerfile: backend/Dockerfile.production
+      dockerfile: backend/Dockerfile
     environment:
       DB_NAME: ${database}
       DB_USER: ${db_user}
