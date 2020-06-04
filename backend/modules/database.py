@@ -4,6 +4,7 @@ from mysql.connector import errorcode
 
 # TODO not sure if this really works lol
 from backend.modules.tables import TABLES
+from backend.modules.models import *
 
 
 logger = logging.getLogger('database')
@@ -101,20 +102,20 @@ class Database:
         return return_value
 
     @connect
-    def get_webhook(self, *, cnx=None, ide=None):
+    def get_party(self, *, cnx=None, party_id=None):
         if cnx is None:
             raise ValueError("Database connection cannot be None!")
-        if ide is None:
-            raise ValueError("Webhook identifier cannot be None!")
+        if party_id is None:
+            raise ValueError("PartyID cannot be None!")
 
         cursor = cnx.cursor(dictionary=True)
 
-        hook_query = ("SELECT * FROM webhooks WHERE identifier=%s LIMIT 1;")
+        hook_query = ("SELECT * FROM parties WHERE id=%s LIMIT 1;")
 
         try:
-            cursor.execute(hook_query, (ide,))
+            cursor.execute(hook_query, (party_id,))
             return_value = {"status": "success",
-                            "webhook": cursor.fetchone()[0]}
+                            "party": cursor.fetchone()[0]}
         except mysql.connector.Error as err:
             logger.error(err)
 
@@ -125,17 +126,17 @@ class Database:
         return return_value
 
     @connect
-    def get_all_webhooks(self, *, cnx=None):
+    def get_all_parties(self, *, cnx=None):
         if cnx is None:
             raise ValueError("Database connection cannot be None!")
 
         cursor = cnx.cursor(dictionary=True)
 
-        query = ("SELECT * FROM `webhooks`;")
+        query = ("SELECT * FROM `parties`;")
 
         try:
             cursor.execute(query, ())
-            return_value = {"status": "success", "webhooks": cursor.fetchall()}
+            return_value = {"status": "success", "parties": cursor.fetchall()}
         except mysql.connector.Error as err:
             logger.error(err)
 
@@ -146,29 +147,23 @@ class Database:
         return return_value
 
     @connect
-    def add_webhook(self, *, cnx=None, webhook=None):
+    def add_party(self, *, cnx=None, party: Party = None):
         if cnx is None:
             raise ValueError("Database connection cannot be None!")
-        if webhook is None:
-            raise ValueError("Webhook object cannot be None!")
+        if party is None:
+            raise ValueError("Party object cannot be None!")
 
         cursor = cnx.cursor(dictionary=True)
 
 
 
-        add_hook = (
-            "INSERT INTO webhooks (identifier, name, type, channel, icon_url) VALUES (%(ide)s, %(name)s, %(type)s, %(channel)s, %(icon_url)s);")
+        add_hook = ("INSERT INTO parties (title, game, max_players, description) VALUES (%(title)s, %(game)s, %(max_players)s, %(description)s);")
 
         try:
-            logger.debug(webhook)
-            cursor.execute(add_hook, {
-                "ide": ide,
-                "name": webhook.get('name', ""),
-                "type": webhook.get('type', ""),
-                "channel": webhook.get("channel", ""),
-                "icon_url": webhook.get("icon_url", "")
-            })
+            logger.debug(party.to_dict())
+            cursor.execute(add_hook, party.to_dict())
             cnx.commit()
+            new_id = cursor.lastrowid
         except mysql.connector.Error as err:
 
             logger.error(err)
@@ -176,4 +171,4 @@ class Database:
             return "ERROR: " + str(err.msg)
 
         cursor.close()
-        return ide
+        return new_id
