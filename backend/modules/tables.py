@@ -8,6 +8,26 @@ TABLES = {
         "  UNIQUE KEY (`id`, `discord_id`)"
         ") ENGINE=InnoDB"
     ),
+    "servers": (
+        "CREATE TABLE `servers` ("
+        "  `id` int NOT NULL AUTO_INCREMENT,"
+        "  `name` varchar(255) NOT NULL,"
+        "  `discord_id` varchar(255) NOT NULL,"
+        "  PRIMARY KEY (`id`),"
+        "  UNIQUE KEY (`id`, `discord_id`)"
+        ") ENGINE=InnoDB"
+    ),
+    "channels": (
+        "CREATE TABLE `channels` ("
+        "  `id` int NOT NULL AUTO_INCREMENT,"
+        "  `name` varchar(255) NOT NULL,"
+        "  `discord_id` varchar(255) NOT NULL,"
+        "  `server_id` int NOT NULL,"
+        "  PRIMARY KEY (`id`),"
+        "  UNIQUE KEY (`id`, `discord_id`),"
+        "  FOREIGN KEY (`server_id`) REFERENCES servers(`id`)"
+        ") ENGINE=InnoDB"
+    ),
     "parties": (
         "CREATE TABLE `parties` ("
         "  `id` int NOT NULL AUTO_INCREMENT,"
@@ -15,8 +35,10 @@ TABLES = {
         "  `game` varchar(64),"
         "  `max_players` int NOT NULL,"
         "  `description` varchar(2000),"
+        "  `notify_channel` int,"
         "  PRIMARY KEY (`id`),"
-        "  UNIQUE KEY (`id`)"
+        "  UNIQUE KEY (`id`),"
+        "  FOREIGN KEY (`notify_channel`) REFERENCES channels(`id`)"
         ") ENGINE=InnoDB"
     ),
     "rolesInParties": (

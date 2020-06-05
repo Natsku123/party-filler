@@ -155,8 +155,6 @@ class Database:
 
         cursor = cnx.cursor(dictionary=True)
 
-
-
         add_hook = ("INSERT INTO parties (title, game, max_players, description) VALUES (%(title)s, %(game)s, %(max_players)s, %(description)s);")
 
         try:

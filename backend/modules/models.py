@@ -61,6 +61,65 @@ class DatabaseItem:
         return self.__item
 
 
+class Server(DatabaseItem):
+    """Server object"""
+    def __init__(self, item):
+        """Server constructor"""
+        self.__name = item.get('name')
+        self.__discord_id = item.get('discord_id')
+
+        super().__init__(item)
+
+    def get_name(self):
+        """
+        Return server name
+        :return: Server name string
+        """
+        return self.__name
+
+    def get_discord_id(self):
+        """
+        Return discord id
+        :return: discord id string
+        """
+        return self.__discord_id
+
+
+class Channel(DatabaseItem):
+    """Channel object"""
+    def __init__(self, item):
+        """
+        Channel constructor
+        :param item: channel object
+        """
+        self.__name = item.get('name')
+        self.__discord_id = item.get('discord_id')
+        self.__server_id = item.get('server_id')
+
+        super().__init__(item)
+
+    def get_name(self):
+        """
+        Return channel name
+        :return:
+        """
+        return self.__name
+
+    def get_discord_id(self):
+        """
+        Return discord id
+        :return: Discord id string
+        """
+        return self.__discord_id
+
+    def get_server_id(self):
+        """
+        Return server id
+        :return: Server id int
+        """
+        return self.__server_id
+
+
 class Player(DatabaseItem):
     """Player object"""
     def __init__(self, item):
@@ -122,6 +181,7 @@ class Party(DatabaseItem):
         self.__game = item.get('game')
         self.__max_players = item.get('max_players')
         self.__description = item.get('description')
+        self.__notify_channel = item.get('notify_channel')
         self.__players = {}
         self.__roles = []
 
@@ -154,6 +214,13 @@ class Party(DatabaseItem):
         :return: Description of party string
         """
         return self.__description
+
+    def get_notify_channel(self):
+        """
+        Get notify channel
+        :return: Channel ID int
+        """
+        return self.__notify_channel
 
     def get_players(self):
         """
