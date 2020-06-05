@@ -2,25 +2,25 @@ version: "3.3"
 services:
   frontend:
     build:
-      context: frontend
-      dockerfile: frontend/Dockerfile.production
+      context: ./frontend
+      dockerfile: Dockerfile.production
     volumes:
-      - 'frontend:/app'
-      - 'frontend/app/node_modules:/app/node_modules'
+      - './frontend:/app'
+      - './frontend/app/node_modules:/app/node_modules'
     ports:
       - "3001:3000"
     environment:
       - CHOKIDAR_USEPOLLING=true
   backend:
     build:
-      context: backend
-      dockerfile: backend/Dockerfile.production
+      context: ./backend
+      dockerfile: Dockerfile.production
     environment:
       DB_NAME: ${DATABASE}
       DB_USER: ${DB_USER}
       DB_PASS: ${DB_PASSWORD}
     volumes:
-      - "backend:/app"
+      - "./backend:/app"
     ports:
       - "8800:80"
   db:
