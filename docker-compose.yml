@@ -16,9 +16,9 @@ services:
       context: backend
       dockerfile: backend/Dockerfile
     environment:
-      DB_NAME: ${database}
-      DB_USER: ${db_user}
-      DB_PASS: ${db_password}
+      DB_NAME: ${DATABASE}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASSWORD}
     volumes:
       - "backend:/app"
     ports:
@@ -27,9 +27,9 @@ services:
     image: mysql/mysql-server:latest
     restart: always
     environment:
-      MYSQL_DATABASE: ${database}
-      MYSQL_USER: ${db_user}
-      MYSQL_PASSWORD: ${db_password}
-      MYSQL_ROOT_PASSWORD: ${root_password}
+      MYSQL_DATABASE: ${DATABASE}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
     volumes:
       - "data/party-finder/mysql:/var/lib/mysql"
