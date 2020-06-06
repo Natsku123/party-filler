@@ -239,6 +239,54 @@ class ChannelResources(Resource):
         return list(map(lambda channel: channel.serialize(), Channel.filter_by(server_id=server_id).query.order_by(Party.id).all()))
 
 
+class PlayerReource(Resource):
+    def get(self, player_id):
+        return Player.query.filter_by(id=player_id).first().serialize()
+
+    def delete(self, player_id):
+        player = Player.query.filter_by(id=player_id).first()
+
+        if player is None:
+            abort(404)
+
+        db.session.delete(player)
+        db.session.commit()
+
+        return {"status": "success"}
+
+    def put(self, player_id):
+        player = parser.parse_args().get('player')
+        player_obj = Player.query.filter_by(id=player_id).first()
+
+        if player is None:
+            abort(400)
+
+        if player_obj is None:
+            abort(404)
+
+        if 'discord_id' in player:
+            player_obj.discord_id = player.get('discord_id')
+
+        db.session.commit()
+
+        return player_obj.serialize()
+
+    def post(self):
+        player = parser.parse_args().get('player')
+
+        if player is None:
+            abort(400)
+
+        player_obj = Player(
+            discord_id=player.get('discord_id')
+        )
+
+        db.session.add(player_obj)
+        db.session.commit()
+
+        return player_obj.serialize()
+
+
 api.add_resource(PartyResource, '/parties/<party_id>')
 api.add_resource(PartyResources, '/parties')
 api.add_resource(PartyPageResource, '/parties/page/<page>/per/<per_page>')
@@ -246,6 +294,7 @@ api.add_resource(ServerResource, '/servers/<server_id>')
 api.add_resource(ServerResources, '/servers')
 api.add_resource(ChannelResource, '/channels/<channel_id>')
 api.add_resource(ChannelResources, '/servers/<server_id>/channels')
+api.add_resource(PlayerReource), '/players/<player_id>'
 
 
 @app.route('/oauth2/callback', methods=['GET'])
