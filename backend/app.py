@@ -150,9 +150,9 @@ class ServerResource(Resource):
             abort(404)
 
         if 'name' in server:
-            server_obj.leader_id = server.get('name')
+            server_obj.name = server.get('name')
         if 'discord_id' in server:
-            server_obj.game = server.get('discord_id')
+            server_obj.discord_id = server.get('discord_id')
 
         db.session.commit()
 
@@ -184,8 +184,54 @@ class ChannelResource(Resource):
     def get(self, channel_id):
         return Channel.query.filter_by(id=channel_id).first().serialize()
 
+    def delete(self, channel_id):
+        channel = Channel.query.filter_by(id=channel_id).first()
+
+        if channel is None:
+            abort(404)
+
+        db.session.delete(channel)
+        db.session.commit()
+
+        return {"status": "success"}
+
+    def put(self, channel_id):
+        channel = parser.parse_args().get('channel')
+        channel_obj = Channel.query.filter_by(id=channel_id).first()
+
+        if channel is None:
+            abort(400)
+
+        if channel_obj is None:
+            abort(404)
+
+        if 'name' in channel:
+            channel_obj.name = channel.get('name')
+        if 'discord_id' in channel:
+            channel_obj.discord_id = channel.get('discord_id')
+        if 'server_id' in channel:
+            channel_obj.server_id = channel.get('server_id')
+
+        db.session.commit()
+
+        return channel_obj.serialize()
+
     def post(self):
-        return None
+        channel = parser.parse_args().get('channel')
+
+        if channel is None:
+            abort(400)
+
+        channel_obj = Channel(
+            name=channel.get('name'),
+            discord_id=channel.get('discord_id'),
+            server_id=channel.get('server_id')
+        )
+
+        db.session.add(channel_obj)
+        db.session.commit()
+
+        return channel_obj.serialize()
 
 
 class ChannelResources(Resource):
