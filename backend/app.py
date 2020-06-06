@@ -7,7 +7,7 @@ from flask_restful import reqparse, abort, Api, Resource
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
-from modules.models import Player, Party, Role, Member, Server, Channel
+from modules.models import db, Player, Party, Role, Member, Server, Channel
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://{username}:{password}@{server}/{db}".format(
@@ -17,7 +17,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://{username}:{password}@{server}/
     db=os.environ.get("DB_NAME")
 )
 api = Api(app)
-db = SQLAlchemy(app)
+db.init_app(app)
 migrate = Migrate(app, db)
 
 
