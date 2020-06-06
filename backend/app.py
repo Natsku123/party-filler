@@ -1,5 +1,5 @@
 import logging
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_restful import reqparse, abort, Api, Resource
 
 app = Flask(__name__)
@@ -60,7 +60,7 @@ api.add_resource(Servers, '/servers')
 
 
 @app.route('/oauth2/callback', methods=['GET'])
-def callback(request):
+def callback():
     logger.debug('OAUTH 2 CALLBACK: Full path: {0} Form: {1} JSON: {2}'.format(
         request.full_path,
         request.form,
