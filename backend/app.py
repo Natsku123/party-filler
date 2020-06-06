@@ -85,6 +85,11 @@ class PartyResource(Resource):
 
         return party_obj.serialize()
 
+
+class PartyResources(Resource):
+    def get(self):
+        return list(map(lambda party: party.serialize(), Party.query.order_by(Party.id.desc()).all()))
+
     def post(self):
         party = parser.parse_args().get('party')
         if party is None:
@@ -112,12 +117,6 @@ class PartyResource(Resource):
         db.session.commit()
 
         return party_obj.serialize()
-
-
-class PartyResources(Resource):
-    def get(self):
-        return list(map(lambda party: party.serialize(), Party.query.order_by(Party.id.desc()).all()))
-
 
 class PartyPageResource(Resource):
     def get(self, page, per_page):
@@ -158,6 +157,11 @@ class ServerResource(Resource):
 
         return server_obj.serialize()
 
+
+class ServerResources(Resource):
+    def get(self):
+        return list(map(lambda server: server.serialize(), Server.query.order_by(Party.id).all()))
+
     def post(self):
         server = parser.parse_args().get('server')
 
@@ -173,12 +177,6 @@ class ServerResource(Resource):
         db.session.commit()
 
         return server_obj.serialize()
-
-
-class ServerResources(Resource):
-    def get(self):
-        return list(map(lambda server: server.serialize(), Server.query.order_by(Party.id).all()))
-
 
 class ChannelResource(Resource):
     def get(self, channel_id):
@@ -216,6 +214,11 @@ class ChannelResource(Resource):
 
         return channel_obj.serialize()
 
+
+class ChannelResources(Resource):
+    def get(self, server_id):
+        return list(map(lambda channel: channel.serialize(), Channel.filter_by(server_id=server_id).query.order_by(Party.id).all()))
+
     def post(self):
         channel = parser.parse_args().get('channel')
 
@@ -233,13 +236,7 @@ class ChannelResource(Resource):
 
         return channel_obj.serialize()
 
-
-class ChannelResources(Resource):
-    def get(self, server_id):
-        return list(map(lambda channel: channel.serialize(), Channel.filter_by(server_id=server_id).query.order_by(Party.id).all()))
-
-
-class PlayerReource(Resource):
+class PlayerResource(Resource):
     def get(self, player_id):
         return Player.query.filter_by(id=player_id).first().serialize()
 
@@ -271,6 +268,8 @@ class PlayerReource(Resource):
 
         return player_obj.serialize()
 
+
+class PlayerResources(Resource):
     def post(self):
         player = parser.parse_args().get('player')
 
@@ -287,6 +286,72 @@ class PlayerReource(Resource):
         return player_obj.serialize()
 
 
+class MemberResource(Resource):
+    def get(self, party_id, player_id):
+        return Member.query.filter_by(party_id=party_id, player_id=player_id).first().serialize()
+
+    def delete(self, party_id, player_id):
+        member = Member.query.filter_by(party_id=party_id, player_id=player_id).first()
+
+        if member is None:
+            abort(404)
+
+        db.session.delete(member)
+        db.session.commit()
+
+        return {"status": "success"}
+
+    def put(self, party_id, player_id):
+        member = parser.parse_args().get('member')
+        member_obj = Member.query.filter_by(party_id=party_id, player_id=player_id).first()
+
+        if member is None:
+            abort(400)
+
+        if member_obj is None:
+            abort(404)
+
+        if 'player_req' in member:
+            member_obj.player_req = member.get('player_req')
+        if 'party_id' in member:
+            member_obj.party_id = member.get('party_id')
+        if 'player_id' in member:
+            member_obj.player_id = member.get('player_id')
+        if 'role_id' in member:
+            member_obj.role_id = member.get('role_id')
+
+        db.session.commit()
+
+        return member_obj.serialize()
+
+
+class MemberResources(Resource):
+    def get(self, party_id):
+        return None
+
+    def post(self, party_id):
+        member = parser.parse_args().get('member')
+        party = Party.query.filter_by(id=party_id).first()
+
+        if member is None:
+            abort(400)
+
+        if party is None:
+            abort(404)
+
+        member_obj = Member(
+            party_req=member.get('party_req'),
+            party_id=member.get('party_id'),
+            player_id=member.get('player_id'),
+            role_id=member.get('role_id')
+        )
+
+        db.session.add(member_obj)
+        db.session.commit()
+
+        return member_obj.serialize()
+
+
 api.add_resource(PartyResource, '/parties/<party_id>')
 api.add_resource(PartyResources, '/parties')
 api.add_resource(PartyPageResource, '/parties/page/<page>/per/<per_page>')
@@ -294,7 +359,10 @@ api.add_resource(ServerResource, '/servers/<server_id>')
 api.add_resource(ServerResources, '/servers')
 api.add_resource(ChannelResource, '/channels/<channel_id>')
 api.add_resource(ChannelResources, '/servers/<server_id>/channels')
-api.add_resource(PlayerReource), '/players/<player_id>'
+api.add_resource(PlayerResource, '/players/<player_id>')
+api.add_resource(PlayerResources, '/players')
+api.add_resource(MemberResource, '/parties/<party_id>/players/<player_id>')
+api.add_resource(MemberResources, '/parties/<party_id>/players')
 
 
 @app.route('/oauth2/callback', methods=['GET'])
