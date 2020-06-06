@@ -33,6 +33,8 @@ parser.add_argument('party', help="Party object")
 parser.add_argument('player', help="Player object")
 parser.add_argument('server', help="Server object")
 parser.add_argument('channel', help="Channel object")
+parser.add_argument('member', help="Member object")
+parser.add_argument('role', help="Role object")
 
 
 class PartyResource(Resource):
@@ -81,7 +83,7 @@ class PartyResource(Resource):
 
         db.session.commit()
 
-        return party
+        return party_obj.serialize()
 
     def post(self):
         party = parser.parse_args().get('party')
@@ -126,8 +128,51 @@ class ServerResource(Resource):
     def get(self, server_id):
         return Server.query.filter_by(id=server_id).first().serialize()
 
+    def delete(self, server_id):
+        server = Server.query.filter_by(id=server_id).first()
+
+        if server is None:
+            abort(404)
+
+        db.session.delete(server)
+        db.session.commit()
+
+        return {"status": "success"}
+
+    def put(self, server_id):
+        server = parser.parse_args().get('server')
+        server_obj = Server.query.filter_by(id=server_id).first()
+
+        if server is None:
+            abort(400)
+
+        if server_obj is None:
+            abort(404)
+
+        if 'name' in server:
+            server_obj.leader_id = server.get('name')
+        if 'discord_id' in server:
+            server_obj.game = server.get('discord_id')
+
+        db.session.commit()
+
+        return server_obj.serialize()
+
     def post(self):
-        return None
+        server = parser.parse_args().get('server')
+
+        if server is None:
+            abort(400)
+
+        server_obj = Server(
+            name=server.get('name'),
+            discord_id=server.get('discord_id')
+        )
+
+        db.session.add(server_obj)
+        db.session.commit()
+
+        return server_obj.serialize()
 
 
 class ServerResources(Resource):
