@@ -105,6 +105,7 @@ class Party(db.Model):
     __tablename__ = 'parties'
     id = db.Column(db.Integer, primary_key=True, unique=True)
     title = db.Column(db.String(255), nullable=False)
+    leader_id = db.Column(db.Integer, db.ForeignKey('players'))
     game = db.Column(db.String(64))
     max_players = db.Column(db.Integer)
     min_players = db.Column(db.Integer)
@@ -114,12 +115,14 @@ class Party(db.Model):
     end_time = db.Column(db.DateTime)
 
     channel = db.relationship('Channel', backref=db.backref('channels', lazy=True))
+    leader = db.relationship('Player', backref=db.backref('players', lazy=True))
     players = db.relationship('Player', backref='party', lazy=True)
 
     def base_serialize(self):
         return {
             "id": self.id,
             "title": self.title,
+            "leader_id": self.leader_id,
             "game": self.game,
             "max_players": self.max_players,
             "min_players": self.min_players,
@@ -133,6 +136,7 @@ class Party(db.Model):
         return {
             "id": self.id,
             "title": self.title,
+            "leader_id": self.leader_id,
             "game": self.game,
             "max_players": self.max_players,
             "min_players": self.min_players,
@@ -141,6 +145,7 @@ class Party(db.Model):
             "start_time": self.start_time,
             "end_time": self.end_time,
             "channel": self.channel.base_serialize(),
+            "leader": self.leader.base_serialize(),
             "players": list(map(lambda player: player.base_serialize(), self.players))
         }
 

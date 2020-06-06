@@ -1,5 +1,6 @@
 import logging
 import os
+import datetime
 from flask import Flask, jsonify, request
 from flask_restful import reqparse, abort, Api, Resource
 from flask_sqlalchemy import SQLAlchemy
@@ -38,11 +39,77 @@ class PartyResource(Resource):
     def get(self, party_id):
         return Party.query.filter_by(id=party_id).first().serialize()
 
-    def post(self):
-        server = parser.parse_args().get('server')
-        if server is None:
+    def delete(self, party_id):
+        party = Party.query.filter_by(id=party_id).first()
+
+        if party is None:
+            abort(404)
+
+        db.session.delete(party)
+        db.session.commit()
+
+        return {"status": "success"}
+
+    def put(self, party_id):
+        party = parser.parse_args().get('party')
+        party_obj = Party.query.filter_by(id=party_id).first()
+
+        if party is None:
             abort(400)
-        return
+
+        if party_obj is None:
+            abort(404)
+
+        if 'title' in party:
+            party_obj.title = party.get('title')
+        if 'leader_id' in party:
+            party_obj.leader_id = party.get('leader_id')
+        if 'game' in party:
+            party_obj.game = party.get('game')
+        if 'max_players' in party:
+            party_obj.max_players = party.get('max_players')
+        if 'min_players' in party:
+            party_obj.min_players = party.get('min_players')
+        if 'description' in party:
+            party_obj.description = party.get('description')
+        if 'channel_id' in party:
+            party_obj.channel_id = party.get('channel_id')
+        if 'start_time' in party:
+            party_obj.start_time = party.get('start_time')
+        if 'end_time' in party:
+            party_obj.end_time = party.get('end_time')
+
+        db.session.commit()
+
+        return party
+
+    def post(self):
+        party = parser.parse_args().get('party')
+        if party is None:
+            abort(400)
+
+        if 'start_time' in party and party['start_time'] is not None:
+            party['start_time'] = datetime.datetime.fromisoformat(party['start_time'])
+
+        if 'end_time' in party and party['end_time'] is not None:
+            party['end_time'] = datetime.datetime.fromisoformat(party['end_time'])
+
+        party_obj = Party(
+            title=party.get('title'),
+            leader_id=party.get('leader_id'),
+            game=party.get('game'),
+            max_players=party.get('max_players'),
+            min_players=party.get('min_players'),
+            description=party.get('description'),
+            channel_id=party.get('channel_id'),
+            start_time=party.get('start_time'),
+            end_time=party.get('end_time')
+        )
+
+        db.session.add(party_obj)
+        db.session.commit()
+
+        return party_obj.serialize()
 
 
 class PartyResources(Resource):
