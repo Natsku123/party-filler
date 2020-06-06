@@ -1,4 +1,5 @@
 flask
 flask-restful
 flask-sqlalchemy
+flask-migrate
 mysql-connector-python

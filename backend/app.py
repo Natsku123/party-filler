@@ -3,6 +3,7 @@ import os
 from flask import Flask, jsonify, request
 from flask_restful import reqparse, abort, Api, Resource
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 from modules.models import Player, Party, Role, Member, Server, Channel
 
@@ -15,6 +16,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://{username}:{password}@{server}/
 )
 api = Api(app)
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 
 # Logger
@@ -33,22 +35,30 @@ parser.add_argument('channel', help="Channel object")
 
 
 class PartyResource(Resource):
-    # TODO get party
     def get(self, party_id):
-        return None
+        return Party.query.filter_by(id=party_id).first()
+
     def post(self):
-        return None
+        server = parser.parse_args().get('server')
+        if server is None:
+            abort(400)
+        return
 
 
 class PartyResources(Resource):
-    # TODO get parties
     def get(self):
-        return None
+        return Party.query.order_by(Party.id.desc()).all()
+
+
+class PartyPageResource(Resource):
+    def get(self, page, per_page):
+        return Party.query.order_by(Party.id.desc()).all().paginate(page, per_page)
 
 
 class ServerResource(Resource):
-    def get(self):
-        return None
+    def get(self, server_id):
+        return Server.query.filter_by(id=server_id).first()
+
     def post(self):
         return None
 
@@ -72,6 +82,7 @@ class ChannelResources(Resource):
 
 api.add_resource(PartyResource, '/parties/<party_id>')
 api.add_resource(PartyResources, '/parties')
+api.add_resource(PartyPageResource, '/parties/page/<page>/per/<per_page>')
 api.add_resource(ServerResource, '/servers/<server_id>')
 api.add_resource(ServerResources, '/servers')
 api.add_resource(ChannelResources, '/servers/<server_id>/channels')
