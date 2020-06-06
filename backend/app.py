@@ -36,7 +36,7 @@ parser.add_argument('channel', help="Channel object")
 
 class PartyResource(Resource):
     def get(self, party_id):
-        return Party.query.filter_by(id=party_id).first()
+        return Party.query.filter_by(id=party_id).first().serialize()
 
     def post(self):
         server = parser.parse_args().get('server')
@@ -47,17 +47,17 @@ class PartyResource(Resource):
 
 class PartyResources(Resource):
     def get(self):
-        return Party.query.order_by(Party.id.desc()).all()
+        return list(map(lambda party: party.serialize(), Party.query.order_by(Party.id.desc()).all()))
 
 
 class PartyPageResource(Resource):
     def get(self, page, per_page):
-        return Party.query.order_by(Party.id.desc()).all().paginate(page, per_page)
+        return list(map(lambda party: party.serialize(), Party.query.order_by(Party.id.desc()).all().paginate(page, per_page)))
 
 
 class ServerResource(Resource):
     def get(self, server_id):
-        return Server.query.filter_by(id=server_id).first()
+        return Server.query.filter_by(id=server_id).first().serialize()
 
     def post(self):
         return None
@@ -65,19 +65,20 @@ class ServerResource(Resource):
 
 class ServerResources(Resource):
     def get(self):
-        return None
+        return list(map(lambda server: server.serialize(), Server.query.order_by(Party.id).all()))
 
 
 class ChannelResource(Resource):
-    def get(self):
-        return None
+    def get(self, channel_id):
+        return Channel.query.filter_by(id=channel_id).first().serialize()
+
     def post(self):
         return None
 
 
 class ChannelResources(Resource):
-    def get(self):
-        return None
+    def get(self, server_id):
+        return list(map(lambda channel: channel.serialize(), Channel.filter_by(server_id=server_id).query.order_by(Party.id).all()))
 
 
 api.add_resource(PartyResource, '/parties/<party_id>')
@@ -85,22 +86,13 @@ api.add_resource(PartyResources, '/parties')
 api.add_resource(PartyPageResource, '/parties/page/<page>/per/<per_page>')
 api.add_resource(ServerResource, '/servers/<server_id>')
 api.add_resource(ServerResources, '/servers')
+api.add_resource(ChannelResource, '/channels/<channel_id>')
 api.add_resource(ChannelResources, '/servers/<server_id>/channels')
 
 
 @app.route('/oauth2/callback', methods=['GET'])
 def callback():
-    logger.debug('OAUTH 2 CALLBACK: Full path: {0} Form: {1} JSON: {2}'.format(
-        request.full_path,
-        request.form,
-        request.get_json
-    ))
     return jsonify({'status': 'success'})
-
-
-@app.route('/setup', methods=['POST'])
-def setup():
-    db.create_all()
 
 
 if __name__ == '__main___':
