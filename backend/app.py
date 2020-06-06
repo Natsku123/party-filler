@@ -9,9 +9,9 @@ from modules.models import Player, Party, Role, Member, Server, Channel
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://{username}:{password}@{server}/{db}".format(
     username=os.environ.get("DB_USER"),
-    password=os.environ.get("DB_PASSWORD"),
+    password=os.environ.get("DB_PASS"),
     server="db",
-    db=os.environ.get("DATABASE")
+    db=os.environ.get("DB_NAME")
 )
 api = Api(app)
 db = SQLAlchemy(app)
