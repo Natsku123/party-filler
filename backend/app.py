@@ -1,6 +1,7 @@
 import logging
 import os
 import datetime
+import requests
 from flask import Flask, jsonify, request
 from flask_restful import reqparse, abort, Api, Resource
 from flask_sqlalchemy import SQLAlchemy
@@ -118,6 +119,7 @@ class PartyResources(Resource):
 
         return party_obj.serialize()
 
+
 class PartyPageResource(Resource):
     def get(self, page, per_page):
         return list(map(lambda party: party.serialize(), Party.query.order_by(Party.id.desc()).all().paginate(page, per_page)))
@@ -178,6 +180,7 @@ class ServerResources(Resource):
 
         return server_obj.serialize()
 
+
 class ChannelResource(Resource):
     def get(self, channel_id):
         return Channel.query.filter_by(id=channel_id).first().serialize()
@@ -235,6 +238,7 @@ class ChannelResources(Resource):
         db.session.commit()
 
         return channel_obj.serialize()
+
 
 class PlayerResource(Resource):
     def get(self, player_id):
@@ -367,7 +371,42 @@ api.add_resource(MemberResources, '/parties/<party_id>/players')
 
 @app.route('/oauth2/callback', methods=['GET'])
 def callback():
-    return jsonify({'status': 'success'})
+    code = request.args.get('code')
+    data = {
+        'client_id': os.environ.get("DISCORD_CLIENT_ID"),
+        'client_secret': os.environ.get("DISCORD_CLIENT_SECRET"),
+        'grant_type': 'authorization_code',
+        'code': code,
+        'redirect_uri': 'http://' + os.environ.get("SITE_HOSTNAME"),
+        'scope': 'identify guilds'
+    }
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    r = requests.post('https://discord.com/api/v6/oauth2/token', data=data,
+                      headers=headers)
+    r.raise_for_status()
+    return jsonify(r.json())
+
+
+@app.route('/oauth2/refresh', methods=['GET'])
+def refresh():
+    refresh_token = request.args.get('refresh_token')
+    data = {
+        'client_id': os.environ.get("DISCORD_CLIENT_ID"),
+        'client_secret': os.environ.get("DISCORD_CLIENT_SECRET"),
+        'grant_type': 'refresh_token',
+        'refresh_token': refresh_token,
+        'redirect_uri': 'http://' + os.environ.get("SITE_HOSTNAME"),
+        'scope': 'identify email connections'
+    }
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    r = requests.post('https://discord.com/api/v6/oauth2/token', data=data,
+                      headers=headers)
+    r.raise_for_status()
+    return jsonify(r.json())
 
 
 if __name__ == '__main___':
