@@ -3,8 +3,8 @@ import logging
 from mysql.connector import errorcode
 
 # TODO not sure if this really works lol
-from backend.modules.tables import TABLES
-from backend.modules.models import *
+from modules.tables import TABLES
+from modules.models import *
 
 
 logger = logging.getLogger('database')
