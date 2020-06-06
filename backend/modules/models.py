@@ -180,6 +180,7 @@ class Party(DatabaseItem):
         self.__title = item.get('title')
         self.__game = item.get('game')
         self.__max_players = item.get('max_players')
+        self.__min_players = item.get('min_players')
         self.__description = item.get('description')
         self.__notify_channel = item.get('notify_channel')
         self.__players = {}
@@ -207,6 +208,13 @@ class Party(DatabaseItem):
         :return: Maximum players of party integer
         """
         return self.__max_players
+
+    def get_min_players(self):
+        """
+        Get minimum players of party
+        :return: Minimum players of party integer
+        """
+        return self.__min_players
 
     def get_description(self):
         """
