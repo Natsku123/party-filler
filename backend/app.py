@@ -383,7 +383,7 @@ def callback():
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded'
     }
-    r = requests.post('https://discord.com/api/v6/oauth2/token', data=data,
+    r = requests.post('https://discord.com/api/oauth2/token', data=data,
                       headers=headers)
     r.raise_for_status()
     return jsonify(r.json())
@@ -403,7 +403,7 @@ def refresh():
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded'
     }
-    r = requests.post('https://discord.com/api/v6/oauth2/token', data=data,
+    r = requests.post('https://discord.com/api/oauth2/token', data=data,
                       headers=headers)
     r.raise_for_status()
     return jsonify(r.json())
