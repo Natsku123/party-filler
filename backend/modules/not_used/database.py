@@ -1,10 +1,12 @@
+# OLD STUFF NOT IN USE
+
 import mysql.connector
 import logging
 from mysql.connector import errorcode
 
 # TODO not sure if this really works lol
-from modules.tables import TABLES
-from modules.models import *
+from modules.not_used.tables import TABLES
+from modules.not_used.models import *
 
 logger = logging.getLogger('database')
 logger.setLevel(logging.DEBUG)

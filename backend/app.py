@@ -1,9 +1,21 @@
 import logging
+import os
 from flask import Flask, jsonify, request
 from flask_restful import reqparse, abort, Api, Resource
+from flask_sqlalchemy import SQLAlchemy
+
+from modules.models import Player, Party, Role, Member, Server, Channel
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://{username}:{password}@{server}/{db}".format(
+    username=os.environ.get("DB_USER"),
+    password=os.environ.get("DB_PASSWORD"),
+    server="db",
+    db=os.environ.get("DATABASE")
+)
 api = Api(app)
+db = SQLAlchemy(app)
+
 
 # Logger
 logger = logging.getLogger('api')
@@ -20,7 +32,7 @@ parser.add_argument('server', help="Server object")
 parser.add_argument('channel', help="Channel object")
 
 
-class Party(Resource):
+class PartyResource(Resource):
     # TODO get party
     def get(self, party_id):
         return None
@@ -28,35 +40,41 @@ class Party(Resource):
         return None
 
 
-class Parties(Resource):
+class PartyResources(Resource):
     # TODO get parties
     def get(self):
         return None
 
 
-class Server(Resource):
+class ServerResource(Resource):
     def get(self):
         return None
     def post(self):
         return None
 
 
-class Servers(Resource):
+class ServerResources(Resource):
     def get(self):
         return None
 
 
-class Channel(Resource):
+class ChannelResource(Resource):
     def get(self):
         return None
     def post(self):
         return None
 
 
-api.add_resource(Party, '/parties/<party_id>')
-api.add_resource(Parties, '/parties')
-api.add_resource(Server, '/servers/<server_id>')
-api.add_resource(Servers, '/servers')
+class ChannelResources(Resource):
+    def get(self):
+        return None
+
+
+api.add_resource(PartyResource, '/parties/<party_id>')
+api.add_resource(PartyResources, '/parties')
+api.add_resource(ServerResource, '/servers/<server_id>')
+api.add_resource(ServerResources, '/servers')
+api.add_resource(ChannelResources, '/servers/<server_id>/channels')
 
 
 @app.route('/oauth2/callback', methods=['GET'])
@@ -67,6 +85,11 @@ def callback():
         request.get_json
     ))
     return jsonify({'status': 'success'})
+
+
+@app.route('/setup', methods=['POST'])
+def setup():
+    db.create_all()
 
 
 if __name__ == '__main___':

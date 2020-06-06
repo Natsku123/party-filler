@@ -1,3 +1,5 @@
+# OLD STUFF NOT IN USE
+
 # TODO setup actual tables here
 TABLES = {
     "players": (
