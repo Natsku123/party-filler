@@ -472,8 +472,8 @@ def authorize():
         logger.debug("Player object" + str(profile))
         player = Player(
             discord_id=profile.get('id'),
-            name=profile.get('name'),
-            icon=profile.get('icon'),
+            name=profile.get('username'),
+            icon=profile.get('avatar'),
             is_authenticated=True
         )
 
