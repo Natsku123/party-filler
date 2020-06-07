@@ -3,6 +3,12 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+player_server_association = db.Table(
+    'players_servers',
+    db.Column('player_id', db.Integer, db.ForeignKey('players.id')),
+    db.Column('server_id', db.Integer, db.ForeignKey('servers.id'))
+)
+
 
 class OAuth2Token(db.Model):
     token_id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -32,7 +38,8 @@ class Server(db.Model):
     icon = db.Column(db.String(64))
     discord_id = db.Column(db.String(64), nullable=False, unique=True)
 
-    channels = db.relationship('Channel')
+    channels = db.relationship('Channel', backref=db.backref('server', lazy=True))
+    players = db.relationship('Player', secondary=player_server_association, back_populates="servers")
 
     def base_serialize(self):
         return {
@@ -58,8 +65,6 @@ class Channel(db.Model):
     name = db.Column(db.String(255), nullable=False)
     discord_id = db.Column(db.String(64), nullable=False, unique=True)
     server_id = db.Column(db.Integer, db.ForeignKey('servers.id'), nullable=False)
-
-    server = db.relationship('Server')
 
     def base_serialize(self):
         return {
@@ -91,7 +96,7 @@ class Player(db.Model):
     is_active = db.Column(db.Boolean, nullable=False, default=True)
     is_anonymous = db.Column(db.Boolean, nullable=False, default=False)
 
-    servers = db.relationship('Server')
+    servers = db.relationship('Server', secondary=player_server_association, back_populates="players")
 
     def get_id(self):
         return str(self.id)
