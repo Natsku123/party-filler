@@ -1,11 +1,11 @@
 import logging
 import os
 import datetime
-import requests
 from flask import Flask, jsonify, request, url_for, redirect
 from flask_restful import reqparse, abort, Api, Resource
 from flask_migrate import Migrate
 from flask_cors import CORS
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from authlib.integrations.flask_client import OAuth
 
 from modules.models import db, Player, Party, Role, Member, Server, Channel, OAuth2Token
@@ -13,6 +13,8 @@ from modules.models import db, Player, Party, Role, Member, Server, Channel, OAu
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET')
 oauth = OAuth()
+login_manager = LoginManager()
+api = Api(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://{username}:{password}@{server}/{db}".format(
     username=os.environ.get("DB_USER"),
     password=os.environ.get("DB_PASS"),
@@ -20,9 +22,34 @@ app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://{username}:{password}@{server}/
     db=os.environ.get("DB_NAME")
 )
 
-oauth.init_app(app)
-api = Api(app)
+
+@login_manager.user_loader
+def load_user(player_id):
+    return Player.get(int(player_id))
+
+
+def update_token(name, token):
+    token = OAuth2Token.get(name=name, player_id=current_user.id)
+    if not token:
+        token = OAuth2Token(name=name, player_id=current_user.id)
+    token.token_type = token.get('token_type', 'bearer')
+    token.access_token = token.get('access_token')
+    token.refresh_token = token.get('refresh_token')
+    token.expires_at = token.get('expires_at')
+    db.session.add(token)
+    db.session.commit()
+    return token
+
+
+def fetch_discord_token():
+    token = OAuth2Token.get(name='twitter', player_id=current_user.id)
+    if token:
+        return token.to_token()
+
+
+oauth.init_app(app, update_token=update_token)
 db.init_app(app)
+login_manager.init_app(app)
 migrate = Migrate(app, db)
 CORS(app, support_credentials=True)
 
@@ -58,6 +85,11 @@ parser.add_argument('role', help="Role object")
 
 
 class PartyResource(Resource):
+    method_decorators = {
+        'delete': [login_required],
+        'put': [login_required]
+    }
+
     def get(self, party_id):
         return Party.query.filter_by(id=party_id).first().serialize()
 
@@ -107,6 +139,10 @@ class PartyResource(Resource):
 
 
 class PartyResources(Resource):
+    method_decorators = {
+        'post': [login_required]
+    }
+
     def get(self):
         return list(map(lambda party: party.serialize(), Party.query.order_by(Party.id.desc()).all()))
 
@@ -145,6 +181,11 @@ class PartyPageResource(Resource):
 
 
 class ServerResource(Resource):
+    method_decorators = {
+        'delete': [login_required],
+        'put': [login_required]
+    }
+
     def get(self, server_id):
         return Server.query.filter_by(id=server_id).first().serialize()
 
@@ -180,6 +221,10 @@ class ServerResource(Resource):
 
 
 class ServerResources(Resource):
+    method_decorators = {
+        'post': [login_required]
+    }
+
     def get(self):
         return list(map(lambda server: server.serialize(), Server.query.order_by(Party.id).all()))
 
@@ -201,6 +246,11 @@ class ServerResources(Resource):
 
 
 class ChannelResource(Resource):
+    method_decorators = {
+        'delete': [login_required],
+        'put': [login_required]
+    }
+
     def get(self, channel_id):
         return Channel.query.filter_by(id=channel_id).first().serialize()
 
@@ -241,8 +291,12 @@ class ChannelResources(Resource):
     def get(self, server_id):
         return list(map(lambda channel: channel.serialize(), Channel.filter_by(server_id=server_id).query.order_by(Party.id).all()))
 
-    def post(self):
+    def post(self, server_id):
         channel = parser.parse_args().get('channel')
+
+        server = Server.query.filter_by(server_id=server_id).first()
+        if server is None:
+            abort(404)
 
         if channel is None:
             abort(400)
@@ -253,6 +307,7 @@ class ChannelResources(Resource):
             server_id=channel.get('server_id')
         )
 
+        server.channels.append(channel_obj)
         db.session.add(channel_obj)
         db.session.commit()
 
@@ -260,6 +315,11 @@ class ChannelResources(Resource):
 
 
 class PlayerResource(Resource):
+    method_decorators = {
+        'delete': [login_required],
+        'put': [login_required]
+    }
+
     def get(self, player_id):
         return Player.query.filter_by(id=player_id).first().serialize()
 
@@ -292,24 +352,12 @@ class PlayerResource(Resource):
         return player_obj.serialize()
 
 
-class PlayerResources(Resource):
-    def post(self):
-        player = parser.parse_args().get('player')
-
-        if player is None:
-            abort(400)
-
-        player_obj = Player(
-            discord_id=player.get('discord_id')
-        )
-
-        db.session.add(player_obj)
-        db.session.commit()
-
-        return player_obj.serialize()
-
-
 class MemberResource(Resource):
+    method_decorators = {
+        'delete': [login_required],
+        'put': [login_required]
+    }
+
     def get(self, party_id, player_id):
         return Member.query.filter_by(party_id=party_id, player_id=player_id).first().serialize()
 
@@ -349,6 +397,10 @@ class MemberResource(Resource):
 
 
 class MemberResources(Resource):
+    method_decorators = {
+        'post': [login_required]
+    }
+
     def get(self, party_id):
         return None
 
@@ -383,7 +435,6 @@ api.add_resource(ServerResources, '/servers')
 api.add_resource(ChannelResource, '/channels/<channel_id>')
 api.add_resource(ChannelResources, '/servers/<server_id>/channels')
 api.add_resource(PlayerResource, '/players/<player_id>')
-api.add_resource(PlayerResources, '/players')
 api.add_resource(MemberResource, '/parties/<party_id>/players/<player_id>')
 api.add_resource(MemberResources, '/parties/<party_id>/players')
 
@@ -394,13 +445,22 @@ def login():
     return oauth.discord.authorize_redirect(redirect_uri)
 
 
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    url = "http://" + os.environ.get('SITE_HOSTNAME')
+    default_url = "http://" + os.environ.get('SITE_HOSTNAME')
+    return redirect(url)
+
+
 @app.route('/authorize')
 def authorize():
     # TODO do something with the token and profile
     token = oauth.discord.authorize_access_token()
     resp = oauth.discord.get('users/@me')
     profile = resp.json()
-    logger.debug("Discord: " + str(profile))
+
     url = "http://" + os.environ.get('SITE_HOSTNAME')
     default_url = "http://" + os.environ.get('SITE_HOSTNAME')
 
@@ -434,6 +494,9 @@ def authorize():
 
         db.session.add(player)
         db.session.commit()
+
+    login_user(player)
+
     return redirect(url)
 
 

@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 
+
 db = SQLAlchemy()
 
 
@@ -85,7 +86,15 @@ class Player(db.Model):
     name = db.Column(db.String(64), nullable=False)
     icon = db.Column(db.String(64))
 
+    # Flask-Login
+    is_authenticated = db.Column(db.Boolean, nullable=False, default=False)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    is_anonymous = db.Column(db.Boolean, nullable=False, default=False)
+
     servers = db.relationship('Server', backref='player', lazy=True)
+
+    def get_id(self):
+        return str(self.id)
 
     def base_serialize(self):
         return {
@@ -154,7 +163,7 @@ class Party(db.Model):
 
     channel = db.relationship('Channel', backref=db.backref('channels', lazy=True))
     leader = db.relationship('Player', backref=db.backref('players', lazy=True))
-    players = db.relationship('Player', backref='party', lazy=True)
+    members = db.relationship('Member', backref='party', lazy=True)
 
     def base_serialize(self):
         return {
