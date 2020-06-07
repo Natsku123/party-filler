@@ -25,6 +25,7 @@ services:
       DISCORD_CLIENT_SECRET: ${CLIENT_SECRET}
       API_HOSTNAME: ${API_HOSTNAME}
       SITE_HOSTNAME: ${SITE_HOSTNAME}
+      FLASK_SECRET: ${FLASK_SECRET}
     volumes:
       - "./backend:/app"
     ports:

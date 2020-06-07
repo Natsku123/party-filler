@@ -10,6 +10,7 @@ from authlib.integrations.flask_client import OAuth
 from modules.models import db, Player, Party, Role, Member, Server, Channel
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET')
 oauth = OAuth()
 app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://{username}:{password}@{server}/{db}".format(
     username=os.environ.get("DB_USER"),
