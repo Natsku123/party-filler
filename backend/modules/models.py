@@ -6,7 +6,7 @@ db = SQLAlchemy()
 
 class OAuth2Token(db.Model):
     token_id = db.Column(db.Integer, primary_key=True, nullable=False)
-    player_id = db.Column(db.Integer, db.ForeignKey('player.id'), nullable=False)
+    player_id = db.Column(db.Integer, db.ForeignKey('players.id'), nullable=False)
     name = db.Column(db.String(20), nullable=False)
 
     player = db.relationship('OAuth2Token', backref=db.backref('players', lazy=True))
@@ -57,7 +57,7 @@ class Channel(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True)
     name = db.Column(db.String(255), nullable=False)
     discord_id = db.Column(db.String(64), nullable=False, unique=True)
-    server_id = db.Column(db.Integer, db.ForeignKey('server.id'), nullable=False)
+    server_id = db.Column(db.Integer, db.ForeignKey('servers.id'), nullable=False)
 
     server = db.relationship('Server', backref=db.backref('servers', lazy=True))
 
@@ -91,7 +91,7 @@ class Player(db.Model):
     is_active = db.Column(db.Boolean, nullable=False, default=True)
     is_anonymous = db.Column(db.Boolean, nullable=False, default=False)
 
-    servers = db.relationship('Server', backref='player', lazy=True)
+    servers = db.relationship('Server', backref='players', lazy=True)
 
     def get_id(self):
         return str(self.id)
@@ -118,9 +118,9 @@ class Member(db.Model):
     __tablename__ = 'members'
     id = db.Column(db.Integer, primary_key=True, unique=True)
     player_req = db.Column(db.Integer)
-    party_id = db.Column(db.Integer, db.ForeignKey('parties'), nullable=False)
-    player_id = db.Column(db.Integer, db.ForeignKey('players'), nullable=False)
-    role_id = db.Column(db.Integer, db.ForeignKey('roles'))
+    party_id = db.Column(db.Integer, db.ForeignKey('parties.id'), nullable=False)
+    player_id = db.Column(db.Integer, db.ForeignKey('players.id'), nullable=False)
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
 
     party = db.relationship('Party', backref=db.backref('parties', lazy=True))
     player = db.relationship('Player', backref=db.backref('players', lazy=True))
@@ -152,18 +152,18 @@ class Party(db.Model):
     __tablename__ = 'parties'
     id = db.Column(db.Integer, primary_key=True, unique=True)
     title = db.Column(db.String(255), nullable=False)
-    leader_id = db.Column(db.Integer, db.ForeignKey('players'))
+    leader_id = db.Column(db.Integer, db.ForeignKey('players.id'))
     game = db.Column(db.String(64))
     max_players = db.Column(db.Integer)
     min_players = db.Column(db.Integer)
     description = db.Column(db.Text())
-    channel_id = db.Column(db.Integer, db.ForeignKey('channels'))
+    channel_id = db.Column(db.Integer, db.ForeignKey('channels.id'))
     start_time = db.Column(db.DateTime)
     end_time = db.Column(db.DateTime)
 
     channel = db.relationship('Channel', backref=db.backref('channels', lazy=True))
     leader = db.relationship('Player', backref=db.backref('players', lazy=True))
-    members = db.relationship('Member', backref='party', lazy=True)
+    members = db.relationship('Member', backref='parties', lazy=True)
 
     def base_serialize(self):
         return {
@@ -200,7 +200,7 @@ class Party(db.Model):
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True, unique=True)
-    party_id = db.Column(db.Integer, db.ForeignKey('parties'))
+    party_id = db.Column(db.Integer, db.ForeignKey('parties.id'))
     name = db.Column(db.String(64))
     max_players = db.Column(db.Integer)
 
