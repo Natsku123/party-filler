@@ -1,7 +1,7 @@
 import logging
 import os
 import datetime
-from flask import Flask, jsonify, request, url_for, redirect
+from flask import Flask, jsonify, request, url_for, redirect, session
 from flask_restful import reqparse, abort, Api, Resource
 from flask_migrate import Migrate
 from flask_cors import CORS
@@ -442,6 +442,13 @@ api.add_resource(MemberResources, '/parties/<party_id>/players')
 @app.route('/login')
 def login():
     redirect_uri = url_for('authorize', _external=True)
+
+    redirect_url = request.args.get('redirect')
+    if redirect_url is None:
+        redirect_url = "http://" + os.environ.get('SITE_HOSTNAME')
+
+    session['redirect_url'] = redirect_url
+
     return oauth.discord.authorize_redirect(redirect_uri)
 
 
@@ -449,9 +456,8 @@ def login():
 @login_required
 def logout():
     logout_user()
-    url = "http://" + os.environ.get('SITE_HOSTNAME')
-    default_url = "http://" + os.environ.get('SITE_HOSTNAME')
-    return redirect(url)
+    redirect_url = "http://" + os.environ.get('SITE_HOSTNAME')
+    return redirect(redirect_url)
 
 
 @app.route('/authorize')
@@ -461,8 +467,11 @@ def authorize():
     resp = oauth.discord.get('users/@me')
     profile = resp.json()
 
-    url = "http://" + os.environ.get('SITE_HOSTNAME')
-    default_url = "http://" + os.environ.get('SITE_HOSTNAME')
+    url = session.get('redirect_url')
+    if url is None:
+        url = "http://" + os.environ.get('SITE_HOSTNAME')
+    else:
+        del session['redirect_url']
 
     # Get player
     player = Player.query.filter_by(discord_id=profile['id']).first()
@@ -495,7 +504,26 @@ def authorize():
                 db.session.add(server)
 
         db.session.add(player)
-        db.session.commit()
+
+    # Update token
+    token_obj = OAuth2Token.query.filter_by(player_id=player.id).first()
+    if token_obj is None:
+        token_obj = OAuth2Token(
+            player_id=player.id,
+            name='discord',
+            token_type=token.get('token_type'),
+            access_token=token.get('access_token'),
+            refresh_token=token.get('refresh_token'),
+            expires_at=token.get('expires_at')
+        )
+    else:
+        token_obj.token_type = token.get('token_type'),
+        token_obj.access_token = token.get('access_token'),
+        token_obj.refresh_token = token.get('refresh_token'),
+        token_obj.expires_at = token.get('expires_at')
+
+    db.session.add(token_obj)
+    db.session.commit()
 
     login_user(player)
 
