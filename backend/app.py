@@ -8,7 +8,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 from authlib.integrations.flask_client import OAuth
 
-from modules.models import db, Player, Party, Role, Member, Server, Channel
+from modules.models import db, Player, Party, Role, Member, Server, Channel, OAuth2Token
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET')
@@ -24,7 +24,7 @@ oauth.init_app(app)
 api = Api(app)
 db.init_app(app)
 migrate = Migrate(app, db)
-CORS(app)
+CORS(app, support_credentials=True)
 
 # OAuth with discord setup
 oauth.register(
@@ -402,6 +402,38 @@ def authorize():
     profile = resp.json()
     logger.debug("Discord: " + str(profile))
     url = "http://" + os.environ.get('SITE_HOSTNAME')
+    default_url = "http://" + os.environ.get('SITE_HOSTNAME')
+
+    # Get player
+    player = Player.query.filter_by(discord_id=profile['id']).first()
+
+    # If player doesn't exist, create a new one.
+    if player is None:
+        player = Player(
+            discord_id=profile.get('id'),
+            name=profile.get('name'),
+            icon=profile.get('icon')
+        )
+
+        # Get servers that Player uses
+        guilds = oauth.discord.get('users/@me/guilds')
+
+        # Create new servers if doesn't already exist
+        for guild in guilds.json():
+            server = Server.query.filter_by(discord_id=guild['id']).first()
+            if server is None:
+                server = Server(
+                    name=guild.get('name'),
+                    icon=guild.get('icon'),
+                    discord_id=guild.get('id')
+                )
+
+                # Link server to player
+                player.servers.append(server)
+                db.session.add(server)
+
+        db.session.add(player)
+        db.session.commit()
     return redirect(url)
 
 
