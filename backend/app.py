@@ -5,6 +5,7 @@ import requests
 from flask import Flask, jsonify, request, url_for, redirect
 from flask_restful import reqparse, abort, Api, Resource
 from flask_migrate import Migrate
+from flask_cors import CORS
 from authlib.integrations.flask_client import OAuth
 
 from modules.models import db, Player, Party, Role, Member, Server, Channel
@@ -23,6 +24,9 @@ oauth.init_app(app)
 api = Api(app)
 db.init_app(app)
 migrate = Migrate(app, db)
+CORS(app)
+
+# OAuth with discord setup
 oauth.register(
     name="discord",
     client_id=os.environ.get('DISCORD_CLIENT_ID'),
