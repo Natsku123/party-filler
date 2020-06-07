@@ -4,6 +4,6 @@ flask-sqlalchemy
 flask-migrate
 flask-cors
 flask-login
-mysqldb
 authlib
 mysql-connector-python
+pymysql
