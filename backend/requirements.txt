@@ -2,6 +2,7 @@ flask
 flask-restful
 flask-sqlalchemy
 flask-migrate
+mysqldb
 authlib
 requests
 mysql-connector-python
