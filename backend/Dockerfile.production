@@ -1,6 +1,6 @@
 FROM tiangolo/uwsgi-nginx-flask:python3.8-alpine
 
-RUN apk --update add bash nano gcc && rm -rf /var/cache/apk/*
+RUN apk --update add bash nano gcc musl-dev python3-dev libffi-dev openssl-dev && rm -rf /var/cache/apk/*
 
 # Static stuff?
 #ENV STATIC_URL /static
