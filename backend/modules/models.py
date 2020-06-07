@@ -9,7 +9,7 @@ class OAuth2Token(db.Model):
     player_id = db.Column(db.Integer, db.ForeignKey('players.id'), nullable=False)
     name = db.Column(db.String(20), nullable=False)
 
-    player = db.relationship('Player', backref=db.backref('token', lazy=True))
+    player = db.relationship('Player')
 
     token_type = db.Column(db.String(20))
     access_token = db.Column(db.String(48), nullable=False)
@@ -32,7 +32,7 @@ class Server(db.Model):
     icon = db.Column(db.String(64))
     discord_id = db.Column(db.String(64), nullable=False, unique=True)
 
-    channels = db.relationship('Channel', backref='server', lazy=True)
+    channels = db.relationship('Channel')
 
     def base_serialize(self):
         return {
@@ -59,7 +59,7 @@ class Channel(db.Model):
     discord_id = db.Column(db.String(64), nullable=False, unique=True)
     server_id = db.Column(db.Integer, db.ForeignKey('servers.id'), nullable=False)
 
-    server = db.relationship('Server', backref=db.backref('channels', lazy=True))
+    server = db.relationship('Server')
 
     def base_serialize(self):
         return {
@@ -91,7 +91,7 @@ class Player(db.Model):
     is_active = db.Column(db.Boolean, nullable=False, default=True)
     is_anonymous = db.Column(db.Boolean, nullable=False, default=False)
 
-    servers = db.relationship('Server', backref='players', lazy=True)
+    servers = db.relationship('Server')
 
     def get_id(self):
         return str(self.id)
@@ -122,8 +122,8 @@ class Member(db.Model):
     player_id = db.Column(db.Integer, db.ForeignKey('players.id'), nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
 
-    party = db.relationship('Party', backref=db.backref('members', lazy=True))
-    player = db.relationship('Player', backref=db.backref('parties', lazy=True))
+    party = db.relationship('Party')
+    player = db.relationship('Player')
     role = db.relationship('Role')
 
     def base_serialize(self):
@@ -161,9 +161,9 @@ class Party(db.Model):
     start_time = db.Column(db.DateTime)
     end_time = db.Column(db.DateTime)
 
-    channel = db.relationship('Channel', backref=db.backref('parties', lazy=True))
+    channel = db.relationship('Channel')
     leader = db.relationship('Player')
-    members = db.relationship('Member', backref='parties', lazy=True)
+    members = db.relationship('Member')
 
     def base_serialize(self):
         return {
@@ -204,7 +204,7 @@ class Role(db.Model):
     name = db.Column(db.String(64))
     max_players = db.Column(db.Integer)
 
-    party = db.relationship('Party', backref=db.backref('roles', lazy=True))
+    party = db.relationship('Party')
 
     def base_serialize(self):
         return {
