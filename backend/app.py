@@ -2,23 +2,37 @@ import logging
 import os
 import datetime
 import requests
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, url_for, redirect
 from flask_restful import reqparse, abort, Api, Resource
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from authlib.integrations.flask_client import OAuth
 
 from modules.models import db, Player, Party, Role, Member, Server, Channel
 
 app = Flask(__name__)
+oauth = OAuth()
 app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://{username}:{password}@{server}/{db}".format(
     username=os.environ.get("DB_USER"),
     password=os.environ.get("DB_PASS"),
     server="db",
     db=os.environ.get("DB_NAME")
 )
+
+oauth.init_app(app)
 api = Api(app)
 db.init_app(app)
 migrate = Migrate(app, db)
+oauth.register(
+    name="discord",
+    client_id=os.environ.get('DISCORD_CLIENT_ID'),
+    client_secret=os.environ.get('DISCORD_CLIENT_SECRET'),
+    access_token_url='https://discord.com/api/oauth2/token',
+    access_token_params=None,
+    authorize_url='https://discord.com/api/oauth2/authorize',
+    authorize_params=None,
+    api_base_url='https://discord.com/api/v6',
+    client_kwargs={'scope': 'identify guilds'}
+)
 
 
 # Logger
@@ -369,44 +383,21 @@ api.add_resource(MemberResource, '/parties/<party_id>/players/<player_id>')
 api.add_resource(MemberResources, '/parties/<party_id>/players')
 
 
-@app.route('/oauth2/callback', methods=['GET'])
-def callback():
-    code = request.args.get('code')
-    data = {
-        'client_id': os.environ.get("DISCORD_CLIENT_ID"),
-        'client_secret': os.environ.get("DISCORD_CLIENT_SECRET"),
-        'grant_type': 'authorization_code',
-        'code': code,
-        'redirect_uri': 'http://' + os.environ.get("SITE_HOSTNAME"),
-        'scope': 'identify guilds'
-    }
-    headers = {
-        'Content-Type': 'application/x-www-form-urlencoded'
-    }
-    r = requests.post('https://discord.com/api/oauth2/token', data=data,
-                      headers=headers)
-    r.raise_for_status()
-    return jsonify(r.json())
+@app.route('/login')
+def login():
+    redirect_uri = url_for('authorize', _external=True)
+    return oauth.discord.authorize_redirect(redirect_uri)
 
 
-@app.route('/oauth2/refresh', methods=['GET'])
-def refresh():
-    refresh_token = request.args.get('refresh_token')
-    data = {
-        'client_id': os.environ.get("DISCORD_CLIENT_ID"),
-        'client_secret': os.environ.get("DISCORD_CLIENT_SECRET"),
-        'grant_type': 'refresh_token',
-        'refresh_token': refresh_token,
-        'redirect_uri': 'http://' + os.environ.get("SITE_HOSTNAME"),
-        'scope': 'identify email connections'
-    }
-    headers = {
-        'Content-Type': 'application/x-www-form-urlencoded'
-    }
-    r = requests.post('https://discord.com/api/oauth2/token', data=data,
-                      headers=headers)
-    r.raise_for_status()
-    return jsonify(r.json())
+@app.route('/authorize')
+def authorize():
+    # TODO do something with the token and profile
+    token = oauth.discord.authorize_access_token()
+    resp = oauth.discord.get('users/@me')
+    profile = resp.json()
+    logger.debug("Discord: " + str(profile))
+    url = "http://" + os.environ.get('SITE_HOSTNAME')
+    return redirect(url)
 
 
 if __name__ == '__main___':
