@@ -25,24 +25,24 @@ app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://{username}:{password}@{
 
 @login_manager.user_loader
 def load_user(player_id):
-    return Player.get(int(player_id))
+    return Player.query.filter_by(id=int(player_id)).first()
 
 
 def update_token(name, token):
-    token = OAuth2Token.get(name=name, player_id=current_user.id)
-    if not token:
-        token = OAuth2Token(name=name, player_id=current_user.id)
-    token.token_type = token.get('token_type', 'bearer')
-    token.access_token = token.get('access_token')
-    token.refresh_token = token.get('refresh_token')
-    token.expires_at = token.get('expires_at')
-    db.session.add(token)
+    token_obj = OAuth2Token.query.filter_by(name=name, player_id=current_user.id).first
+    if not token_obj:
+        token_obj = OAuth2Token(name=name, player_id=current_user.id)
+    token_obj.token_type = token.get('token_type', 'bearer')
+    token_obj.access_token = token.get('access_token')
+    token_obj.refresh_token = token.get('refresh_token')
+    token_obj.expires_at = token.get('expires_at')
+    db.session.add(token_obj)
     db.session.commit()
-    return token
+    return token_obj
 
 
 def fetch_discord_token():
-    token = OAuth2Token.get(name='twitter', player_id=current_user.id)
+    token = OAuth2Token.query.filter_by(name='twitter', player_id=current_user.id).first()
     if token:
         return token.to_token()
 
