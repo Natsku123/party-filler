@@ -469,10 +469,12 @@ def authorize():
 
     # If player doesn't exist, create a new one.
     if player is None:
+        logger.debug("Player object" + str(profile))
         player = Player(
             discord_id=profile.get('id'),
             name=profile.get('name'),
-            icon=profile.get('icon')
+            icon=profile.get('icon'),
+            is_authenticated=True
         )
 
         # Get servers that Player uses
