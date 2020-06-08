@@ -3,6 +3,7 @@ import os
 import datetime
 from flask import Flask, jsonify, request, url_for, redirect, session
 from flask_restful import reqparse, abort, Api, Resource
+from flask_restful_swagger import swagger
 from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
@@ -14,7 +15,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET')
 oauth = OAuth()
 login_manager = LoginManager()
-api = Api(app)
+api = swagger.docs(Api(app), apiVersion='0.1')
 app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://{username}:{password}@{server}/{db}".format(
     username=os.environ.get("DB_USER"),
     password=os.environ.get("DB_PASS"),
@@ -90,9 +91,36 @@ class PartyResource(Resource):
         'put': [login_required]
     }
 
+    @swagger.operation(
+        notes='Get a party based on party ID.',
+        responseClass=Party.__name__,
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "party_id"
+            }
+        ]
+    )
     def get(self, party_id):
         return Party.query.filter_by(id=party_id).first().serialize()
 
+    @swagger.operation(
+        notes='Delete a party based on party ID.',
+        responseMessages=[
+            {
+                "code": 404,
+                "message": "Party not found."
+            }
+        ],
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "party_id"
+            }
+        ]
+    )
     def delete(self, party_id):
         party = Party.query.filter_by(id=party_id).first()
 
@@ -104,6 +132,32 @@ class PartyResource(Resource):
 
         return {"status": "success"}
 
+    @swagger.operation(
+        notes='Edit a party based on party ID.',
+        responseClass=Party.__name__,
+        responseMessages=[
+            {
+                "code": 400,
+                "message": "Party object not found as input."
+            },
+            {
+                "code": 404,
+                "message": "Party not found."
+            }
+        ],
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "party_id"
+            },
+            {
+                "dataType": Party.__name__,
+                "required": True,
+                "name": "party"
+            }
+        ]
+    )
     def put(self, party_id):
         party = parser.parse_args().get('party')
         party_obj = Party.query.filter_by(id=party_id).first()
@@ -143,9 +197,30 @@ class PartyResources(Resource):
         'post': [login_required]
     }
 
+    @swagger.operation(
+        notes='Get list of parties.',
+        responseClass=Party.__name__
+    )
     def get(self):
         return list(map(lambda party: party.serialize(), Party.query.order_by(Party.id.desc()).all()))
 
+    @swagger.operation(
+        notes='Create a party',
+        responseClass=Party.__name__,
+        responseMessages=[
+            {
+                "code": 400,
+                "message": "Party object not found as input."
+            }
+        ],
+        parameters=[
+            {
+                "dataType": Party.__name__,
+                "required": True,
+                "name": "party"
+            }
+        ]
+    )
     def post(self):
         party = parser.parse_args().get('party')
         if party is None:
@@ -176,6 +251,23 @@ class PartyResources(Resource):
 
 
 class PartyPageResource(Resource):
+
+    @swagger.operation(
+        notes='Get list of parties with pagination.',
+        responseClass=Party.__name__,
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "page"
+            },
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "per_page"
+            }
+        ]
+    )
     def get(self, page, per_page):
         return list(map(lambda party: party.serialize(), Party.query.order_by(Party.id.desc()).all().paginate(page, per_page)))
 
@@ -186,9 +278,36 @@ class ServerResource(Resource):
         'put': [login_required]
     }
 
+    @swagger.operation(
+        notes='Get server based on server ID.',
+        responseClass=Server.__name__,
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "server_id"
+            }
+        ]
+    )
     def get(self, server_id):
         return Server.query.filter_by(id=server_id).first().serialize()
 
+    @swagger.operation(
+        notes='Delete server based on server ID.',
+        responseMessages=[
+            {
+                "code": 404,
+                "message": "Server not found."
+            }
+        ],
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "server_id"
+            }
+        ]
+    )
     def delete(self, server_id):
         server = Server.query.filter_by(id=server_id).first()
 
@@ -200,6 +319,32 @@ class ServerResource(Resource):
 
         return {"status": "success"}
 
+    @swagger.operation(
+        notes='Edit server based on server ID.',
+        responseClass=Server.__name__,
+        responseMessages=[
+            {
+                "code": 400,
+                "message": "Server object not found as input."
+            },
+            {
+                "code": 404,
+                "message": "Server not found."
+            }
+        ],
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "server_id"
+            },
+            {
+                "dataType": Server.__name__,
+                "required": True,
+                "name": "server"
+            }
+        ]
+    )
     def put(self, server_id):
         server = parser.parse_args().get('server')
         server_obj = Server.query.filter_by(id=server_id).first()
@@ -225,9 +370,30 @@ class ServerResources(Resource):
         'post': [login_required]
     }
 
+    @swagger.operation(
+        notes='Get list of servers',
+        responseClass=Server.__name__
+    )
     def get(self):
         return list(map(lambda server: server.serialize(), Server.query.order_by(Server.id).all()))
 
+    @swagger.operation(
+        notes='Create a server.',
+        responseClass=Server.__name__,
+        responseMessages=[
+            {
+                "code": 400,
+                "message": "Server object not found as input."
+            }
+        ],
+        parameters=[
+            {
+                "dataType": Server.__name__,
+                "required": True,
+                "name": "server"
+            }
+        ]
+    )
     def post(self):
         server = parser.parse_args().get('server')
 
@@ -251,9 +417,36 @@ class ChannelResource(Resource):
         'put': [login_required]
     }
 
+    @swagger.operation(
+        notes='Get a channel based on channel ID.',
+        responseClass=Channel.__name__,
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "channel_id"
+            }
+        ]
+    )
     def get(self, channel_id):
         return Channel.query.filter_by(id=channel_id).first().serialize()
 
+    @swagger.operation(
+        notes='Delete channel based on channel ID.',
+        responseMessages=[
+            {
+                "code": 404,
+                "message": "Channel not found."
+            }
+        ],
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "channel_id"
+            }
+        ]
+    )
     def delete(self, channel_id):
         channel = Channel.query.filter_by(id=channel_id).first()
 
@@ -265,6 +458,32 @@ class ChannelResource(Resource):
 
         return {"status": "success"}
 
+    @swagger.operation(
+        notes='Edit channel based on channel ID.',
+        responseClass=Channel.__name__,
+        responseMessages=[
+            {
+                "code": 400,
+                "message": "Channel object not found as input."
+            },
+            {
+                "code": 404,
+                "message": "Channel not found."
+            }
+        ],
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "channel_id"
+            },
+            {
+                "dataType": Channel.__name__,
+                "required": True,
+                "name": "channel"
+            }
+        ]
+    )
     def put(self, channel_id):
         channel = parser.parse_args().get('channel')
         channel_obj = Channel.query.filter_by(id=channel_id).first()
@@ -288,9 +507,47 @@ class ChannelResource(Resource):
 
 
 class ChannelResources(Resource):
+
+    @swagger.operation(
+        notes='Get list of channels on a server.',
+        responseClass=Channel.__name__,
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "server_id"
+            }
+        ]
+    )
     def get(self, server_id):
         return list(map(lambda channel: channel.serialize(), Channel.query.filter_by(server_id=server_id).order_by(Party.id).all()))
 
+    @swagger.operation(
+        notes='Add a channel to a server.',
+        responseClass=Channel.__name__,
+        responseMessages=[
+            {
+                "code": 400,
+                "message": "Channel object not found as input."
+            },
+            {
+                "code": 404,
+                "message": "Server not found."
+            }
+        ],
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "server_id"
+            },
+            {
+                "dataType": Party.__name__,
+                "required": True,
+                "name": "channel"
+            }
+        ]
+    )
     def post(self, server_id):
         channel = parser.parse_args().get('channel')
 
@@ -320,9 +577,36 @@ class PlayerResource(Resource):
         'put': [login_required]
     }
 
+    @swagger.operation(
+        notes='Get player based on player ID.',
+        responseClass=Player.__name__,
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "player_id"
+            }
+        ]
+    )
     def get(self, player_id):
         return Player.query.filter_by(id=player_id).first().serialize()
 
+    @swagger.operation(
+        notes='Delete player based on player ID.',
+        responseMessages=[
+            {
+                "code": 404,
+                "message": "Player not found."
+            }
+        ],
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "player_id"
+            }
+        ]
+    )
     def delete(self, player_id):
         player = Player.query.filter_by(id=player_id).first()
 
@@ -334,6 +618,32 @@ class PlayerResource(Resource):
 
         return {"status": "success"}
 
+    @swagger.operation(
+        notes='Edit player based on player ID.',
+        responseClass=Player.__name__,
+        responseMessages=[
+            {
+                "code": 400,
+                "message": "Player object not found as input."
+            },
+            {
+                "code": 404,
+                "message": "Player not found."
+            }
+        ],
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "player_id"
+            },
+            {
+                "dataType": Player.__name__,
+                "required": True,
+                "name": "player"
+            }
+        ]
+    )
     def put(self, player_id):
         player = parser.parse_args().get('player')
         player_obj = Player.query.filter_by(id=player_id).first()
@@ -358,9 +668,46 @@ class MemberResource(Resource):
         'put': [login_required]
     }
 
+    @swagger.operation(
+        notes='Get member with party ID and player ID.',
+        responseClass=Member.__name__,
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "party_id"
+            },
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "player_id"
+            }
+        ]
+    )
     def get(self, party_id, player_id):
         return Member.query.filter_by(party_id=party_id, player_id=player_id).first().serialize()
 
+    @swagger.operation(
+        notes='Delete member with party ID and player ID.',
+        responseMessages=[
+            {
+                "code": 404,
+                "message": "Member not found."
+            }
+        ],
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "party_id"
+            },
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "player_id"
+            }
+        ]
+    )
     def delete(self, party_id, player_id):
         member = Member.query.filter_by(party_id=party_id, player_id=player_id).first()
 
@@ -372,6 +719,37 @@ class MemberResource(Resource):
 
         return {"status": "success"}
 
+    @swagger.operation(
+        notes='Edit member with party ID and player ID.',
+        responseClass=Member.__name__,
+        responseMessages=[
+            {
+                "code": 400,
+                "message": "Member object not found as input."
+            },
+            {
+                "code": 404,
+                "message": "Member not found."
+            }
+        ],
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "party_id"
+            },
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "player_id"
+            },
+            {
+                "dataType": Member.__name__,
+                "required": True,
+                "name": "member"
+            }
+        ]
+    )
     def put(self, party_id, player_id):
         member = parser.parse_args().get('member')
         member_obj = Member.query.filter_by(party_id=party_id, player_id=player_id).first()
@@ -401,9 +779,46 @@ class MemberResources(Resource):
         'post': [login_required]
     }
 
+    @swagger.operation(
+        notes='Get lsit of member is party.',
+        responseClass=Member.__name__,
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "party_id"
+            }
+        ]
+    )
     def get(self, party_id):
         return list(map(lambda member: member.serialize(), Member.query.filter_by(party_id=party_id).order_by(Member.id).all()))
 
+    @swagger.operation(
+        notes='Create a new member into a party.',
+        responseClass=Member.__name__,
+        responseMessages=[
+            {
+                "code": 400,
+                "message": "Member object not found as input."
+            },
+            {
+                "code": 404,
+                "message": "Party not found."
+            }
+        ],
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "party_id"
+            },
+            {
+                "dataType": Member.__name__,
+                "required": True,
+                "name": "member"
+            }
+        ]
+    )
     def post(self, party_id):
         member = parser.parse_args().get('member')
         party = Party.query.filter_by(id=party_id).first()
@@ -433,9 +848,36 @@ class RoleResource(Resource):
         'put': [login_required]
     }
 
+    @swagger.operation(
+        notes='Get role with role ID.',
+        responseClass=Role.__name__,
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "role_id"
+            }
+        ]
+    )
     def get(self, role_id):
         return Role.query.filter_by(id=role_id).first().serialize()
 
+    @swagger.operation(
+        notes='Delete role with role ID.',
+        responseMessages=[
+            {
+                "code": 404,
+                "message": "Role not found."
+            }
+        ],
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "role_id"
+            }
+        ]
+    )
     def delete(self, role_id):
         role = Role.query.filter_by(id=role_id).first()
 
@@ -447,6 +889,32 @@ class RoleResource(Resource):
 
         return {"status": "success"}
 
+    @swagger.operation(
+        notes='Edit role with role ID.',
+        responseClass=Role.__name__,
+        responseMessages=[
+            {
+                "code": 400,
+                "message": "Role object not found as input."
+            },
+            {
+                "code": 404,
+                "message": "Role not found."
+            }
+        ],
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "role_id"
+            },
+            {
+                "dataType": Role.__name__,
+                "required": True,
+                "name": "role"
+            }
+        ]
+    )
     def put(self, role_id):
         role = parser.parse_args().get('role')
         role_obj = Role.query.filter_by(id=role_id).first()
@@ -469,9 +937,46 @@ class RoleResources(Resource):
         'post': [login_required]
     }
 
+    @swagger.operation(
+        notes='Get list of roles in party.',
+        responseClass=Role.__name__,
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "party_id"
+            }
+        ]
+    )
     def get(self, party_id):
         return list(map(lambda role: role.serialize(), Role.query.filter_by(party_id=party_id).order_by(Role.id).all()))
 
+    @swagger.operation(
+        notes='Edit player based on player ID.',
+        responseClass=Role.__name__,
+        responseMessages=[
+            {
+                "code": 400,
+                "message": "Role object not found as input."
+            },
+            {
+                "code": 404,
+                "message": "Party not found."
+            }
+        ],
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "party_id"
+            },
+            {
+                "dataType": Role.__name__,
+                "required": True,
+                "name": "role"
+            }
+        ]
+    )
     def post(self, party_id):
         role = parser.parse_args().get('role')
         party = Party.query.filter_by(id=party_id).first()
@@ -494,18 +999,18 @@ class RoleResources(Resource):
         return role_obj.serialize()
 
 
-api.add_resource(PartyResource, '/parties/<party_id>')
+api.add_resource(PartyResource, '/parties/<int:party_id>')
 api.add_resource(PartyResources, '/parties')
-api.add_resource(PartyPageResource, '/parties/page/<page>/per/<per_page>')
-api.add_resource(ServerResource, '/servers/<server_id>')
+api.add_resource(PartyPageResource, '/parties/page/<int:page>/per/<int:per_page>')
+api.add_resource(ServerResource, '/servers/<int:server_id>')
 api.add_resource(ServerResources, '/servers')
-api.add_resource(ChannelResource, '/channels/<channel_id>')
-api.add_resource(ChannelResources, '/servers/<server_id>/channels')
-api.add_resource(PlayerResource, '/players/<player_id>')
-api.add_resource(MemberResource, '/parties/<party_id>/players/<player_id>')
-api.add_resource(MemberResources, '/parties/<party_id>/players')
-api.add_resource(RoleResource, '/roles/<role_id>')
-api.add_resource(RoleResources, '/parties/<party_id>/roles')
+api.add_resource(ChannelResource, '/channels/<int:channel_id>')
+api.add_resource(ChannelResources, '/servers/<int:server_id>/channels')
+api.add_resource(PlayerResource, '/players/<int:player_id>')
+api.add_resource(MemberResource, '/parties/<int:party_id>/players/<int:player_id>')
+api.add_resource(MemberResources, '/parties/<int:party_id>/players')
+api.add_resource(RoleResource, '/roles/<int:role_id>')
+api.add_resource(RoleResources, '/parties/<int:party_id>/roles')
 
 
 @app.route('/login')
