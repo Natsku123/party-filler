@@ -226,7 +226,7 @@ class ServerResources(Resource):
     }
 
     def get(self):
-        return list(map(lambda server: server.serialize(), Server.query.order_by(Party.id).all()))
+        return list(map(lambda server: server.serialize(), Server.query.order_by(Server.id).all()))
 
     def post(self):
         server = parser.parse_args().get('server')
@@ -289,7 +289,7 @@ class ChannelResource(Resource):
 
 class ChannelResources(Resource):
     def get(self, server_id):
-        return list(map(lambda channel: channel.serialize(), Channel.filter_by(server_id=server_id).query.order_by(Party.id).all()))
+        return list(map(lambda channel: channel.serialize(), Channel.query.filter_by(server_id=server_id).order_by(Party.id).all()))
 
     def post(self, server_id):
         channel = parser.parse_args().get('channel')
@@ -402,7 +402,7 @@ class MemberResources(Resource):
     }
 
     def get(self, party_id):
-        return None
+        return list(map(lambda member: member.serialize(), Member.query.filter_by(party_id=party_id).order_by(Member.id).all()))
 
     def post(self, party_id):
         member = parser.parse_args().get('member')
@@ -427,6 +427,73 @@ class MemberResources(Resource):
         return member_obj.serialize()
 
 
+class RoleResource(Resource):
+    method_decorators = {
+        'delete': [login_required],
+        'put': [login_required]
+    }
+
+    def get(self, role_id):
+        return Role.query.filter_by(id=role_id).first().serialize()
+
+    def delete(self, role_id):
+        role = Role.query.filter_by(id=role_id).first()
+
+        if role is None:
+            abort(404)
+
+        db.session.delete(role)
+        db.session.commit()
+
+        return {"status": "success"}
+
+    def put(self, role_id):
+        role = parser.parse_args().get('role')
+        role_obj = Role.query.filter_by(id=role_id).first()
+
+        if role is None:
+            abort(400)
+
+        if role_obj is None:
+            abort(404)
+
+        role_obj.party_id = role.get('party_id')
+        role_obj.name = role.get('name')
+        role_obj.max_players = role.get('max_players')
+        db.session.commit()
+        return role_obj.serialize()
+
+
+class RoleResources(Resource):
+    method_decorators = {
+        'post': [login_required]
+    }
+
+    def get(self, party_id):
+        return list(map(lambda role: role.serialize(), Role.query.filter_by(party_id=party_id).order_by(Role.id).all()))
+
+    def post(self, party_id):
+        role = parser.parse_args().get('role')
+        party = Party.query.filter_by(id=party_id).first()
+
+        if role is None:
+            abort(400)
+
+        if party is None:
+            abort(404)
+
+        role_obj = Role(
+            party_id=party_id,
+            name=role.get('name'),
+            max_players=role.get('max_players')
+        )
+
+        db.session.add(role_obj)
+        db.session.commit()
+
+        return role_obj.serialize()
+
+
 api.add_resource(PartyResource, '/parties/<party_id>')
 api.add_resource(PartyResources, '/parties')
 api.add_resource(PartyPageResource, '/parties/page/<page>/per/<per_page>')
@@ -437,6 +504,8 @@ api.add_resource(ChannelResources, '/servers/<server_id>/channels')
 api.add_resource(PlayerResource, '/players/<player_id>')
 api.add_resource(MemberResource, '/parties/<party_id>/players/<player_id>')
 api.add_resource(MemberResources, '/parties/<party_id>/players')
+api.add_resource(RoleResource, '/roles/<role_id>')
+api.add_resource(RoleResources, '/parties/<party_id>/roles')
 
 
 @app.route('/login')

@@ -209,7 +209,7 @@ class Role(db.Model):
     name = db.Column(db.String(64))
     max_players = db.Column(db.Integer)
 
-    party = db.relationship('Party')
+    party = db.relationship('Party', backref=db.backref('roles', lazy=True))
 
     def base_serialize(self):
         return {
