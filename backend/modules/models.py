@@ -1,3 +1,4 @@
+import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful_swagger import swagger
 
@@ -8,6 +9,19 @@ player_server_association = db.Table(
     db.Column('player_id', db.Integer, db.ForeignKey('players.id')),
     db.Column('server_id', db.Integer, db.ForeignKey('servers.id'))
 )
+
+
+# Forward declarations
+class Player:
+    pass
+
+
+class Party:
+    pass
+
+
+class Role:
+    pass
 
 
 @swagger.model
@@ -22,6 +36,34 @@ class OAuth2Token(db.Model):
     access_token = db.Column(db.String(48), nullable=False)
     refresh_token = db.Column(db.String(48))
     expires_at = db.Column(db.Integer, default=0)
+
+    swagger_metadata = {
+        "token_id": {
+            "type": int.__name__
+        },
+        "player_id": {
+            "type": int.__name__
+        },
+        "name": {
+            "type": str.__name__
+        },
+        "player": {
+            "type": Player.__name__
+        },
+        "token_type": {
+            "type": str.__name__
+        },
+        "access_token": {
+            "type": str.__name__
+        },
+        "refresh_token": {
+            "type": str.__name__
+        },
+        "expires_at": {
+            "type": int.__name__,
+            "default": 0
+        }
+    }
 
     def to_token(self):
         return dict(
@@ -42,6 +84,27 @@ class Server(db.Model):
 
     channels = db.relationship('Channel', backref=db.backref('server', lazy=True))
     players = db.relationship('Player', secondary=player_server_association, back_populates="servers")
+
+    swagger_metadata = {
+        "id": {
+            "type": int.__name__
+        },
+        "name": {
+            "type": str.__name__
+        },
+        "icon": {
+            "type": str.__name__
+        },
+        "discord_id": {
+            "type": str.__name__
+        },
+        "channels": {
+            "type": list.__name__
+        },
+        "players": {
+            "type": list.__name__
+        }
+    }
 
     def base_serialize(self):
         return {
@@ -68,6 +131,21 @@ class Channel(db.Model):
     name = db.Column(db.String(255), nullable=False)
     discord_id = db.Column(db.String(64), nullable=False, unique=True)
     server_id = db.Column(db.Integer, db.ForeignKey('servers.id'), nullable=False)
+
+    swagger_metadata = {
+        "id": {
+            "type": int.__name__
+        },
+        "name": {
+            "type": str.__name__
+        },
+        "discord_id": {
+            "type": str.__name__
+        },
+        "server_id": {
+            "type": int.__name__
+        }
+    }
 
     def base_serialize(self):
         return {
@@ -102,6 +180,24 @@ class Player(db.Model):
 
     servers = db.relationship('Server', secondary=player_server_association, back_populates="players")
 
+    swagger_metadata = {
+        "id": {
+            "type": int.__name__
+        },
+        "name": {
+            "type": str.__name__
+        },
+        "icon": {
+            "type": str.__name__
+        },
+        "discord_id": {
+            "type": str.__name__
+        },
+        "servers": {
+            "type": list.__name__
+        }
+    }
+
     def get_id(self):
         return str(self.id)
 
@@ -135,6 +231,33 @@ class Member(db.Model):
     party = db.relationship('Party')
     player = db.relationship('Player')
     role = db.relationship('Role')
+
+    swagger_metadata = {
+        "id": {
+            "type": int.__name__
+        },
+        "player_req": {
+            "type": int.__name__
+        },
+        "party_id": {
+            "type": int.__name__
+        },
+        "player_id": {
+            "type": int.__name__
+        },
+        "role_id": {
+            "type": int.__name__
+        },
+        "party": {
+            "type": Party.__name__
+        },
+        "player": {
+            "type": Player.__name__
+        },
+        "role": {
+            "type": Role.__name__
+        }
+    }
 
     def base_serialize(self):
         return {
@@ -175,6 +298,48 @@ class Party(db.Model):
     channel = db.relationship('Channel')
     leader = db.relationship('Player')
     members = db.relationship('Member')
+
+    swagger_metadata = {
+        "id": {
+            "type": int.__name__
+        },
+        "title": {
+            "type": str.__name__
+        },
+        "leader_id": {
+            "type": int.__name__
+        },
+        "game": {
+            "type": str.__name__
+        },
+        "max_players": {
+            "type": int.__name__
+        },
+        "min_players": {
+            "type": int.__name__
+        },
+        "description": {
+            "type": str.__name__,
+        },
+        "channel_id": {
+            "type": int.__name__,
+        },
+        "start_time": {
+            "type": datetime.datetime
+        },
+        "end_time": {
+            "type": datetime.datetime
+        },
+        "channel": {
+            "type": Channel.__name__
+        },
+        "leader": {
+            "type": Player.__name__
+        },
+        "members": {
+            "type": list.__name__
+        }
+    }
 
     def base_serialize(self):
         return {
@@ -217,6 +382,24 @@ class Role(db.Model):
     max_players = db.Column(db.Integer)
 
     party = db.relationship('Party', backref=db.backref('roles', lazy=True))
+
+    swagger_metadata = {
+        "id": {
+            "type": int.__name__
+        },
+        "party_id": {
+            "type": int.__name__
+        },
+        "name": {
+            "type": str.__name__
+        },
+        "max_players": {
+            "type": int.__name__
+        },
+        "party": {
+            "type": Party.__name__
+        }
+    }
 
     def base_serialize(self):
         return {
