@@ -94,6 +94,12 @@ class PartyResource(Resource):
     @swagger.operation(
         notes='Get a party based on party ID.',
         responseClass=Party.__name__,
+        responseMessages=[
+            {
+                "code": 404,
+                "message": "Party not found."
+            }
+        ],
         parameters=[
             {
                 "dataType": int.__name__,
@@ -103,7 +109,12 @@ class PartyResource(Resource):
         ]
     )
     def get(self, party_id):
-        return Party.query.filter_by(id=party_id).first().serialize()
+        party = Party.query.filter_by(id=party_id).first()
+
+        if party is None:
+            abort(404)
+
+        return party.serialize()
 
     @swagger.operation(
         notes='Delete a party based on party ID.',
@@ -281,6 +292,12 @@ class ServerResource(Resource):
     @swagger.operation(
         notes='Get server based on server ID.',
         responseClass=Server.__name__,
+        responseMessages=[
+            {
+                "code": 404,
+                "message": "Server not found."
+            }
+        ],
         parameters=[
             {
                 "dataType": int.__name__,
@@ -290,7 +307,12 @@ class ServerResource(Resource):
         ]
     )
     def get(self, server_id):
-        return Server.query.filter_by(id=server_id).first().serialize()
+        server = Server.query.filter_by(id=server_id).first()
+
+        if server is None:
+            abort(404)
+
+        return server.serialize()
 
     @swagger.operation(
         notes='Delete server based on server ID.',
@@ -420,6 +442,12 @@ class ChannelResource(Resource):
     @swagger.operation(
         notes='Get a channel based on channel ID.',
         responseClass=Channel.__name__,
+        responseMessages=[
+            {
+                "code": 404,
+                "message": "Channel not found."
+            }
+        ],
         parameters=[
             {
                 "dataType": int.__name__,
@@ -429,7 +457,12 @@ class ChannelResource(Resource):
         ]
     )
     def get(self, channel_id):
-        return Channel.query.filter_by(id=channel_id).first().serialize()
+        channel = Channel.query.filter_by(id=channel_id).first()
+
+        if channel is None:
+            abort(404)
+
+        return channel.serialize()
 
     @swagger.operation(
         notes='Delete channel based on channel ID.',
@@ -580,6 +613,12 @@ class PlayerResource(Resource):
     @swagger.operation(
         notes='Get player based on player ID.',
         responseClass=Player.__name__,
+        responseMessages=[
+            {
+                "code": 404,
+                "message": "Player not found."
+            }
+        ],
         parameters=[
             {
                 "dataType": int.__name__,
@@ -589,7 +628,12 @@ class PlayerResource(Resource):
         ]
     )
     def get(self, player_id):
-        return Player.query.filter_by(id=player_id).first().serialize()
+        player = Player.query.filter_by(id=player_id).first()
+
+        if player is None:
+            abort(404)
+
+        return player.serialize()
 
     @swagger.operation(
         notes='Delete player based on player ID.',
@@ -671,6 +715,12 @@ class MemberResource(Resource):
     @swagger.operation(
         notes='Get member with party ID and player ID.',
         responseClass=Member.__name__,
+        responseMessages=[
+            {
+                "code": 404,
+                "message": "Member not found."
+            }
+        ],
         parameters=[
             {
                 "dataType": int.__name__,
@@ -685,7 +735,12 @@ class MemberResource(Resource):
         ]
     )
     def get(self, party_id, player_id):
-        return Member.query.filter_by(party_id=party_id, player_id=player_id).first().serialize()
+        member = Member.query.filter_by(party_id=party_id, player_id=player_id).first()
+
+        if member is None:
+            abort(404)
+
+        return member.serialize()
 
     @swagger.operation(
         notes='Delete member with party ID and player ID.',
@@ -851,6 +906,12 @@ class RoleResource(Resource):
     @swagger.operation(
         notes='Get role with role ID.',
         responseClass=Role.__name__,
+        responseMessages=[
+            {
+                "code": 404,
+                "message": "Role not found."
+            }
+        ],
         parameters=[
             {
                 "dataType": int.__name__,
@@ -860,7 +921,12 @@ class RoleResource(Resource):
         ]
     )
     def get(self, role_id):
-        return Role.query.filter_by(id=role_id).first().serialize()
+        role = Role.query.filter_by(id=role_id).first()
+
+        if role is None:
+            abort(404)
+
+        return role.serialize()
 
     @swagger.operation(
         notes='Delete role with role ID.',
@@ -1036,7 +1102,6 @@ def logout():
 
 @app.route('/authorize')
 def authorize():
-    # TODO do something with the token and profile
     token = oauth.discord.authorize_access_token()
     resp = oauth.discord.get('users/@me')
     profile = resp.json()

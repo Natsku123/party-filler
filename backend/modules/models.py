@@ -1,5 +1,4 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask_restful_swagger import swagger
 
 
 db = SQLAlchemy()
@@ -11,7 +10,6 @@ player_server_association = db.Table(
 )
 
 
-@swagger.model
 class OAuth2Token(db.Model):
     token_id = db.Column(db.Integer, primary_key=True, nullable=False)
     player_id = db.Column(db.Integer, db.ForeignKey('players.id'), nullable=False)
@@ -33,7 +31,6 @@ class OAuth2Token(db.Model):
         )
 
 
-@swagger.model
 class Server(db.Model):
     __tablename__ = 'servers'
     id = db.Column(db.Integer, primary_key=True, unique=True)
@@ -62,7 +59,6 @@ class Server(db.Model):
         }
 
 
-@swagger.model
 class Channel(db.Model):
     __tablename__ = 'channels'
     id = db.Column(db.Integer, primary_key=True, unique=True)
@@ -88,7 +84,6 @@ class Channel(db.Model):
         }
 
 
-@swagger.model
 class Player(db.Model):
     __tablename__ = 'players'
     id = db.Column(db.Integer, primary_key=True, unique=True)
@@ -124,7 +119,6 @@ class Player(db.Model):
         }
 
 
-@swagger.model
 class Member(db.Model):
     __tablename__ = 'members'
     id = db.Column(db.Integer, primary_key=True, unique=True)
@@ -159,7 +153,6 @@ class Member(db.Model):
         }
 
 
-@swagger.model
 class Party(db.Model):
     __tablename__ = 'parties'
     id = db.Column(db.Integer, primary_key=True, unique=True)
@@ -209,7 +202,6 @@ class Party(db.Model):
         }
 
 
-@swagger.model
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True, unique=True)
