@@ -32,11 +32,23 @@ const remove = async (partyId) => {
   return response.data
 }
 
+const join = async (partyId, playerId) => {
+  const response = await axios.post(`${partyId}/players`, playerId)
+  return response.data
+}
+
+const leave = async (partyId, playerId) => {
+  const response = await axios.delete(`${partyId}/players/${playerId}`)
+  return response.data
+}
+
 export default {
   getAll,
   getPage,
   getOne,
   create,
   update,
-  remove
+  remove,
+  join,
+  leave
 }
