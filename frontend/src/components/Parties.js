@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 
-const parties = [
+import partyService from '../services/parties'
+
+const initialParties = [
   {
     title: 'Battle Gauntlet Tier I',
     game: 'Dota 2',
@@ -22,9 +24,22 @@ const parties = [
 ]
 
 const Parties = () => {
+  const [ parties, setParties ] = useState([])
+
+  useEffect(() => {
+    partyService
+      .getAll()
+      .then(data => {
+        setParties(data)
+      })
+  }, [])
+
+
   const padding = {
     padding: 5
   }
+
+  console.log(parties)
 
   return (
     <table>
