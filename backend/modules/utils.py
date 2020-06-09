@@ -16,4 +16,4 @@ def add_model(model_class):
 
     if "swagger_metadata" in dir(model_class):
         for field_name, field_metadata in model_class.swagger_metadata.items():
-            properties[field_name].update(field_metadata)
+            properties[field_name] = field_metadata
