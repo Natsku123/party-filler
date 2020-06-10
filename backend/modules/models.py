@@ -326,10 +326,10 @@ class Party(db.Model):
             "type": int.__name__,
         },
         "start_time": {
-            "type": datetime.datetime
+            "type": datetime.datetime.__name__
         },
         "end_time": {
-            "type": datetime.datetime
+            "type": datetime.datetime.__name__
         },
         "channel": {
             "type": Channel.__name__
