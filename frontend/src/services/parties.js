@@ -15,17 +15,17 @@ instance.interceptors.request.use(
 )
 
 const getAll = async () => {
-  const response = await axios.get(baseUrl)
+  const response = await axios.get('')
   return response.data
 }
 
 const getPage = async (page, per) => {
-  const response = await axios.get(`${baseUrl}/page/${page}/per/${per}`)
+  const response = await axios.get(`/page/${page}/per/${per}`)
   return response.data
 }
 
 const getOne = async (partyId) => {
-  const response = axios.get(`${baseUrl}/${partyId}`)
+  const response = axios.get(`/${partyId}`)
   return response.data
 }
 
@@ -35,12 +35,12 @@ const create = async (newParty) => {
 }
 
 const update = async (partyId, newParty) => {
-  const response = await axios.put(`${baseUrl}/${partyId}`, newParty)
+  const response = await axios.put(`/${partyId}`, newParty)
   return response.data
 }
 
 const remove = async (partyId) => {
-  const response = await axios.delete(`${baseUrl}/${partyId}`)
+  const response = await axios.delete(`/${partyId}`)
   return response.data
 }
 
