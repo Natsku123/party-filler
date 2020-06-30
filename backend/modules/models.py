@@ -376,7 +376,7 @@ class Party(db.Model):
             "end_time": self.end_time,
             "channel": self.channel.base_serialize(),
             "leader": self.leader.base_serialize(),
-            "players": list(map(lambda player: player.base_serialize(), self.players))
+            "members": list(map(lambda player: player.base_serialize(), self.members))
         }
 
 
