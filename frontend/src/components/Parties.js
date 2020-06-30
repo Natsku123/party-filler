@@ -39,8 +39,6 @@ const Parties = () => {
     padding: 5
   }
 
-  console.log(parties)
-
   return (
     <table>
       <thead>
