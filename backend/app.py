@@ -44,7 +44,7 @@ def update_token(name, token):
 
 
 def fetch_discord_token():
-    token = OAuth2Token.query.filter_by(name='twitter', player_id=current_user.id).first()
+    token = OAuth2Token.query.filter_by(name='discord', player_id=current_user.id).first()
     if token:
         return token.to_token()
 
@@ -139,6 +139,9 @@ class PartyResource(Resource):
         if party is None:
             abort(404)
 
+        if party.leader_id != current_user.id:
+            return login_manager.unauthorized()
+
         db.session.delete(party)
         db.session.commit()
 
@@ -179,6 +182,9 @@ class PartyResource(Resource):
 
         if party_obj is None:
             abort(404)
+
+        if party_obj.leader_id != current_user.id:
+            abort(401)
 
         if custom_check(party, 'title'):
             party_obj.title = custom_get(party, 'title')
@@ -656,6 +662,9 @@ class PlayerResource(Resource):
         ]
     )
     def delete(self, player_id):
+        if player_id != current_user.id:
+            return login_manager.unauthorized()
+
         player = Player.query.filter_by(id=player_id).first()
 
         if player is None:
@@ -693,6 +702,9 @@ class PlayerResource(Resource):
         ]
     )
     def put(self, player_id):
+        if player_id != current_user.id:
+            return login_manager.unauthorized()
+
         player = custom_get(request.get_json(), 'player')
         player_obj = Player.query.filter_by(id=player_id).first()
 
@@ -770,6 +782,8 @@ class MemberResource(Resource):
     def delete(self, party_id, player_id):
         member = Member.query.filter_by(party_id=party_id, player_id=player_id).first()
 
+        if member.party.leader_id != current_user.id and player_id != current_user.id:
+            return login_manager.unauthorized()
         if member is None:
             abort(404)
 
@@ -810,6 +824,9 @@ class MemberResource(Resource):
         ]
     )
     def put(self, party_id, player_id):
+        if current_user.id != player_id:
+            return login_manager.unauthorized()
+
         member = custom_get(request.get_json(), 'member')
         member_obj = Member.query.filter_by(party_id=party_id, player_id=player_id).first()
 
@@ -954,6 +971,9 @@ class RoleResource(Resource):
         if role is None:
             abort(404)
 
+        if role.party.leader_id != current_user.id:
+            return login_manager.unauthorized()
+
         db.session.delete(role)
         db.session.commit()
 
@@ -994,6 +1014,9 @@ class RoleResource(Resource):
 
         if role_obj is None:
             abort(404)
+
+        if role_obj.party.leader_id != current_user.id:
+            return login_manager.unauthorized()
 
         role_obj.party_id = custom_get(role, 'party_id')
         role_obj.name = custom_get(role, 'name')
@@ -1056,6 +1079,9 @@ class RoleResources(Resource):
 
         if party is None:
             abort(404)
+
+        if party.leader_id != current_user.id:
+            return login_manager.unauthorized()
 
         role_obj = Role(
             party_id=party_id,
