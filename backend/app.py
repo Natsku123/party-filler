@@ -10,7 +10,7 @@ from flask_login import LoginManager, current_user, login_required, login_user, 
 from authlib.integrations.flask_client import OAuth
 
 from modules.models import db, Player, Party, Role, Member, Server, Channel, OAuth2Token
-from modules.utils import custom_get
+from modules.utils import custom_get, custom_check
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET')
@@ -180,23 +180,23 @@ class PartyResource(Resource):
         if party_obj is None:
             abort(404)
 
-        if 'title' in party:
+        if custom_check(party, 'title'):
             party_obj.title = custom_get(party, 'title')
-        if 'leader_id' in party:
+        if custom_check(party, 'leader_id'):
             party_obj.leader_id = custom_get(party, 'leader_id')
-        if 'game' in party:
+        if custom_check(party, 'game'):
             party_obj.game = custom_get(party, 'game')
-        if 'max_players' in party:
+        if custom_check(party, 'max_players'):
             party_obj.max_players = custom_get(party, 'max_players')
-        if 'min_players' in party:
+        if custom_check(party, 'min_players'):
             party_obj.min_players = custom_get(party, 'min_players')
-        if 'description' in party:
+        if custom_check(party, 'description'):
             party_obj.description = custom_get(party, 'description')
-        if 'channel_id' in party:
+        if custom_check(party, 'channel_id'):
             party_obj.channel_id = custom_get(party, 'channel_id')
-        if 'start_time' in party:
+        if custom_check(party, 'start_time'):
             party_obj.start_time = custom_get(party, 'start_time')
-        if 'end_time' in party:
+        if custom_check(party, 'end_time'):
             party_obj.end_time = custom_get(party, 'end_time')
 
         db.session.commit()
@@ -238,11 +238,14 @@ class PartyResources(Resource):
         if party is None:
             abort(400)
 
-        if 'start_time' in party and party['start_time'] is not None:
-            party['start_time'] = datetime.datetime.fromisoformat(party['start_time'])
+        start_time = custom_get(party, 'start_time')
+        end_time = custom_get(party, 'end_time')
 
-        if 'end_time' in party and party['end_time'] is not None:
-            party['end_time'] = datetime.datetime.fromisoformat(party['end_time'])
+        if start_time is not None:
+            party['start_time'] = datetime.datetime.fromisoformat(start_time)
+
+        if end_time is not None:
+            party['end_time'] = datetime.datetime.fromisoformat(end_time)
 
         party_obj = Party(
             title=custom_get(party, 'title'),
@@ -378,9 +381,9 @@ class ServerResource(Resource):
         if server_obj is None:
             abort(404)
 
-        if 'name' in server:
+        if custom_check(server, 'name'):
             server_obj.name = custom_get(server, 'name')
-        if 'discord_id' in server:
+        if custom_check(server, 'discord_id'):
             server_obj.discord_id = custom_get(server, 'discord_id')
 
         db.session.commit()
@@ -528,11 +531,11 @@ class ChannelResource(Resource):
         if channel_obj is None:
             abort(404)
 
-        if 'name' in channel:
+        if custom_check(channel, 'name'):
             channel_obj.name = custom_get(channel, 'name')
-        if 'discord_id' in channel:
+        if custom_check(channel, 'discord_id'):
             channel_obj.discord_id = custom_get(channel, 'discord_id')
-        if 'server_id' in channel:
+        if custom_check(channel, 'server_id'):
             channel_obj.server_id = custom_get(channel, 'server_id')
 
         db.session.commit()
@@ -699,7 +702,7 @@ class PlayerResource(Resource):
         if player_obj is None:
             abort(404)
 
-        if 'discord_id' in player:
+        if custom_check(player, 'discord_id'):
             player_obj.discord_id = custom_get(player, 'discord_id')
 
         db.session.commit()
@@ -816,13 +819,13 @@ class MemberResource(Resource):
         if member_obj is None:
             abort(404)
 
-        if 'player_req' in member:
+        if custom_check(member, 'player_req'):
             member_obj.player_req = custom_get(member, 'player_req')
-        if 'party_id' in member:
+        if custom_check(member, 'party_id'):
             member_obj.party_id = custom_get(member, 'party_id')
-        if 'player_id' in member:
+        if custom_check(member, 'player_id'):
             member_obj.player_id = custom_get(member, 'player_id')
-        if 'role_id' in member:
+        if custom_check(member, 'role_id'):
             member_obj.role_id = custom_get(member, 'role_id')
 
         db.session.commit()
@@ -886,10 +889,10 @@ class MemberResources(Resource):
             abort(404)
 
         member_obj = Member(
-            party_req=member.get('party_req'),
-            party_id=member.get('party_id'),
-            player_id=member.get('player_id'),
-            role_id=member.get('role_id')
+            party_req=custom_get(member, 'party_req'),
+            party_id=custom_get(member, 'party_id'),
+            player_id=custom_get(member, 'player_id'),
+            role_id=custom_get(member, 'role_id')
         )
 
         db.session.add(member_obj)
