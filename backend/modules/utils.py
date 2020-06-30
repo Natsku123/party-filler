@@ -52,4 +52,4 @@ def custom_get(body: dict, snake_key: str):
 # TODO better function name
 def custom_check(body: dict, snake_key: str):
     camel_key = snake_to_camel(snake_key)
-
+    return camel_key in body or snake_key in body
