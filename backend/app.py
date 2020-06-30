@@ -76,13 +76,13 @@ handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(me
 logger.addHandler(handler)
 
 # TODO more arguments as things are created
-parser = reqparse.RequestParser()
-parser.add_argument('party', help="Party object")
-parser.add_argument('player', help="Player object")
-parser.add_argument('server', help="Server object")
-parser.add_argument('channel', help="Channel object")
-parser.add_argument('member', help="Member object")
-parser.add_argument('role', help="Role object")
+# parser = reqparse.RequestParser()
+# parser.add_argument('party', help="Party object")
+# parser.add_argument('player', help="Player object")
+# parser.add_argument('server', help="Server object")
+# parser.add_argument('channel', help="Channel object")
+# parser.add_argument('member', help="Member object")
+# parser.add_argument('role', help="Role object")
 
 
 class PartyResource(Resource):
@@ -170,7 +170,7 @@ class PartyResource(Resource):
         ]
     )
     def put(self, party_id):
-        party = parser.parse_args().get('party')
+        party = request.get_json().get('party')
         party_obj = Party.query.filter_by(id=party_id).first()
 
         if party is None:
@@ -233,7 +233,7 @@ class PartyResources(Resource):
         ]
     )
     def post(self):
-        party = parser.parse_args().get('party')
+        party = request.get_json().get('party')
         if party is None:
             abort(400)
 
@@ -368,7 +368,7 @@ class ServerResource(Resource):
         ]
     )
     def put(self, server_id):
-        server = parser.parse_args().get('server')
+        server = request.get_json().get('server')
         server_obj = Server.query.filter_by(id=server_id).first()
 
         if server is None:
@@ -417,7 +417,7 @@ class ServerResources(Resource):
         ]
     )
     def post(self):
-        server = parser.parse_args().get('server')
+        server = request.get_json().get('server')
 
         if server is None:
             abort(400)
@@ -518,7 +518,7 @@ class ChannelResource(Resource):
         ]
     )
     def put(self, channel_id):
-        channel = parser.parse_args().get('channel')
+        channel = request.get_json().get('channel')
         channel_obj = Channel.query.filter_by(id=channel_id).first()
 
         if channel is None:
@@ -582,7 +582,7 @@ class ChannelResources(Resource):
         ]
     )
     def post(self, server_id):
-        channel = parser.parse_args().get('channel')
+        channel = request.get_json().get('channel')
 
         server = Server.query.filter_by(server_id=server_id).first()
         if server is None:
@@ -689,7 +689,7 @@ class PlayerResource(Resource):
         ]
     )
     def put(self, player_id):
-        player = parser.parse_args().get('player')
+        player = request.get_json().get('player')
         player_obj = Player.query.filter_by(id=player_id).first()
 
         if player is None:
@@ -806,7 +806,7 @@ class MemberResource(Resource):
         ]
     )
     def put(self, party_id, player_id):
-        member = parser.parse_args().get('member')
+        member = request.get_json().get('member')
         member_obj = Member.query.filter_by(party_id=party_id, player_id=player_id).first()
 
         if member is None:
@@ -875,7 +875,7 @@ class MemberResources(Resource):
         ]
     )
     def post(self, party_id):
-        member = parser.parse_args().get('member')
+        member = request.get_json().get('member')
         party = Party.query.filter_by(id=party_id).first()
 
         if member is None:
@@ -982,7 +982,7 @@ class RoleResource(Resource):
         ]
     )
     def put(self, role_id):
-        role = parser.parse_args().get('role')
+        role = request.get_json().get('role')
         role_obj = Role.query.filter_by(id=role_id).first()
 
         if role is None:
@@ -1044,7 +1044,7 @@ class RoleResources(Resource):
         ]
     )
     def post(self, party_id):
-        role = parser.parse_args().get('role')
+        role = request.get_json().get('role')
         party = Party.query.filter_by(id=party_id).first()
 
         if role is None:
