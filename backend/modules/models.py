@@ -363,21 +363,38 @@ class Party(db.Model):
         }
 
     def serialize(self):
-        return {
-            "id": self.id,
-            "title": self.title,
-            "leader_id": self.leader_id,
-            "game": self.game,
-            "max_players": self.max_players,
-            "min_players": self.min_players,
-            "description": self.description,
-            "channel_id": self.channel_id,
-            "start_time": self.start_time,
-            "end_time": self.end_time,
-            "channel": self.channel.base_serialize(),
-            "leader": self.leader.base_serialize(),
-            "members": list(map(lambda player: player.base_serialize(), self.members))
-        }
+        if self.channel is not None:
+            return {
+                "id": self.id,
+                "title": self.title,
+                "leader_id": self.leader_id,
+                "game": self.game,
+                "max_players": self.max_players,
+                "min_players": self.min_players,
+                "description": self.description,
+                "channel_id": self.channel_id,
+                "start_time": self.start_time,
+                "end_time": self.end_time,
+                "channel": self.channel.base_serialize(),
+                "leader": self.leader.base_serialize(),
+                "members": list(map(lambda player: player.base_serialize(), self.members))
+            }
+        else:
+            return {
+                "id": self.id,
+                "title": self.title,
+                "leader_id": self.leader_id,
+                "game": self.game,
+                "max_players": self.max_players,
+                "min_players": self.min_players,
+                "description": self.description,
+                "channel_id": self.channel_id,
+                "start_time": self.start_time,
+                "end_time": self.end_time,
+                "channel": None,
+                "leader": self.leader.base_serialize(),
+                "members": list(map(lambda player: player.base_serialize(), self.members))
+            }
 
 
 @modules.utils.model
