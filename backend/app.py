@@ -10,6 +10,7 @@ from flask_login import LoginManager, current_user, login_required, login_user, 
 from authlib.integrations.flask_client import OAuth
 
 from modules.models import db, Player, Party, Role, Member, Server, Channel, OAuth2Token
+from modules.utils import custom_get
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET')
@@ -170,7 +171,7 @@ class PartyResource(Resource):
         ]
     )
     def put(self, party_id):
-        party = request.get_json().get('party')
+        party = custom_get(request.get_json(), 'party')
         party_obj = Party.query.filter_by(id=party_id).first()
 
         if party is None:
@@ -180,23 +181,23 @@ class PartyResource(Resource):
             abort(404)
 
         if 'title' in party:
-            party_obj.title = party.get('title')
+            party_obj.title = custom_get(party, 'title')
         if 'leader_id' in party:
-            party_obj.leader_id = party.get('leader_id')
+            party_obj.leader_id = custom_get(party, 'leader_id')
         if 'game' in party:
-            party_obj.game = party.get('game')
+            party_obj.game = custom_get(party, 'game')
         if 'max_players' in party:
-            party_obj.max_players = party.get('max_players')
+            party_obj.max_players = custom_get(party, 'max_players')
         if 'min_players' in party:
-            party_obj.min_players = party.get('min_players')
+            party_obj.min_players = custom_get(party, 'min_players')
         if 'description' in party:
-            party_obj.description = party.get('description')
+            party_obj.description = custom_get(party, 'description')
         if 'channel_id' in party:
-            party_obj.channel_id = party.get('channel_id')
+            party_obj.channel_id = custom_get(party, 'channel_id')
         if 'start_time' in party:
-            party_obj.start_time = party.get('start_time')
+            party_obj.start_time = custom_get(party, 'start_time')
         if 'end_time' in party:
-            party_obj.end_time = party.get('end_time')
+            party_obj.end_time = custom_get(party, 'end_time')
 
         db.session.commit()
 
@@ -233,7 +234,7 @@ class PartyResources(Resource):
         ]
     )
     def post(self):
-        party = request.get_json().get('party')
+        party = custom_get(request.get_json(), 'party')
         if party is None:
             abort(400)
 
@@ -244,15 +245,15 @@ class PartyResources(Resource):
             party['end_time'] = datetime.datetime.fromisoformat(party['end_time'])
 
         party_obj = Party(
-            title=party.get('title'),
-            leader_id=party.get('leader_id'),
-            game=party.get('game'),
-            max_players=party.get('max_players'),
-            min_players=party.get('min_players'),
-            description=party.get('description'),
-            channel_id=party.get('channel_id'),
-            start_time=party.get('start_time'),
-            end_time=party.get('end_time')
+            title=custom_get(party, 'title'),
+            leader_id=custom_get(party, 'leader_id'),
+            game=custom_get(party, 'game'),
+            max_players=custom_get(party, 'max_players'),
+            min_players=custom_get(party, 'min_players'),
+            description=custom_get(party, 'description'),
+            channel_id=custom_get(party, 'channel_id'),
+            start_time=custom_get(party, 'start_time'),
+            end_time=custom_get(party, 'end_time')
         )
 
         db.session.add(party_obj)
@@ -368,7 +369,7 @@ class ServerResource(Resource):
         ]
     )
     def put(self, server_id):
-        server = request.get_json().get('server')
+        server = custom_get(request.get_json(), 'server')
         server_obj = Server.query.filter_by(id=server_id).first()
 
         if server is None:
@@ -378,9 +379,9 @@ class ServerResource(Resource):
             abort(404)
 
         if 'name' in server:
-            server_obj.name = server.get('name')
+            server_obj.name = custom_get(server, 'name')
         if 'discord_id' in server:
-            server_obj.discord_id = server.get('discord_id')
+            server_obj.discord_id = custom_get(server, 'discord_id')
 
         db.session.commit()
 
@@ -417,14 +418,14 @@ class ServerResources(Resource):
         ]
     )
     def post(self):
-        server = request.get_json().get('server')
+        server = custom_get(request.get_json(), 'server')
 
         if server is None:
             abort(400)
 
         server_obj = Server(
-            name=server.get('name'),
-            discord_id=server.get('discord_id')
+            name=custom_get(server, 'name'),
+            discord_id=custom_get(server, 'discord_id')
         )
 
         db.session.add(server_obj)
@@ -518,7 +519,7 @@ class ChannelResource(Resource):
         ]
     )
     def put(self, channel_id):
-        channel = request.get_json().get('channel')
+        channel = custom_get(request.get_json(), 'channel')
         channel_obj = Channel.query.filter_by(id=channel_id).first()
 
         if channel is None:
@@ -528,11 +529,11 @@ class ChannelResource(Resource):
             abort(404)
 
         if 'name' in channel:
-            channel_obj.name = channel.get('name')
+            channel_obj.name = custom_get(channel, 'name')
         if 'discord_id' in channel:
-            channel_obj.discord_id = channel.get('discord_id')
+            channel_obj.discord_id = custom_get(channel, 'discord_id')
         if 'server_id' in channel:
-            channel_obj.server_id = channel.get('server_id')
+            channel_obj.server_id = custom_get(channel, 'server_id')
 
         db.session.commit()
 
@@ -582,7 +583,7 @@ class ChannelResources(Resource):
         ]
     )
     def post(self, server_id):
-        channel = request.get_json().get('channel')
+        channel = custom_get(request.get_json(), 'channel')
 
         server = Server.query.filter_by(server_id=server_id).first()
         if server is None:
@@ -592,9 +593,9 @@ class ChannelResources(Resource):
             abort(400)
 
         channel_obj = Channel(
-            name=channel.get('name'),
-            discord_id=channel.get('discord_id'),
-            server_id=channel.get('server_id')
+            name=custom_get(channel, 'name'),
+            discord_id=custom_get(channel, 'discord_id'),
+            server_id=custom_get(channel, 'server_id')
         )
 
         server.channels.append(channel_obj)
@@ -689,7 +690,7 @@ class PlayerResource(Resource):
         ]
     )
     def put(self, player_id):
-        player = request.get_json().get('player')
+        player = custom_get(request.get_json(), 'player')
         player_obj = Player.query.filter_by(id=player_id).first()
 
         if player is None:
@@ -699,7 +700,7 @@ class PlayerResource(Resource):
             abort(404)
 
         if 'discord_id' in player:
-            player_obj.discord_id = player.get('discord_id')
+            player_obj.discord_id = custom_get(player, 'discord_id')
 
         db.session.commit()
 
@@ -806,7 +807,7 @@ class MemberResource(Resource):
         ]
     )
     def put(self, party_id, player_id):
-        member = request.get_json().get('member')
+        member = custom_get(request.get_json(), 'member')
         member_obj = Member.query.filter_by(party_id=party_id, player_id=player_id).first()
 
         if member is None:
@@ -816,13 +817,13 @@ class MemberResource(Resource):
             abort(404)
 
         if 'player_req' in member:
-            member_obj.player_req = member.get('player_req')
+            member_obj.player_req = custom_get(member, 'player_req')
         if 'party_id' in member:
-            member_obj.party_id = member.get('party_id')
+            member_obj.party_id = custom_get(member, 'party_id')
         if 'player_id' in member:
-            member_obj.player_id = member.get('player_id')
+            member_obj.player_id = custom_get(member, 'player_id')
         if 'role_id' in member:
-            member_obj.role_id = member.get('role_id')
+            member_obj.role_id = custom_get(member, 'role_id')
 
         db.session.commit()
 
@@ -875,7 +876,7 @@ class MemberResources(Resource):
         ]
     )
     def post(self, party_id):
-        member = request.get_json().get('member')
+        member = custom_get(request.get_json(), 'member')
         party = Party.query.filter_by(id=party_id).first()
 
         if member is None:
@@ -982,7 +983,7 @@ class RoleResource(Resource):
         ]
     )
     def put(self, role_id):
-        role = request.get_json().get('role')
+        role = custom_get(request.get_json(), 'role')
         role_obj = Role.query.filter_by(id=role_id).first()
 
         if role is None:
@@ -991,9 +992,9 @@ class RoleResource(Resource):
         if role_obj is None:
             abort(404)
 
-        role_obj.party_id = role.get('party_id')
-        role_obj.name = role.get('name')
-        role_obj.max_players = role.get('max_players')
+        role_obj.party_id = custom_get(role, 'party_id')
+        role_obj.name = custom_get(role, 'name')
+        role_obj.max_players = custom_get(role, 'max_players')
         db.session.commit()
         return role_obj.serialize()
 
@@ -1044,7 +1045,7 @@ class RoleResources(Resource):
         ]
     )
     def post(self, party_id):
-        role = request.get_json().get('role')
+        role = custom_get(request.get_json(), 'role')
         party = Party.query.filter_by(id=party_id).first()
 
         if role is None:
@@ -1055,8 +1056,8 @@ class RoleResources(Resource):
 
         role_obj = Role(
             party_id=party_id,
-            name=role.get('name'),
-            max_players=role.get('max_players')
+            name=custom_get(role, 'name'),
+            max_players=custom_get(role, 'max_players')
         )
 
         db.session.add(role_obj)
