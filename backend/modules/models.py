@@ -172,6 +172,7 @@ class Player(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True)
     discord_id = db.Column(db.String(64), nullable=False, unique=True)
     name = db.Column(db.String(64), nullable=False)
+    discriminator = db.Column(db.String(4), nullable=False)
     icon = db.Column(db.String(64))
 
     # Flask-Login
@@ -186,6 +187,9 @@ class Player(db.Model):
             "type": int.__name__
         },
         "name": {
+            "type": str.__name__
+        },
+        "discriminator": {
             "type": str.__name__
         },
         "icon": {
@@ -207,6 +211,7 @@ class Player(db.Model):
             "id": self.id,
             "discord_id": self.discord_id,
             "name": self.name,
+            "discriminator": self.discriminator,
             "icon": self.icon
         }
 
@@ -215,6 +220,7 @@ class Player(db.Model):
             "id": self.id,
             "discord_id": self.discord_id,
             "name": self.name,
+            "discriminator": self.discriminator,
             "icon": self.icon,
             "servers": list(map(lambda server: server.base_serialize(), self.servers))
         }
