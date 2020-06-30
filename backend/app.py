@@ -52,7 +52,7 @@ oauth.init_app(app, update_token=update_token)
 db.init_app(app)
 login_manager.init_app(app)
 migrate = Migrate(app, db)
-CORS(app, support_credentials=True)
+CORS(app, supports_credentials=True)
 
 # OAuth with discord setup
 oauth.register(
