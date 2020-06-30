@@ -19,18 +19,24 @@ def add_model(model_class):
             properties[field_name] = field_metadata
 
 
-# TODO better function name
-def custom_get(body: dict, snake_key: str):
-    temp_key = snake_key.split("_")
-    camel_key = ""
+def snake_to_camel(snake: str):
+    temp = snake.split("_")
+    camel = ""
 
-    for i in range(len(temp_key)):
+    for i in range(len(temp)):
         if i == 0:
-            camel_key.join(temp_key[i])
+            camel.join(temp[i])
             continue
 
         # Convert to camel case
-        camel_key.join(temp_key[i][0].upper() + temp_key[i][1:])
+        camel.join(temp[i][0].upper() + temp[i][1:])
+
+    return camel
+
+
+# TODO better function name
+def custom_get(body: dict, snake_key: str):
+    camel_key = snake_to_camel(snake_key)
 
     # Search from body
     if snake_key in body:
@@ -41,3 +47,9 @@ def custom_get(body: dict, snake_key: str):
 
     # If not found
     return None
+
+
+# TODO better function name
+def custom_check(body: dict, snake_key: str):
+    camel_key = snake_to_camel(snake_key)
+
