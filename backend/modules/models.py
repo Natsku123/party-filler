@@ -1,5 +1,6 @@
 import datetime
 import modules.utils
+from modules.utils import base_serialize
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful_swagger import swagger
 
@@ -162,7 +163,7 @@ class Channel(db.Model):
             "name": self.name,
             "discord_id": self.discord_id,
             "server_id": self.server_id,
-            "server": self.server.base_serialize()
+            "server": base_serialize(self.server)
         }
 
 
@@ -282,9 +283,9 @@ class Member(db.Model):
             "party_id": self.party_id,
             "player_id": self.player_id,
             "role_id": self.role_id,
-            "party": self.party.base_serialize(),
-            "player": self.player.base_serialize(),
-            "role": self.role.base_serialize()
+            "party": base_serialize(self.party),
+            "player": base_serialize(self.player),
+            "role": base_serialize(self.role)
         }
 
 
@@ -363,38 +364,21 @@ class Party(db.Model):
         }
 
     def serialize(self):
-        if self.channel is not None:
-            return {
-                "id": self.id,
-                "title": self.title,
-                "leader_id": self.leader_id,
-                "game": self.game,
-                "max_players": self.max_players,
-                "min_players": self.min_players,
-                "description": self.description,
-                "channel_id": self.channel_id,
-                "start_time": self.start_time,
-                "end_time": self.end_time,
-                "channel": self.channel.base_serialize(),
-                "leader": self.leader.base_serialize(),
-                "members": list(map(lambda player: player.base_serialize(), self.members))
-            }
-        else:
-            return {
-                "id": self.id,
-                "title": self.title,
-                "leader_id": self.leader_id,
-                "game": self.game,
-                "max_players": self.max_players,
-                "min_players": self.min_players,
-                "description": self.description,
-                "channel_id": self.channel_id,
-                "start_time": self.start_time,
-                "end_time": self.end_time,
-                "channel": None,
-                "leader": self.leader.base_serialize(),
-                "members": list(map(lambda player: player.base_serialize(), self.members))
-            }
+        return {
+            "id": self.id,
+            "title": self.title,
+            "leader_id": self.leader_id,
+            "game": self.game,
+            "max_players": self.max_players,
+            "min_players": self.min_players,
+            "description": self.description,
+            "channel_id": self.channel_id,
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+            "channel": base_serialize(self.channel),
+            "leader": base_serialize(self.leader),
+            "members": list(map(lambda player: player.base_serialize(), self.members))
+        }
 
 
 @modules.utils.model
@@ -439,5 +423,5 @@ class Role(db.Model):
             "party_id": self.party_id,
             "name": self.name,
             "max_players": self.max_players,
-            "party": self.party.base_serialize()
+            "party": base_serialize(self.party)
         }
