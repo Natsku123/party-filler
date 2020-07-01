@@ -722,6 +722,30 @@ class PlayerResource(Resource):
         return player_obj.serialize()
 
 
+class PlayerResources(Resource):
+    method_decorators = {
+        'get': [login_required],
+    }
+
+    @swagger.operation(
+        notes='Get current player',
+        responseClass=Player.__name__,
+        responseMessages=[
+            {
+                "code": 404,
+                "message": "Player not found."
+            }
+        ]
+    )
+    def get(self):
+        player = Player.query.filter_by(id=current_user.id).first()
+
+        if player is None:
+            abort(404)
+
+        return player.serialize()
+
+
 class MemberResource(Resource):
     method_decorators = {
         'delete': [login_required],
@@ -1103,6 +1127,7 @@ api.add_resource(ServerResources, '/servers')
 api.add_resource(ChannelResource, '/channels/<int:channel_id>')
 api.add_resource(ChannelResources, '/servers/<int:server_id>/channels')
 api.add_resource(PlayerResource, '/players/<int:player_id>')
+api.add_resource(PlayerResources, '/players')
 api.add_resource(MemberResource, '/parties/<int:party_id>/players/<int:player_id>')
 api.add_resource(MemberResources, '/parties/<int:party_id>/players')
 api.add_resource(RoleResource, '/roles/<int:role_id>')
