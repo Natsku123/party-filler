@@ -25,11 +25,11 @@ def snake_to_camel(snake: str):
 
     for i in range(len(temp)):
         if i == 0:
-            camel.join(temp[i])
+            camel += temp[i]
             continue
 
         # Convert to camel case
-        camel.join(temp[i][0].upper() + temp[i][1:])
+        camel += temp[i][0].upper() + temp[i][1:]
 
     return camel
 
