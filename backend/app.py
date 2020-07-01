@@ -1,6 +1,7 @@
 import logging
 import os
 import datetime
+import dateutil.parser
 from flask import Flask, jsonify, request, url_for, redirect, session
 from flask_restful import reqparse, abort, Api, Resource
 from flask_restful_swagger import swagger
@@ -248,10 +249,10 @@ class PartyResources(Resource):
         end_time = custom_get(party, 'end_time')
 
         if start_time is not None:
-            party['start_time'] = datetime.datetime.fromisoformat(start_time)
+            party['start_time'] = dateutil.parser.parse(start_time)
 
         if end_time is not None:
-            party['end_time'] = datetime.datetime.fromisoformat(end_time)
+            party['end_time'] = dateutil.parser.parse(end_time)
 
         party_obj = Party(
             title=custom_get(party, 'title'),
