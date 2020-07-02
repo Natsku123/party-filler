@@ -11,7 +11,7 @@ const Party = () => {
     partyService
       .getOne(id)
       .then(res => setParty(res))
-  }, [])
+  }, [id])
 
   console.log(party)
 
