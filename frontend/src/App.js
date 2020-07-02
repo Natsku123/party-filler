@@ -7,6 +7,7 @@ import {
 import Login from './components/Login'
 import PartyForm from './components/PartyForm'
 import Parties from './components/Parties'
+import Party from './components/Party'
 
 const App = () => {
   const padding = {
@@ -28,6 +29,9 @@ const App = () => {
         </Route>
         <Route path="/create">
           <PartyForm />
+        </Route>
+        <Route path="/parties/:id">
+          <Party />
         </Route>
         <Route path="/parties">
           <Parties />

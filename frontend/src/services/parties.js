@@ -25,7 +25,7 @@ const getPage = async (page, per) => {
 }
 
 const getOne = async (partyId) => {
-  const response = instance.get(`/${partyId}`)
+  const response = await instance.get(`/${partyId}`)
   return response.data
 }
 
