@@ -20,9 +20,7 @@ const getUser = async () => {
 }
 
 const getUserById = async (id) => {
-  console.log(id)
   const response = await instance.get(`/${id}`)
-  console.log(response)
   return response.data
 }
 

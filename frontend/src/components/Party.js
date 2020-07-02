@@ -13,8 +13,6 @@ const Party = () => {
       .then(res => setParty(res))
   }, [id])
 
-  console.log(party)
-
   if (!party) {
     return <div>loading...</div>
   }

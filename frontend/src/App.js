@@ -35,8 +35,6 @@ const App = () => {
     padding: 5
   }
 
-  console.log(getUrl())
-
   return (
     <Router>
       <div>

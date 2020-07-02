@@ -19,7 +19,7 @@ const User = () => {
 
   return (
     <div>
-      <img src={`https://cdn.discordapp.com/avatars/${user.discord_id}/${user.icon}`} />
+      <img src={`https://cdn.discordapp.com/avatars/${user.discord_id}/${user.icon}`} alt="user icon"/>
       <br />
       {user.name}
     </div>
