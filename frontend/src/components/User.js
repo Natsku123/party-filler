@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
-import playerService from '../services/players'
+import playerService from '../services/users'
 
 const User = () => {
   const id = useParams().id

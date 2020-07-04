@@ -9,7 +9,7 @@ import Parties from './components/Parties'
 import Party from './components/Party'
 import User from './components/User'
 
-import playerService from './services/players'
+import playerService from './services/users'
 
 const getUrl = () => {
   const params = [
@@ -38,12 +38,12 @@ const App = () => {
   return (
     <Router>
       <div>
-        <Link to="/" style={padding} >Home</Link>
-        <Link to="/create" style={padding} >New Party</Link>
-        <Link to="/parties" style={padding} >Parties</Link>
+        <Link to="/" style={padding}>Home</Link>
+        <Link to="/create" style={padding}>New Party</Link>
+        <Link to="/parties" style={padding}>Parties</Link>
         { user
-            ? <Link to={`/players/${user.id}`} >{user.name}</Link>
-            : <a href={ getUrl() } >Login</a>
+            ? <Link to={`/players/${user.id}`} style={padding}>{user.name}</Link>
+            : <a href={ getUrl() } style={padding}>Login</a>
         }
       </div>
 
