@@ -1,11 +1,12 @@
+# OLD STUFF NOT IN USE
+
 import mysql.connector
 import logging
 from mysql.connector import errorcode
 
 # TODO not sure if this really works lol
-from modules.tables import TABLES
-from modules.models import *
-
+from modules.not_used.tables import TABLES
+from modules.not_used.models import *
 
 logger = logging.getLogger('database')
 logger.setLevel(logging.DEBUG)
@@ -55,7 +56,8 @@ class Database:
         if cnx is None:
             raise ValueError("Database connection cannot be None!")
 
-        status = {"status": "", "tables_exist": [], "errors": ""}
+        existing = []
+        message = ""
 
         cursor = cnx.cursor(dictionary=True)
 
@@ -66,13 +68,12 @@ class Database:
             except mysql.connector.Error as err:
                 logger.error(err)
 
-                status["status"] = "Error!"
                 if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
-                    status['tables_exist'].append(table_name)
+                    existing.append(table_name)
                 else:
-                    status['errors'] += err.msg + "\n"
+                    message += err.msg + "\n"
             else:
-                status["status"] = "Tables created."
+                status = DatabaseStatus(True, )
 
         cursor.close()
         return status

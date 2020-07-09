@@ -11,7 +11,9 @@ services:
       - "3443:443"
       - "3080:80"
     environment:
-      - CHOKIDAR_USEPOLLING=true
+      CHOKIDAR_USEPOLLING: "true"
+      API_HOSTNAME: ${API_HOSTNAME}
+      SITE_HOSTNAME: ${SITE_HOSTNAME}
   backend:
     build:
       context: ./backend
@@ -20,6 +22,11 @@ services:
       DB_NAME: ${DATABASE}
       DB_USER: ${DB_USER}
       DB_PASS: ${DB_PASSWORD}
+      DISCORD_CLIENT_ID: ${CLIENT_ID}
+      DISCORD_CLIENT_SECRET: ${CLIENT_SECRET}
+      API_HOSTNAME: ${API_HOSTNAME}
+      SITE_HOSTNAME: ${SITE_HOSTNAME}
+      FLASK_SECRET: ${FLASK_SECRET}
     volumes:
       - "./backend:/app"
     ports:
