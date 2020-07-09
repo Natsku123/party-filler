@@ -55,16 +55,26 @@ def custom_check(body: dict, snake_key: str):
     return camel_key in body or snake_key in body
 
 
-def snake_dict_to_camel(snake_obj: dict):
+def snake_dict_to_camel(snake_obj):
     """
-    Convert dictionary to use camelCase keys instead of snake_case
-    :param snake_obj: dictionary to be converted
+    Convert dictionary or list recursively to use
+    camelCase keys instead of snake_case
+    :param snake_obj: dictionary or list to be converted
     :return: camelCase version of snake_obj
     """
     camel_obj = {}
-    for key, value in snake_obj.items():
-        camel_obj[snake_to_camel(key)] = value
-    return camel_obj
+    if isinstance(snake_obj, list):
+        for i in range(len(snake_obj)):
+            if isinstance(snake_obj[i], dict) or \
+                    isinstance(snake_obj[i], list):
+                snake_obj[i] = snake_dict_to_camel(snake_obj[i])
+    if isinstance(snake_obj, dict):
+        for key, value in snake_obj.items():
+            if isinstance(value, dict) or isinstance(value, list):
+                value = snake_dict_to_camel(value)
+            camel_obj[snake_to_camel(key)] = value
+        return camel_obj
+    return snake_obj
 
 
 def base_serialize(obj):
