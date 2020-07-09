@@ -92,7 +92,8 @@ def check_camel(func):
     def wrapper(*args, **kwargs):
         return_value = func(*args, **kwargs)
         if 'camel' in parser.parse_args() and \
-                isinstance(return_value, dict):
+                (isinstance(return_value, dict) or
+                 isinstance(return_value, list)):
             return snake_dict_to_camel(return_value)
         return return_value
     return wrapper
