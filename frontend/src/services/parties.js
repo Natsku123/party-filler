@@ -44,13 +44,13 @@ const remove = async (partyId) => {
   return response.data
 }
 
-const join = async (partyId, playerId) => {
-  const response = await instance.post(`${partyId}/players`, playerId)
+const join = async (partyId, memberObj) => {
+  const response = await instance.post(`/${partyId}/players`, memberObj)
   return response.data
 }
 
 const leave = async (partyId, playerId) => {
-  const response = await instance.delete(`${partyId}/players/${playerId}`)
+  const response = await instance.delete(`/${partyId}/players/${playerId}`)
   return response.data
 }
 
@@ -62,5 +62,5 @@ export default {
   update,
   remove,
   join,
-  leave
+  leave,
 }

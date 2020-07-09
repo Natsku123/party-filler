@@ -13,7 +13,7 @@ const Party = () => {
     partyService
       .getOne(id)
       .then(res => setParty(res))
-  }, [id])
+  }, [ id ])
 
   useEffect(() => {
     userService
@@ -29,6 +29,36 @@ const Party = () => {
     .map((member) => member.id)
     .includes(user.id)
 
+  const join = () => {
+    const memberObj = {
+      "member" : {
+        partyReq: party.min_players,
+        partyId: party.id,
+        playerId: user.id,
+      }
+    }
+
+    partyService
+      .join(party.id, memberObj)
+      .then(member => setParty({
+        ...party,
+        members: party.members.concat(member),
+      }))
+  }
+
+  const leave = () => {
+    partyService
+      .join(party.id, user.id)
+      .then(res => {
+        if (res.status === "success") {
+          setParty({
+            ...party,
+            members: party.members.filter(member => member.id !== user.id),
+          })
+        }
+      })
+  }
+
   return (
     <div>
       <h1>Party</h1>
@@ -40,8 +70,8 @@ const Party = () => {
                 <p>Et ole johtaja</p>
             }
             { isMember ?
-                <p>Olet mukana</p> :
-                <p>Et ole mukana</p>
+                <button onClick={leave}>Leave</button> :
+                <button onClick={join}>Join</button>
             }
           </div>
       }
