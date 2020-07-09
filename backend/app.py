@@ -11,7 +11,7 @@ from flask_login import LoginManager, current_user, login_required, login_user, 
 from authlib.integrations.flask_client import OAuth
 
 from modules.models import db, Player, Party, Role, Member, Server, Channel, OAuth2Token
-from modules.utils import custom_get, custom_check
+from modules.utils import custom_get, custom_check, snake_dict_to_camel
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET')
@@ -78,13 +78,24 @@ handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(me
 logger.addHandler(handler)
 
 # TODO more arguments as things are created
-# parser = reqparse.RequestParser()
+parser = reqparse.RequestParser()
 # parser.add_argument('party', help="Party object")
 # parser.add_argument('player', help="Player object")
 # parser.add_argument('server', help="Server object")
 # parser.add_argument('channel', help="Channel object")
 # parser.add_argument('member', help="Member object")
 # parser.add_argument('role', help="Role object")
+parser.add_argument('camel', help="Use camelCase instead of snake_case")
+
+
+def check_camel(func):
+    def wrapper(*args, **kwargs):
+        return_value = func(*args, **kwargs)
+        if 'camel' in parser.parse_args() and \
+                isinstance(return_value, dict):
+            return snake_dict_to_camel(return_value)
+        return return_value
+    return wrapper
 
 
 class PartyResource(Resource):
@@ -110,6 +121,7 @@ class PartyResource(Resource):
             }
         ]
     )
+    @check_camel
     def get(self, party_id):
         party = Party.query.filter_by(id=party_id).first()
 
@@ -134,6 +146,7 @@ class PartyResource(Resource):
             }
         ]
     )
+    @check_camel
     def delete(self, party_id):
         party = Party.query.filter_by(id=party_id).first()
 
@@ -174,6 +187,7 @@ class PartyResource(Resource):
             }
         ]
     )
+    @check_camel
     def put(self, party_id):
         party = custom_get(request.get_json(), 'party')
         party_obj = Party.query.filter_by(id=party_id).first()
@@ -220,6 +234,7 @@ class PartyResources(Resource):
         notes='Get list of parties.',
         responseClass=Party.__name__
     )
+    @check_camel
     def get(self):
         return list(map(lambda party: party.serialize(), Party.query.order_by(Party.id.desc()).all()))
 
@@ -240,6 +255,7 @@ class PartyResources(Resource):
             }
         ]
     )
+    @check_camel
     def post(self):
         party = custom_get(request.get_json(), 'party')
         if party is None:
@@ -290,6 +306,7 @@ class PartyPageResource(Resource):
             }
         ]
     )
+    @check_camel
     def get(self, page, per_page):
         return list(map(lambda party: party.serialize(), Party.query.order_by(Party.id.desc()).all().paginate(page, per_page)))
 
@@ -317,6 +334,7 @@ class ServerResource(Resource):
             }
         ]
     )
+    @check_camel
     def get(self, server_id):
         server = Server.query.filter_by(id=server_id).first()
 
@@ -341,6 +359,7 @@ class ServerResource(Resource):
             }
         ]
     )
+    @check_camel
     def delete(self, server_id):
         server = Server.query.filter_by(id=server_id).first()
 
@@ -378,6 +397,7 @@ class ServerResource(Resource):
             }
         ]
     )
+    @check_camel
     def put(self, server_id):
         server = custom_get(request.get_json(), 'server')
         server_obj = Server.query.filter_by(id=server_id).first()
@@ -407,6 +427,7 @@ class ServerResources(Resource):
         notes='Get list of servers',
         responseClass=Server.__name__
     )
+    @check_camel
     def get(self):
         return list(map(lambda server: server.serialize(), Server.query.order_by(Server.id).all()))
 
@@ -427,6 +448,7 @@ class ServerResources(Resource):
             }
         ]
     )
+    @check_camel
     def post(self):
         server = custom_get(request.get_json(), 'server')
 
@@ -467,6 +489,7 @@ class ChannelResource(Resource):
             }
         ]
     )
+    @check_camel
     def get(self, channel_id):
         channel = Channel.query.filter_by(id=channel_id).first()
 
@@ -491,6 +514,7 @@ class ChannelResource(Resource):
             }
         ]
     )
+    @check_camel
     def delete(self, channel_id):
         channel = Channel.query.filter_by(id=channel_id).first()
 
@@ -528,6 +552,7 @@ class ChannelResource(Resource):
             }
         ]
     )
+    @check_camel
     def put(self, channel_id):
         channel = custom_get(request.get_json(), 'channel')
         channel_obj = Channel.query.filter_by(id=channel_id).first()
@@ -563,6 +588,7 @@ class ChannelResources(Resource):
             }
         ]
     )
+    @check_camel
     def get(self, server_id):
         return list(map(lambda channel: channel.serialize(), Channel.query.filter_by(server_id=server_id).order_by(Party.id).all()))
 
@@ -592,6 +618,7 @@ class ChannelResources(Resource):
             }
         ]
     )
+    @check_camel
     def post(self, server_id):
         channel = custom_get(request.get_json(), 'channel')
 
@@ -638,6 +665,7 @@ class PlayerResource(Resource):
             }
         ]
     )
+    @check_camel
     def get(self, player_id):
         player = Player.query.filter_by(id=player_id).first()
 
@@ -662,6 +690,7 @@ class PlayerResource(Resource):
             }
         ]
     )
+    @check_camel
     def delete(self, player_id):
         if player_id != current_user.id:
             return login_manager.unauthorized()
@@ -702,6 +731,7 @@ class PlayerResource(Resource):
             }
         ]
     )
+    @check_camel
     def put(self, player_id):
         if player_id != current_user.id:
             return login_manager.unauthorized()
@@ -738,6 +768,7 @@ class PlayerResources(Resource):
             }
         ]
     )
+    @check_camel
     def get(self):
         player = Player.query.filter_by(id=current_user.id).first()
 
@@ -775,6 +806,7 @@ class MemberResource(Resource):
             }
         ]
     )
+    @check_camel
     def get(self, party_id, player_id):
         member = Member.query.filter_by(party_id=party_id, player_id=player_id).first()
 
@@ -804,6 +836,7 @@ class MemberResource(Resource):
             }
         ]
     )
+    @check_camel
     def delete(self, party_id, player_id):
         member = Member.query.filter_by(party_id=party_id, player_id=player_id).first()
 
@@ -848,6 +881,7 @@ class MemberResource(Resource):
             }
         ]
     )
+    @check_camel
     def put(self, party_id, player_id):
         if current_user.id != player_id:
             return login_manager.unauthorized()
@@ -891,6 +925,7 @@ class MemberResources(Resource):
             }
         ]
     )
+    @check_camel
     def get(self, party_id):
         return list(map(lambda member: member.serialize(), Member.query.filter_by(party_id=party_id).order_by(Member.id).all()))
 
@@ -920,6 +955,7 @@ class MemberResources(Resource):
             }
         ]
     )
+    @check_camel
     def post(self, party_id):
         member = custom_get(request.get_json(), 'member')
         party = Party.query.filter_by(id=party_id).first()
@@ -931,7 +967,7 @@ class MemberResources(Resource):
             abort(404)
 
         member_obj = Member(
-            party_req=custom_get(member, 'party_req'),
+            player_req=custom_get(member, 'player_req'),
             party_id=custom_get(member, 'party_id'),
             player_id=custom_get(member, 'player_id'),
             role_id=custom_get(member, 'role_id')
@@ -966,6 +1002,7 @@ class RoleResource(Resource):
             }
         ]
     )
+    @check_camel
     def get(self, role_id):
         role = Role.query.filter_by(id=role_id).first()
 
@@ -990,6 +1027,7 @@ class RoleResource(Resource):
             }
         ]
     )
+    @check_camel
     def delete(self, role_id):
         role = Role.query.filter_by(id=role_id).first()
 
@@ -1030,6 +1068,7 @@ class RoleResource(Resource):
             }
         ]
     )
+    @check_camel
     def put(self, role_id):
         role = custom_get(request.get_json(), 'role')
         role_obj = Role.query.filter_by(id=role_id).first()
@@ -1066,6 +1105,7 @@ class RoleResources(Resource):
             }
         ]
     )
+    @check_camel
     def get(self, party_id):
         return list(map(lambda role: role.serialize(), Role.query.filter_by(party_id=party_id).order_by(Role.id).all()))
 
@@ -1095,6 +1135,7 @@ class RoleResources(Resource):
             }
         ]
     )
+    @check_camel
     def post(self, party_id):
         role = custom_get(request.get_json(), 'role')
         party = Party.query.filter_by(id=party_id).first()
