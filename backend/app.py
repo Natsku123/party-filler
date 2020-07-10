@@ -577,22 +577,9 @@ class ChannelResource(Resource):
 
 
 class ChannelResources(Resource):
-
-    @swagger.operation(
-        notes='Get list of channels on a server.',
-        responseClass=Channel.__name__,
-        parameters=[
-            {
-                "dataType": int.__name__,
-                "required": True,
-                "name": "server_id"
-            }
-        ]
-    )
-    @check_camel
-    def get(self, server_id):
-        return list(map(lambda channel: channel.serialize(), Channel.query.filter_by(server_id=server_id).order_by(Party.id).all()))
-
+    method_decorators = {
+        'post': [login_required],
+    }
     @swagger.operation(
         notes='Add a channel to a server.',
         responseClass=Channel.__name__,
@@ -620,20 +607,22 @@ class ChannelResources(Resource):
         ]
     )
     @check_camel
-    def post(self, server_id):
+    def post(self):
         channel = custom_get(request.get_json(), 'channel')
 
-        server = Server.query.filter_by(server_id=server_id).first()
+        channel_dc = oauth.discord.get('channels/{:}'.format(custom_get(channel, 'discord_id'))).json()
+
+        if channel is None or channel_dc is None:
+            abort(400)
+
+        server = Server.query.filter_by(discord_id=str(channel_dc.get('guild_id'))).first()
         if server is None:
             abort(404)
 
-        if channel is None:
-            abort(400)
-
         channel_obj = Channel(
-            name=custom_get(channel, 'name'),
+            name=custom_get(channel_dc, 'name'),
             discord_id=custom_get(channel, 'discord_id'),
-            server_id=custom_get(channel, 'server_id')
+            server_id=server.id
         )
 
         server.channels.append(channel_obj)
@@ -641,6 +630,24 @@ class ChannelResources(Resource):
         db.session.commit()
 
         return channel_obj.serialize()
+
+
+class ServerChannelResources(Resource):
+
+    @swagger.operation(
+        notes='Get list of channels on a server.',
+        responseClass=Channel.__name__,
+        parameters=[
+            {
+                "dataType": int.__name__,
+                "required": True,
+                "name": "server_id"
+            }
+        ]
+    )
+    @check_camel
+    def get(self, server_id):
+        return list(map(lambda channel: channel.serialize(), Channel.query.filter_by(server_id=server_id).order_by(Party.id).all()))
 
 
 class PlayerResource(Resource):
@@ -1168,7 +1175,8 @@ api.add_resource(PartyPageResource, '/parties/page/<int:page>/per/<int:per_page>
 api.add_resource(ServerResource, '/servers/<int:server_id>')
 api.add_resource(ServerResources, '/servers')
 api.add_resource(ChannelResource, '/channels/<int:channel_id>')
-api.add_resource(ChannelResources, '/servers/<int:server_id>/channels')
+api.add_resource(ChannelResources, '/channels')
+api.add_resource(ServerChannelResources, '/servers/<int:server_id>/channels')
 api.add_resource(PlayerResource, '/players/<int:player_id>')
 api.add_resource(PlayerResources, '/players')
 api.add_resource(MemberResource, '/parties/<int:party_id>/players/<int:player_id>')
