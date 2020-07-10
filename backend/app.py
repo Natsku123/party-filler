@@ -1275,5 +1275,10 @@ def authorize():
     return redirect(url)
 
 
+@app.route('/add_bot')
+def add_bot():
+    return redirect("https://discord.com/api/oauth2/authorize?client_id=718047907617439804&permissions=0&redirect_uri=http%3A%2F%2Fparty.hellshade.fi%2F&scope=bot")
+
+
 if __name__ == '__main___':
     app.run(debug=True)
