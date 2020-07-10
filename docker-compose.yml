@@ -1,5 +1,18 @@
 version: "3.3"
 services:
+  bot:
+    build:
+      context: ./bot
+      dockerfile: Dockerfile
+    environment:
+      TOKEN: ${BOT_TOKEN}
+      DB_NAME: ${DATABASE}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASSWORD}
+    volumes:
+      - "./bot/files:/files"
+    ports:
+      - "9080:9080"
   frontend:
     build:
       context: ./frontend

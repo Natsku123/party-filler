@@ -1,6 +1,6 @@
 import datetime
 import modules.utils
-from modules.utils import base_serialize
+from modules.utils import base_serialize, datetime_to_string
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful_swagger import swagger
 
@@ -350,6 +350,15 @@ class Party(db.Model):
     }
 
     def base_serialize(self):
+        if self.start_time:
+            start_time = datetime_to_string(self.start_time)
+        else:
+            start_time = self.start_time
+        if self.end_time:
+            end_time = datetime_to_string(self.end_time)
+        else:
+            end_time = self.end_time
+
         return {
             "id": self.id,
             "title": self.title,
@@ -359,11 +368,20 @@ class Party(db.Model):
             "min_players": self.min_players,
             "description": self.description,
             "channel_id": self.channel_id,
-            "start_time": self.start_time,
-            "end_time": self.end_time,
+            "start_time": start_time,
+            "end_time": end_time,
         }
 
     def serialize(self):
+        if self.start_time:
+            start_time = datetime_to_string(self.start_time)
+        else:
+            start_time = self.start_time
+        if self.end_time:
+            end_time = datetime_to_string(self.end_time)
+        else:
+            end_time = self.end_time
+
         return {
             "id": self.id,
             "title": self.title,
@@ -373,8 +391,8 @@ class Party(db.Model):
             "min_players": self.min_players,
             "description": self.description,
             "channel_id": self.channel_id,
-            "start_time": self.start_time,
-            "end_time": self.end_time,
+            "start_time": start_time,
+            "end_time": end_time,
             "channel": base_serialize(self.channel),
             "leader": base_serialize(self.leader),
             "members": list(map(lambda player: player.base_serialize(), self.members))
