@@ -286,7 +286,8 @@ class PartyResources(Resource):
         db.session.add(party_obj)
         db.session.commit()
 
-        send_webhook(party_obj.serialize())
+        if party_obj.channel:
+            send_webhook(party_obj.serialize())
 
         return party_obj.serialize()
 

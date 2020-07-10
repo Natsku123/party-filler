@@ -2,6 +2,7 @@ import json
 import discord
 import datetime
 import logging
+import dateutil
 from aiohttp.web import RouteTableDef, json_response
 
 from utils.tools import get_branch, action_imperfect
@@ -37,7 +38,7 @@ async def webhook(request):
     db = request.app['db']
     hook = db.get_webhook(ide=request.match_info['ide'])
 
-    channel_id = 674714285028671539
+    channel_id = 367058034154930196
 
     logger.debug("Incoming webhook: " + str(request.match_info['ide']))
 
@@ -52,7 +53,38 @@ async def webhook(request):
         if hook.get('channel', None) is not None:
             channel_id = int(hook['channel'])
 
-        if hook.get('type', None) == "git":
+        if hook.get('type') == "partyfiller":
+            channel_id = int(jhook['party']['channel']['discordId'])
+            embed = discord.Embed()
+            icon_url = bot.user.avatar_url
+
+            embed.set_author(name="PartyFiller",
+                             icon_url=icon_url,
+                             url="http://party.hellshade.fi/")
+
+            embed.title = jhook['party']['title']
+            embed.description = "{0} is looking for more player to play {1}." \
+                                "\n{2}".format(
+                jhook['party']['leader']['name'],
+                jhook['party']['game'],
+                jhook['party']['description']
+            )
+            embed.add_field(name="Players", value="{0}/{1}".format(
+                len(jhook['party']['members']),
+                jhook['party']['maxPlayers']
+            ))
+
+            if jhook['party']['startTime'] and jhook['party']['endTime']:
+                start_time = dateutil.parser.parse(jhook['party']['startTime'])
+                end_time = dateutil.parser.parse(jhook['party']['endTime'])
+                duration = end_time - start_time
+                str_duration = duration.hours + ":" + duration.minutes + ":" + duration.seconds
+                embed.add_field(name="Duration", value="{0}".format(
+                    str_duration
+                ))
+
+            await bot.get_channel(channel_id).send(embed=embed)
+        elif hook.get('type', None) == "git":
 
             embed = discord.Embed()
 

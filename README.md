@@ -5,7 +5,7 @@ and party status tracking.
 ## Webhook format
 ```
 {
-    party: {
+    "party": {
         "id": 7,
         "title": "aoeu",
         "leaderId": 1,
@@ -24,7 +24,7 @@ and party status tracking.
             "discriminator": "0666",
             "icon": "a_2d7006301405f0167a0551bc8e5d2214"
         }
-        #members": [
+        "members": [
 
         ]
     }
