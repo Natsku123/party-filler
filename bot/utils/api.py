@@ -4,7 +4,7 @@ import datetime
 import logging
 from aiohttp.web import RouteTableDef, json_response
 
-from utils.tools import get_webhook, get_branch, action_imperfect
+from utils.tools import get_branch, action_imperfect
 
 routes = RouteTableDef()
 

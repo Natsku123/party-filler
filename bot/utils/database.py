@@ -5,7 +5,6 @@ from mysql.connector import errorcode
 from utils.tables import TABLES
 from utils.tools import generate_identity
 
-
 logger = logging.getLogger('database')
 logger.setLevel(logging.DEBUG)
 handler = logging.StreamHandler()

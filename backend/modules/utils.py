@@ -1,5 +1,7 @@
 import datetime
 import pytz
+import requests
+import os
 from flask_restful_swagger import registry
 from flask_restful_swagger.swagger import _parse_doc
 
@@ -88,3 +90,13 @@ def base_serialize(obj):
 
 def datetime_to_string(date: datetime):
     return date.replace(tzinfo=pytz.UTC).isoformat("T").split("+")[0] + "Z"
+
+
+def send_webhook(content):
+    if os.environ.get('WEBHOOK_ID') and content:
+        requests.post(
+            'http://bot:9080//webhook/' + os.environ.get('WEBHOOK_ID'),
+            data={
+                'party': content
+            }
+        )

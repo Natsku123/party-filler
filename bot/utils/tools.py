@@ -1,3 +1,10 @@
+import string
+import random
+
+
+def generate_identity():
+    letters = string.ascii_letters + string.digits
+    return ''.join(random.choice(letters) for i in range(64))
 
 
 def get_branch(ref):
