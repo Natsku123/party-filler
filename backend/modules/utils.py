@@ -1,3 +1,5 @@
+import datetime
+import pytz
 from flask_restful_swagger import registry
 from flask_restful_swagger.swagger import _parse_doc
 
@@ -82,3 +84,7 @@ def base_serialize(obj):
         return obj.base_serialize()
     except AttributeError:
         return obj
+
+
+def datetime_to_string(date: datetime):
+    return date.replace(tzinfo=pytz.UTC).isoformat("T").split("+")[0] + "Z"
