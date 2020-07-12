@@ -7,4 +7,4 @@ WORKDIR /bot
 RUN pip3.7 install -r requirements.txt
 
 ENTRYPOINT ["python3.7"]
-CMD ["bot.py"]
+CMD ["main.py"]

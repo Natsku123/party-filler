@@ -11,7 +11,7 @@ from flask_login import LoginManager, current_user, login_required, login_user, 
 from authlib.integrations.flask_client import OAuth
 
 from modules.models import db, Player, Party, Role, Member, Server, Channel, OAuth2Token
-from modules.utils import custom_get, custom_check, snake_dict_to_camel
+from modules.utils import custom_get, custom_check, snake_dict_to_camel, send_webhook
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET')
@@ -285,6 +285,9 @@ class PartyResources(Resource):
 
         db.session.add(party_obj)
         db.session.commit()
+
+        if party_obj.channel:
+            send_webhook(party_obj.serialize())
 
         return party_obj.serialize()
 
@@ -1273,6 +1276,11 @@ def authorize():
     login_user(player)
 
     return redirect(url)
+
+
+@app.route('/add_bot')
+def add_bot():
+    return redirect("https://discord.com/api/oauth2/authorize?client_id=718047907617439804&permissions=0&redirect_uri=http%3A%2F%2Fparty.hellshade.fi%2F&scope=bot")
 
 
 if __name__ == '__main___':
