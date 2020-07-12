@@ -29,6 +29,11 @@ const getOne = async (partyId) => {
   return response.data
 }
 
+const getPlayers = async (partyId) => {
+  const response = await instance.get(`/${partyId}/players`)
+  return response.data
+}
+
 const create = async (newParty) => {
   const response = instance.post('', newParty)
   return response.data
@@ -58,6 +63,7 @@ export default {
   getAll,
   getPage,
   getOne,
+  getPlayers,
   create,
   update,
   remove,
