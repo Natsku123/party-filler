@@ -7,12 +7,20 @@ import userService from '../services/users'
 const Party = () => {
   const id = useParams().id
   const [ party, setParty ] = useState(null)
+  const [ members, setMembers ] = useState([])
   const [ user, setUser ] = useState(null)
+  const [ edit, setEdit ] = useState(false)
 
   useEffect(() => {
     partyService
       .getOne(id)
       .then(res => setParty(res))
+  }, [ id ])
+
+  useEffect(() => {
+    partyService
+      .getPlayers(id)
+      .then(res => setMembers(res))
   }, [ id ])
 
   useEffect(() => {
@@ -25,9 +33,11 @@ const Party = () => {
     return <div>loading...</div>
   }
 
-  const isMember = user && party.members
-    .map((member) => member.id)
+  const isMember = user && members
+    .map((member) => member.player.id)
     .includes(user.id)
+
+  const isLeader = user && user.id === party.leaderId
 
   const join = () => {
     const memberObj = {
@@ -40,23 +50,20 @@ const Party = () => {
 
     partyService
       .join(party.id, memberObj)
-      .then(member => setParty({
-        ...party,
-        members: party.members.concat(member),
-      }))
+      .then(member => setMembers(members.concat(member)) )
   }
 
   const leave = () => {
     partyService
-      .join(party.id, user.id)
+      .leave(party.id, user.id)
       .then(res => {
         if (res.status === "success") {
-          setParty({
-            ...party,
-            members: party.members.filter(member => member.id !== user.id),
-          })
+          setMembers(members.filter(member => member.id !== user.id))
         }
       })
+  }
+
+  if (isLeader && edit) {
   }
 
   return (
@@ -65,7 +72,7 @@ const Party = () => {
       { !user ?
           <p>Et ole kirjautunut</p> :
           <div>
-            { user.id === party.leaderId ?
+            { isLeader ?
                 <p>Olet johtaja</p> :
                 <p>Et ole johtaja</p>
             }
@@ -90,9 +97,9 @@ const Party = () => {
       <p>Leader: {party.leader.name}</p>
       */}
       <h2>Members</h2>
-      <ol>
-        {party.members.map(member => <li key={member}>{member.name}</li>)}
-      </ol>
+      <ul>
+        {members.map(member => <li key={member}>{member.player.name}</li>)}
+      </ul>
     </div>
   )
 }
