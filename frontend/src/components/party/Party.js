@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
-import partyService from '../services/parties'
-import userService from '../services/users'
+import PartyEdit from './PartyEdit'
+
+import partyService from '../../services/parties'
+import userService from '../../services/users'
 
 const Party = () => {
   const id = useParams().id
@@ -64,6 +66,11 @@ const Party = () => {
   }
 
   if (isLeader && edit) {
+    return <PartyEdit
+      party={party}
+      setEdit={setEdit}
+      setParty={setParty}
+    />
   }
 
   return (
@@ -73,7 +80,10 @@ const Party = () => {
           <p>Et ole kirjautunut</p> :
           <div>
             { isLeader ?
-                <p>Olet johtaja</p> :
+                <div>
+                  <p>Olet johtaja</p>
+                  <button onClick={ () => setEdit(true) }>Edit</button>
+                </div> :
                 <p>Et ole johtaja</p>
             }
             { isMember ?

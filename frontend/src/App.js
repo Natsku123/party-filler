@@ -5,9 +5,9 @@ import {
 } from "react-router-dom"
 
 import ChannelForm from './components/ChannelForm'
-import PartyForm from './components/PartyForm'
+import PartyForm from './components/party/PartyForm'
 import Parties from './components/Parties'
-import Party from './components/Party'
+import Party from './components/party/Party'
 import User from './components/User'
 
 import playerService from './services/users'

@@ -1,50 +1,36 @@
 import React, { useState } from 'react'
 
-import partyService from '../services/parties'
+import partyService from '../../services/parties'
 
-const PartyForm = () => {
-  // TODO: custom hook, fix time
-  const [ title, setTitle ] = useState('')
-  const [ leaderId, setLeaderId ] = useState(1)
-  const [ game, setGame ] = useState('Dota 2')
-  const [ maxPlayers, setMaxPlayers ] = useState(5)
-  const [ minPlayers, setMinPlayers ] = useState(5)
-  const [ description, setDescription ] = useState('')
-  const [ channelId, setChannelId ] = useState(5)
-  const [ startTime, setStartTime ] = useState('1996-10-15T00:05:32.000Z')
-  const [ endTime, setEndTime ] = useState('1996-10-15T00:05:32.000Z')
+const PartyEdit = ({ party, setEdit, setParty }) => {
+  const [ title, setTitle ] = useState(party.title)
+  const [ leaderId, setLeaderId ] = useState(party.leaderId)
+  const [ game, setGame ] = useState(party.game)
+  const [ maxPlayers, setMaxPlayers ] = useState(party.maxPlayers)
+  const [ minPlayers, setMinPlayers ] = useState(party.maxPlayers)
+  const [ description, setDescription ] = useState(party.description)
 
-  const createParty = (event) => {
+  const editParty = (event) => {
     event.preventDefault()
-    const partyObject = {
-      "party": {
+    const newParty = {
+      party: {
         title,
         leaderId,
         game,
         maxPlayers,
         minPlayers,
         description,
-        startTime,
-        endTime,
       }
     }
 
-    partyService.create(partyObject)
-
-    setTitle('')
-    setLeaderId(2)
-    setGame('Dota 2')
-    setMaxPlayers(5)
-    setMinPlayers(5)
-    setDescription('')
-
-    // setChannelId(5)
-    // setStartTime('')
-    // setEndTime('')
+    partyService
+      .update(party.id, newParty)
+      .then(res => setParty(res))
+    setEdit(false)
   }
 
   return (
-    <form onSubmit={createParty}>
+    <form onSubmit={editParty}>
       <div>
         Title: <input value={title} onChange={({target}) => setTitle(target.value)}/>
       </div>
@@ -73,4 +59,4 @@ const PartyForm = () => {
   )
 }
 
-export default PartyForm
+export default PartyEdit
