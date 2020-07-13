@@ -3,3 +3,7 @@
 venv/
 data/
 .env
+.DS_Store
+backend/migrations
+backend/test.py
+bot/files
