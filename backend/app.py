@@ -8,7 +8,7 @@ from flask_restful_swagger import swagger
 from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
-from authlib.integrations.flask_client import OAuth
+from authlib.integrations.flask_client import OAuth, token_update
 
 from modules.models import db, Player, Party, Role, Member, Server, Channel, OAuth2Token
 from modules.utils import custom_get, custom_check, snake_dict_to_camel, send_webhook
@@ -31,6 +31,28 @@ def load_user(player_id):
     return Player.query.filter_by(id=int(player_id)).first()
 
 
+@token_update.connect_via(app)
+def on_token_update(sender, name, token, refresh_token=None, access_token=None):
+    if refresh_token:
+        token_obj = OAuth2Token.query.filter_by(
+            name=name,
+            refresh_token=refresh_token
+        ).first()
+    elif access_token:
+        token_obj = OAuth2Token.query.filter_by(
+            name=name,
+            access_token=access_token
+        ).first()
+    else:
+        return
+
+    token_obj.access_token = token['access_token']
+    token_obj.refresh_token = token.get('refresh_token')
+    token_obj.expires_at = token['expires_at']
+    db.session.add(token_obj)
+    db.session.commit()
+
+
 def update_token(name, token):
     token_obj = OAuth2Token.query.filter_by(name=name, player_id=current_user.id).first()
     if not token_obj:
@@ -50,7 +72,7 @@ def fetch_discord_token():
         return token.to_token()
 
 
-oauth.init_app(app, update_token=update_token)
+oauth.init_app(app)
 db.init_app(app)
 login_manager.init_app(app)
 migrate = Migrate(app, db)
@@ -614,14 +636,8 @@ class ChannelResources(Resource):
     def post(self):
         channel = custom_get(request.get_json(), 'channel')
 
-        token = OAuth2Token.query.filter_by(name='discord', player_id=current_user.id).first()
-
-        if token is None:
-            return login_manager.unauthorized()
-
         channel_dc = oauth.discord.get(
-            'channels/{:}'.format(custom_get(channel, 'discord_id')),
-            token=token.to_token()
+            'channels/{:}'.format(custom_get(channel, 'discord_id'))
         ).json()
 
         logger.debug(channel_dc)
