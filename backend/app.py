@@ -32,7 +32,7 @@ def load_user(player_id):
 
 
 def update_token(name, token):
-    token_obj = OAuth2Token.query.filter_by(name=name, player_id=current_user.id).first
+    token_obj = OAuth2Token.query.filter_by(name=name, player_id=current_user.id).first()
     if not token_obj:
         token_obj = OAuth2Token(name=name, player_id=current_user.id)
     token_obj.token_type = token.get('token_type', 'bearer')
