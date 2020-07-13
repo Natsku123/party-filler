@@ -817,6 +817,40 @@ class PlayerResources(Resource):
         if player is None:
             abort(404)
 
+        resp = oauth.discord.get('users/@me')
+        profile = resp.json()
+
+        logger.debug(profile)
+
+        if 'code' not in profile:
+            # Update player info
+            player.name = profile.get('username', player.name)
+            player.discriminator = profile.get('discriminator', player.discriminator)
+            player.icon = profile.get('avatar', player.icon)
+
+            # Get servers that Player uses
+            guilds = oauth.discord.get('users/@me/guilds')
+
+            # Create new servers if doesn't already exist or update existing
+            for guild in guilds.json():
+                server = Server.query.filter_by(discord_id=guild['id']).first()
+
+                if server is None:
+                    server = Server(
+                        name=guild.get('name'),
+                        icon=guild.get('icon'),
+                        discord_id=guild.get('id')
+                    )
+
+                else:
+                    server.name = guild.get('name', server.name)
+                    server.icon = guild.get('icon', server.icon)
+
+                db.session.add(server)
+
+            db.session.add(player)
+            db.session.commit()
+
         return player.serialize()
 
 
@@ -1261,6 +1295,7 @@ def authorize():
         player = Player(
             discord_id=profile.get('id'),
             name=profile.get('username'),
+            discriminator=profile.get('discriminator'),
             icon=profile.get('avatar'),
             is_authenticated=True
         )

@@ -1,4 +1,5 @@
 aiohttp
 discord
 discord.py
+dateutil
 mysql-connector-python
