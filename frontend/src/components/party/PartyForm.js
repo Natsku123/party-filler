@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import partyService from '../services/parties'
+import partyService from '../../services/parties'
 
 const PartyForm = () => {
   // TODO: custom hook, fix time
@@ -10,7 +10,7 @@ const PartyForm = () => {
   const [ maxPlayers, setMaxPlayers ] = useState(5)
   const [ minPlayers, setMinPlayers ] = useState(5)
   const [ description, setDescription ] = useState('')
-  const [ channelId, setChannelId ] = useState('')
+  const [ channelId, setChannelId ] = useState(5)
   const [ startTime, setStartTime ] = useState('1996-10-15T00:05:32.000Z')
   const [ endTime, setEndTime ] = useState('1996-10-15T00:05:32.000Z')
 
@@ -24,7 +24,6 @@ const PartyForm = () => {
         maxPlayers,
         minPlayers,
         description,
-        channelId,
         startTime,
         endTime,
       }
@@ -38,8 +37,8 @@ const PartyForm = () => {
     setMaxPlayers(5)
     setMinPlayers(5)
     setDescription('')
-    setChannelId(5)
 
+    // setChannelId(5)
     // setStartTime('')
     // setEndTime('')
   }
@@ -64,9 +63,11 @@ const PartyForm = () => {
       <div>
         Description: <input value={description} onChange={({target}) => setDescription(target.value)}/>
       </div>
+      {/*
       <div>
-        Channel Id: <input value={channelId} onChange={({target}) => setChannelId(target.value)}/>
+        Channel Id: <input type='number' value={channelId} onChange={({target}) => setChannelId(target.value)}/>
       </div>
+      */}
       <button type='submit'>Create Party</button>
     </form>
   )

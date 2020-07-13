@@ -4,9 +4,10 @@ import {
   Switch, Route, Link
 } from "react-router-dom"
 
-import PartyForm from './components/PartyForm'
+import ChannelForm from './components/ChannelForm'
+import PartyForm from './components/party/PartyForm'
 import Parties from './components/Parties'
-import Party from './components/Party'
+import Party from './components/party/Party'
 import User from './components/User'
 
 import playerService from './services/users'
@@ -39,7 +40,8 @@ const App = () => {
     <Router>
       <div>
         <Link to="/" style={padding}>Home</Link>
-        <Link to="/create" style={padding}>New Party</Link>
+        <Link to="/channels/create" style={padding}>New Channel</Link>
+        <Link to="/parties/create" style={padding}>New Party</Link>
         <Link to="/parties" style={padding}>Parties</Link>
         { user
             ? <Link to={`/players/${user.id}`} style={padding}>{user.name}</Link>
@@ -48,7 +50,10 @@ const App = () => {
       </div>
 
       <Switch>
-        <Route path="/create">
+        <Route path="/channels/create">
+          <ChannelForm />
+        </Route>
+        <Route path="/parties/create">
           <PartyForm />
         </Route>
         <Route path="/parties/:id">

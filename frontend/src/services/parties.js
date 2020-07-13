@@ -29,6 +29,11 @@ const getOne = async (partyId) => {
   return response.data
 }
 
+const getPlayers = async (partyId) => {
+  const response = await instance.get(`/${partyId}/players`)
+  return response.data
+}
+
 const create = async (newParty) => {
   const response = instance.post('', newParty)
   return response.data
@@ -44,13 +49,13 @@ const remove = async (partyId) => {
   return response.data
 }
 
-const join = async (partyId, playerId) => {
-  const response = await instance.post(`${partyId}/players`, playerId)
+const join = async (partyId, memberObj) => {
+  const response = await instance.post(`/${partyId}/players`, memberObj)
   return response.data
 }
 
 const leave = async (partyId, playerId) => {
-  const response = await instance.delete(`${partyId}/players/${playerId}`)
+  const response = await instance.delete(`/${partyId}/players/${playerId}`)
   return response.data
 }
 
@@ -58,9 +63,10 @@ export default {
   getAll,
   getPage,
   getOne,
+  getPlayers,
   create,
   update,
   remove,
   join,
-  leave
+  leave,
 }
