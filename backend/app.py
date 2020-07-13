@@ -681,7 +681,7 @@ class ServerChannelResources(Resource):
     )
     @check_camel
     def get(self, server_id):
-        return list(map(lambda channel: channel.serialize(), Channel.query.filter_by(server_id=server_id).order_by(Party.id).all()))
+        return list(map(lambda channel: channel.serialize(), Channel.query.filter_by(server_id=server_id).order_by(Channel.id).all()))
 
 
 class PlayerResource(Resource):
