@@ -1,3 +1,4 @@
 aiohttp
 discord
 discord.py
+mysql-connector-python
