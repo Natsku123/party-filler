@@ -66,7 +66,8 @@ oauth.register(
     authorize_url='https://discord.com/api/oauth2/authorize',
     authorize_params=None,
     api_base_url='https://discord.com/api/v6',
-    client_kwargs={'scope': 'identify guilds'}
+    client_kwargs={'scope': 'identify guilds'},
+    fetch_token=fetch_discord_token
 )
 
 
