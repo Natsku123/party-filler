@@ -616,6 +616,12 @@ class ChannelResources(Resource):
 
         channel_dc = oauth.discord.get('channels/{:}'.format(custom_get(channel, 'discord_id'))).json()
 
+        logger.debug(channel_dc)
+
+        if 'code' in channel_dc:
+            logger.error("Discord Error: " + channel_dc['code'] + " " + channel_dc['message'])
+            abort(400)
+
         if channel is None or channel_dc is None:
             abort(400)
 
