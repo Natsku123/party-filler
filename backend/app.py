@@ -614,12 +614,20 @@ class ChannelResources(Resource):
     def post(self):
         channel = custom_get(request.get_json(), 'channel')
 
-        channel_dc = oauth.discord.get('channels/{:}'.format(custom_get(channel, 'discord_id'))).json()
+        token = OAuth2Token.query.filter_by(name='discord', player_id=current_user.id).first()
+
+        if token is None:
+            return login_manager.unauthorized()
+
+        channel_dc = oauth.discord.get(
+            'channels/{:}'.format(custom_get(channel, 'discord_id')),
+            token=token.to_token()
+        ).json()
 
         logger.debug(channel_dc)
 
         if 'code' in channel_dc:
-            logger.error("Discord Error: " + channel_dc['code'] + " " + channel_dc['message'])
+            logger.error("Discord Error: " + str(channel_dc['code']) + " " + str(channel_dc['message']))
             abort(400)
 
         if channel is None or channel_dc is None:
