@@ -53,19 +53,6 @@ def on_token_update(sender, name, token, refresh_token=None, access_token=None):
     db.session.commit()
 
 
-def update_token(name, token):
-    token_obj = OAuth2Token.query.filter_by(name=name, player_id=current_user.id).first()
-    if not token_obj:
-        token_obj = OAuth2Token(name=name, player_id=current_user.id)
-    token_obj.token_type = token.get('token_type', 'bearer')
-    token_obj.access_token = token.get('access_token')
-    token_obj.refresh_token = token.get('refresh_token')
-    token_obj.expires_at = token.get('expires_at')
-    db.session.add(token_obj)
-    db.session.commit()
-    return token_obj
-
-
 def fetch_discord_token():
     token = OAuth2Token.query.filter_by(name='discord', player_id=current_user.id).first()
     if token:
