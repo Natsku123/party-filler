@@ -40,6 +40,7 @@ services:
       API_HOSTNAME: ${API_HOSTNAME}
       SITE_HOSTNAME: ${SITE_HOSTNAME}
       FLASK_SECRET: ${FLASK_SECRET}
+      WEBHOOK_ID: ${WEBHOOK_ID}
     volumes:
       - "./backend:/app"
     ports:
