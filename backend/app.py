@@ -11,7 +11,7 @@ from flask_login import LoginManager, current_user, login_required, login_user, 
 from authlib.integrations.flask_client import OAuth, token_update
 
 from modules.models import db, Player, Party, Role, Member, Server, Channel, OAuth2Token
-from modules.utils import custom_get, custom_check, snake_dict_to_camel, send_webhook
+from modules.utils import custom_get, custom_check, snake_dict_to_camel, send_webhook, get_channel_info
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET')
@@ -623,14 +623,16 @@ class ChannelResources(Resource):
     def post(self):
         channel = custom_get(request.get_json(), 'channel')
 
-        channel_dc = oauth.discord.get(
-            'channels/{:}'.format(custom_get(channel, 'discord_id'))
-        ).json()
+        channel_dc = get_channel_info(custom_get(channel, 'discord_id'))
 
         logger.debug(channel_dc)
 
         if 'code' in channel_dc:
             logger.error("Discord Error: " + str(channel_dc['code']) + " " + str(channel_dc['message']))
+
+            if channel_dc['code'] == 50001:
+                return {"status": "error", "message": "Discord bot has no access to channel"}
+
             abort(400)
 
         if channel is None or channel_dc is None:
