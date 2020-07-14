@@ -111,7 +111,5 @@ def send_webhook(content):
     if os.environ.get('WEBHOOK_ID') and content:
         requests.post(
             'http://bot:9080//webhook/' + os.environ.get('WEBHOOK_ID'),
-            data={
-                'party': content
-            }
+            data=content
         )

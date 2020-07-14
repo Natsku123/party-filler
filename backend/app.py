@@ -11,7 +11,7 @@ from flask_login import LoginManager, current_user, login_required, login_user, 
 from authlib.integrations.flask_client import OAuth, token_update
 
 from modules.models import db, Player, Party, Role, Member, Server, Channel, OAuth2Token
-from modules.utils import custom_get, custom_check, snake_dict_to_camel, send_webhook, get_channel_info
+from modules.utils import custom_get, custom_check, snake_dict_to_camel, send_webhook, get_channel_info, datetime_to_string
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET')
@@ -297,7 +297,13 @@ class PartyResources(Resource):
         db.session.commit()
 
         if party_obj.channel:
-            send_webhook(party_obj.serialize())
+            send_webhook({
+                "party": party_obj.serialize(),
+                "event": {
+                    "name": "on_party_create",
+                    "datetime": datetime_to_string(datetime.datetime.now())
+                }
+            })
 
         return party_obj.serialize()
 
@@ -1040,6 +1046,16 @@ class MemberResources(Resource):
 
         db.session.add(member_obj)
         db.session.commit()
+
+        if custom_get(request.get_json(), 'notify') and member_obj.party.channel:
+            send_webhook({
+                "member": member_obj.serialize(),
+                "channel": member_obj.party.channel.base_serialize(),
+                "event": {
+                    "name": "on_member_join",
+                    "datetime": datetime_to_string(datetime.datetime.now())
+                }
+            })
 
         return member_obj.serialize()
 
