@@ -64,6 +64,11 @@ async def webhook(request):
                                  url="http://party.hellshade.fi/")
 
                 embed.title = jhook['party']['title']
+
+                # Cut description if too long
+                if len(jhook['party']['description']) > 1000:
+                    jhook['party']['description'] = jhook['party']['description'][:1000] + "..."
+
                 embed.description = "**{0}** is looking for more player to play **{1}**." \
                                     "\n{2}".format(
                     jhook['party']['leader']['name'],
