@@ -2,7 +2,6 @@ import discord
 import datetime
 import asyncio
 from discord.ext import commands, tasks
-from utils.tools import add_webhook, remove_webhook
 
 
 class Webhooks(commands.Cog):
@@ -13,41 +12,8 @@ class Webhooks(commands.Cog):
     @commands.command(name="webhook")
     async def webhook_cmd(self, ctx, *args):
         embed = discord.Embed()
-        message = ""
         if len(args) > 0:
-            if args[0] == "service":
-                if len(args) == 2:
-                    if args[1] == "start":
-                        message = "Not in use atm."
-                        embed.colour = discord.Color.red()
-                    #     self.webhook_server.start()
-                    #     message = "Webhook service started."
-                    #     embed.colour = discord.Color.green()
-
-                    elif args[1] == "restart":
-                        message = "Not in use atm."
-                        embed.colour = discord.Color.red()
-                    #     self.webhook_server.restart()
-                    #     message = "Webhook service restarted."
-                    #    embed.colour = discord.Color.green()
-
-                    elif args[1] == "stop":
-                        message = "Not in use atm."
-                        embed.colour = discord.Color.red()
-                    #     self.webhook_server.stop()
-                    #     message = "Webhook service stopped."
-                    #     embed.colour = discord.Color.orange()
-
-                    elif args[1] == "cancel":
-                        message = "Not in use atm."
-                        embed.colour = discord.Color.red()
-                    #     self.webhook_server.cancel()
-                    #     message = "Webhook service cancelled."
-                    #     embed.colour = discord.Color.red()
-                else:
-                    message = "Please provide more arguments like: start, restart or stop"
-                    embed.colour = discord.Color.red()
-            elif args[0] == "add":
+            if args[0] == "add":
                 if len(args) > 1:
                     if len(args) > 4:
                         whook = {

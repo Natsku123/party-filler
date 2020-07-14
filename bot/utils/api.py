@@ -54,36 +54,57 @@ async def webhook(request):
             channel_id = int(hook['channel'])
 
         if hook.get('type') == "partyfiller":
-            channel_id = int(jhook['party']['channel']['discordId'])
-            embed = discord.Embed()
-            icon_url = bot.user.avatar_url
+            if jhook.get('event').get('name') == "on_party_create":
+                channel_id = int(jhook['party']['channel']['discordId'])
+                embed = discord.Embed()
+                icon_url = bot.user.avatar_url
 
-            embed.set_author(name="PartyFiller",
-                             icon_url=icon_url,
-                             url="http://party.hellshade.fi/")
+                embed.set_author(name="PartyFiller",
+                                 icon_url=icon_url,
+                                 url="http://party.hellshade.fi/")
 
-            embed.title = jhook['party']['title']
-            embed.description = "{0} is looking for more player to play {1}." \
-                                "\n{2}".format(
-                jhook['party']['leader']['name'],
-                jhook['party']['game'],
-                jhook['party']['description']
-            )
-            embed.add_field(name="Players", value="{0}/{1}".format(
-                len(jhook['party']['members']),
-                jhook['party']['maxPlayers']
-            ))
+                embed.title = jhook['party']['title']
 
-            if jhook['party']['startTime'] and jhook['party']['endTime']:
-                start_time = dateutil.parser.parse(jhook['party']['startTime'])
-                end_time = dateutil.parser.parse(jhook['party']['endTime'])
-                duration = end_time - start_time
-                str_duration = duration.hours + ":" + duration.minutes + ":" + duration.seconds
-                embed.add_field(name="Duration", value="{0}".format(
-                    str_duration
+                # Cut description if too long
+                if len(jhook['party']['description']) > 1000:
+                    jhook['party']['description'] = jhook['party']['description'][:1000] + "..."
+
+                embed.description = "**{0}** is looking for more player to play **{1}**." \
+                                    "\n{2}".format(
+                    jhook['party']['leader']['name'],
+                    jhook['party']['game'],
+                    jhook['party']['description']
+                )
+                embed.add_field(name="Players", value="{0}/{1}".format(
+                    len(jhook['party']['members']),
+                    jhook['party']['maxPlayers']
                 ))
 
-            await bot.get_channel(channel_id).send(embed=embed)
+                if jhook['party']['startTime'] and jhook['party']['endTime']:
+                    start_time = dateutil.parser.parse(jhook['party']['startTime'])
+                    end_time = dateutil.parser.parse(jhook['party']['endTime'])
+                    duration = end_time - start_time
+                    str_duration = duration.hours + ":" + duration.minutes + ":" + duration.seconds
+                    embed.add_field(name="Duration", value="{0}".format(
+                        str_duration
+                    ))
+
+                await bot.get_channel(channel_id).send(embed=embed)
+            elif jhook.get('event').get('name') == "on_member_join":
+                channel_id = int(jhook['channel']['discordId'])
+                embed = discord.Embed()
+                icon_url = bot.user.avatar_url
+
+                embed.set_author(name="PartyFiller",
+                                 icon_url=icon_url,
+                                 url="http://party.hellshade.fi/")
+
+                embed.title = "**{0}** joined **{1}**!".format(
+                    jhook['member']['player']['name'],
+                    jhook['member']['party']['title']
+                )
+
+                await bot.get_channel(channel_id).send(embed=embed)
         elif hook.get('type', None) == "git":
 
             embed = discord.Embed()

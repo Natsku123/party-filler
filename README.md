@@ -3,30 +3,83 @@ Find more players to your parties from your Discord-server with Discord integrat
 and party status tracking.
 
 ## Webhook format
-```
+
+### on_party_create
+```json
 {
     "party": {
         "id": 7,
-        "title": "aoeu",
+        "title": "Title",
         "leaderId": 1,
-        "game": "Dota 2",
+        "game": "Game",
         "maxPlayers": 5,
         "minPlayers": 5,
-        "description": "aoeu",
-        "channelId": null,
+        "description": "Description",
+        "channelId": 1,
         "startTime": "1996-10-15T00:05:32Z",
         "endTime": "1996-10-15T00:05:32Z",
-        "channel": null,
-        "leader": {
+        "channel": {
             "id": 1,
-            "discordId": "128914478178762753",
-            "name": "Natsku",
-            "discriminator": "0666",
-            "icon": "a_2d7006301405f0167a0551bc8e5d2214"
-        }
+            "name": "chat",
+            "discordId": "123456789012345678",
+            "serverId": 3
+        },
+        "leader":  {
+            "id": 1,
+            "discordId": "123456789012345678",
+            "name": "Player name",
+            "discriminator": "1234",
+            "icon": "<icon id>"
+        },
         "members": [
 
         ]
+    },
+    "event": {
+        "name": "on_party_create",
+        "datetime": "1996-10-15T00:05:32Z"
+    }
+}
+```
+### on_member_join
+```json
+{
+    "member": {
+        "id": 4,
+        "playerReq": null,
+        "partyId": 9,
+        "playerId": 1,
+        "roleId": null,
+        "party": {
+            "id": 9,
+            "title": "Title",
+            "leaderId": 2,
+            "game": "Game",
+            "maxPlayers": 1,
+            "minPlayers": 1,
+            "description": "nopee testi - SUORITETTU",
+            "channelId": 1,
+            "startTime": "1996-10-15T00:05:32Z",
+            "endTime": "1996-10-15T00:05:32Z"
+        },
+        "player": {
+            "id": 1,
+            "discordId": "123456789012345678",
+            "name": "Player name",
+            "discriminator": "1234",
+            "icon": "<icon id>"
+        },
+        "role": null
+    },
+    "channel": {
+        "id": 1,
+        "name": "chat",
+        "discordId": "123456789012345678",
+        "serverId": 3
+    },
+    "event": {
+        "name": "on_member_join",
+        "datetime": "1996-10-15T00:05:32Z"
     }
 }
 ```
