@@ -11,7 +11,7 @@ from flask_login import LoginManager, current_user, login_required, login_user, 
 from authlib.integrations.flask_client import OAuth, token_update
 
 from modules.models import db, Player, Party, Role, Member, Server, Channel, OAuth2Token
-from modules.utils import custom_get, custom_check, snake_dict_to_camel, send_webhook
+from modules.utils import custom_get, custom_check, snake_dict_to_camel, send_webhook, get_channel_info
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET')
@@ -51,19 +51,6 @@ def on_token_update(sender, name, token, refresh_token=None, access_token=None):
     token_obj.expires_at = token['expires_at']
     db.session.add(token_obj)
     db.session.commit()
-
-
-def update_token(name, token):
-    token_obj = OAuth2Token.query.filter_by(name=name, player_id=current_user.id).first()
-    if not token_obj:
-        token_obj = OAuth2Token(name=name, player_id=current_user.id)
-    token_obj.token_type = token.get('token_type', 'bearer')
-    token_obj.access_token = token.get('access_token')
-    token_obj.refresh_token = token.get('refresh_token')
-    token_obj.expires_at = token.get('expires_at')
-    db.session.add(token_obj)
-    db.session.commit()
-    return token_obj
 
 
 def fetch_discord_token():
@@ -636,14 +623,16 @@ class ChannelResources(Resource):
     def post(self):
         channel = custom_get(request.get_json(), 'channel')
 
-        channel_dc = oauth.discord.get(
-            'channels/{:}'.format(custom_get(channel, 'discord_id'))
-        ).json()
+        channel_dc = get_channel_info(custom_get(channel, 'discord_id'))
 
         logger.debug(channel_dc)
 
         if 'code' in channel_dc:
             logger.error("Discord Error: " + str(channel_dc['code']) + " " + str(channel_dc['message']))
+
+            if channel_dc['code'] == 50001:
+                return {"status": "error", "message": "Discord bot has no access to channel"}
+
             abort(400)
 
         if channel is None or channel_dc is None:
@@ -681,7 +670,7 @@ class ServerChannelResources(Resource):
     )
     @check_camel
     def get(self, server_id):
-        return list(map(lambda channel: channel.serialize(), Channel.query.filter_by(server_id=server_id).order_by(Party.id).all()))
+        return list(map(lambda channel: channel.serialize(), Channel.query.filter_by(server_id=server_id).order_by(Channel.id).all()))
 
 
 class PlayerResource(Resource):
@@ -816,6 +805,40 @@ class PlayerResources(Resource):
 
         if player is None:
             abort(404)
+
+        resp = oauth.discord.get('users/@me')
+        profile = resp.json()
+
+        logger.debug(profile)
+
+        if 'code' not in profile:
+            # Update player info
+            player.name = profile.get('username', player.name)
+            player.discriminator = profile.get('discriminator', player.discriminator)
+            player.icon = profile.get('avatar', player.icon)
+
+            # Get servers that Player uses
+            guilds = oauth.discord.get('users/@me/guilds')
+
+            # Create new servers if doesn't already exist or update existing
+            for guild in guilds.json():
+                server = Server.query.filter_by(discord_id=guild['id']).first()
+
+                if server is None:
+                    server = Server(
+                        name=guild.get('name'),
+                        icon=guild.get('icon'),
+                        discord_id=guild.get('id')
+                    )
+
+                else:
+                    server.name = guild.get('name', server.name)
+                    server.icon = guild.get('icon', server.icon)
+
+                db.session.add(server)
+
+            db.session.add(player)
+            db.session.commit()
 
         return player.serialize()
 
@@ -1261,6 +1284,7 @@ def authorize():
         player = Player(
             discord_id=profile.get('id'),
             name=profile.get('username'),
+            discriminator=profile.get('discriminator'),
             icon=profile.get('avatar'),
             is_authenticated=True
         )

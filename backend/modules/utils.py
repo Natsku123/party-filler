@@ -92,6 +92,21 @@ def datetime_to_string(date: datetime):
     return date.replace(tzinfo=pytz.UTC).isoformat("T").split("+")[0] + "Z"
 
 
+def get_channel_info(discord_id: str):
+    """
+    Use bot user to get channel info
+    :param discord_id: discord id of channel
+    :return: channel object
+    """
+    r = requests.get(
+        'https://discord.com/api/v6/channels/' + discord_id,
+        headers={'Authorization': 'Bot ' + str(os.environ.get(
+            'BOT_TOKEN', 'NO TOKEN'
+        ))}
+    )
+    return r.json()
+
+
 def send_webhook(content):
     if os.environ.get('WEBHOOK_ID') and content:
         requests.post(
