@@ -2,6 +2,7 @@
 *.vim
 venv/
 data/
+.env.backup
 .env
 .DS_Store
 backend/migrations
