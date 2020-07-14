@@ -21,6 +21,10 @@ echo "Secret for Flask: "
 read flask_secret
 echo "Discord Bot token: "
 read bot_token
+echo "Bot owner (Discord ID): "
+read bot_owner
+echo "Debug / default channel (Discord ID): "
+read debug_channel
 echo -e "DATABASE=$database\n" | tee -a .env
 echo -e "DB_USER=$db_user\n" | tee -a .env
 echo -e "DB_PASSWORD=$db_pass\n" | tee -a .env
@@ -29,8 +33,10 @@ echo -e "CLIENT_ID=$client_id\n" | tee -a .env
 echo -e "CLIENT_SECRET=$client_secret\n" | tee -a .env
 echo -e "API_HOSTNAME=$api_hostname\n" | tee -a .env
 echo -e "SITE_HOSTNAME=$site_hostname\n" | tee -a .env
-echo -e "FLASK_SECRET=$flask_secret" | tee -a .env
-echo -e "BOT_TOKEN=$bot_token" | tee -a .env
+echo -e "FLASK_SECRET=$flask_secret\n" | tee -a .env
+echo -e "BOT_TOKEN=$bot_token\n" | tee -a .env
+echo -e "BOT_OWNER=$bot_owner\n" | tee -a .env
+echo -e "DEBUG_CHANNEL=$debug_channel\n" | tee -a .env
 echo -e "WEBHOOK_ID=" | tee -a .env
 
 echo "Building docker containers..."
