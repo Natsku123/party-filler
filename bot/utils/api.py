@@ -64,7 +64,7 @@ async def webhook(request):
                                  url="http://party.hellshade.fi/")
 
                 embed.title = jhook['party']['title']
-                embed.description = "{0} is looking for more player to play {1}." \
+                embed.description = "**{0}** is looking for more player to play **{1}**." \
                                     "\n{2}".format(
                     jhook['party']['leader']['name'],
                     jhook['party']['game'],
@@ -94,27 +94,10 @@ async def webhook(request):
                                  icon_url=icon_url,
                                  url="http://party.hellshade.fi/")
 
-                embed.title = jhook['party']['title']
-                embed.description = "{0} is looking for more player to play {1}." \
-                                    "\n{2}".format(
-                    jhook['party']['leader']['name'],
-                    jhook['party']['game'],
-                    jhook['party']['description']
+                embed.title = "**{0}** joined **{1}**!".format(
+                    jhook['member']['player']['name'],
+                    jhook['member']['party']['title']
                 )
-                embed.add_field(name="Players", value="{0}/{1}".format(
-                    len(jhook['party']['members']),
-                    jhook['party']['maxPlayers']
-                ))
-
-                if jhook['party']['startTime'] and jhook['party']['endTime']:
-                    start_time = dateutil.parser.parse(
-                        jhook['party']['startTime'])
-                    end_time = dateutil.parser.parse(jhook['party']['endTime'])
-                    duration = end_time - start_time
-                    str_duration = duration.hours + ":" + duration.minutes + ":" + duration.seconds
-                    embed.add_field(name="Duration", value="{0}".format(
-                        str_duration
-                    ))
 
                 await bot.get_channel(channel_id).send(embed=embed)
         elif hook.get('type', None) == "git":
