@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import {
+  Button,
+} from '@material-ui/core'
 
 import PartyEdit from './PartyEdit'
 
@@ -42,11 +45,14 @@ const Party = () => {
   const isLeader = user && user.id === party.leaderId
 
   const join = () => {
+    const notify = window.confirm("Do you want discord notifications?")
+
     const memberObj = {
       "member" : {
         partyReq: party.min_players,
         partyId: party.id,
         playerId: user.id,
+        notify,
       }
     }
 
@@ -60,7 +66,7 @@ const Party = () => {
       .leave(party.id, user.id)
       .then(res => {
         if (res.status === "success") {
-          setMembers(members.filter(member => member.id !== user.id))
+          setMembers(members.filter(member => member.player.id !== user.id))
         }
       })
   }
@@ -82,13 +88,13 @@ const Party = () => {
             { isLeader ?
                 <div>
                   <p>Olet johtaja</p>
-                  <button onClick={ () => setEdit(true) }>Edit</button>
+                  <Button variant='contained' color='primary' onClick={ () => setEdit(true) }>Edit</Button>
                 </div> :
                 <p>Et ole johtaja</p>
             }
             { isMember ?
-                <button onClick={leave}>Leave</button> :
-                <button onClick={join}>Join</button>
+                <Button variant='contained' color='secondary' onClick={leave}>Leave</Button> :
+                <Button variant='contained' color='primary' onClick={join}>Join</Button>
             }
           </div>
       }
@@ -108,7 +114,7 @@ const Party = () => {
       */}
       <h2>Members</h2>
       <ul>
-        {members.map(member => <li key={member}>{member.player.name}</li>)}
+        {members.map(member => <li key={member.player.id}>{member.player.name}</li>)}
       </ul>
     </div>
   )
