@@ -42,11 +42,14 @@ const Party = () => {
   const isLeader = user && user.id === party.leaderId
 
   const join = () => {
+    const notify = window.confirm("Do you want discord notifications?")
+
     const memberObj = {
       "member" : {
         partyReq: party.min_players,
         partyId: party.id,
         playerId: user.id,
+        notify,
       }
     }
 
