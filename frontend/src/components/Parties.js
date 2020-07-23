@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import {
+  Table,
+  TableHead,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
+  Button,
+  Paper,
+} from '@material-ui/core'
 
 import partyService from '../services/parties'
 
@@ -20,30 +30,32 @@ const Parties = () => {
   }
 
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Game</th>
-          <th>Members</th>
-          <th />
-        </tr>
-      </thead>
-      <tbody>
-        {parties.map((party, i) => 
-          <tr key={i}>
-            <td style={padding} >{party.title}</td>
-            <td style={padding} >{party.game}</td>
-            <td style={padding} >{`${party.members.length}`}</td>
-            <td style={padding} >
-              <Link to={`/parties/${party.id}`}>
-                <button type='button'>show</button>
-              </Link>
-            </td>
-          </tr>
-        )}
-      </tbody>
-    </table>
+    <TableContainer component={Paper}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Title</TableCell>
+            <TableCell>Game</TableCell>
+            <TableCell>Members</TableCell>
+            <TableCell />
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {parties.map((party, i) =>
+            <TableRow key={i}>
+              <TableCell style={padding} >{party.title}</TableCell>
+              <TableCell style={padding} >{party.game}</TableCell>
+              <TableCell style={padding} >{`${party.members.length}`}</TableCell>
+              <TableCell style={padding} >
+                <Link to={`/parties/${party.id}`}>
+                  <Button variant='contained' color='primary' type='button'>show</Button>
+                </Link>
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </TableContainer>
   )
 }
 

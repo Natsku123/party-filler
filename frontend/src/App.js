@@ -2,7 +2,14 @@ import React, { useState, useEffect } from 'react'
 import {
   BrowserRouter as Router,
   Switch, Route, Link
-} from "react-router-dom"
+} from 'react-router-dom'
+import {
+  Container,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Button,
+} from '@material-ui/core'
 
 import ChannelForm from './components/ChannelForm'
 import PartyForm from './components/party/PartyForm'
@@ -37,40 +44,45 @@ const App = () => {
   }
 
   return (
-    <Router basename="/#">
-      <div>
-        <Link to="/" style={padding}>Home</Link>
-        <Link to="/channels/create" style={padding}>New Channel</Link>
-        <Link to="/parties/create" style={padding}>New Party</Link>
-        <Link to="/parties" style={padding}>Parties</Link>
-        { user
-            ? <Link to={`/players/${user.id}`} style={padding}>{user.name}</Link>
-            : <a href={ getUrl() } style={padding}>Login</a>
-        }
-      </div>
+    <Container>
+      <Router basename="/#">
+        <AppBar position='static'>
+          <Toolbar>
+            <IconButton edge="start" color="inherit" aria-label="menu"></IconButton>
+            <Button color='inherit' component={Link} to="/" style={padding}>Home</Button>
+            <Button color='inherit' component={Link} to="/channels/create" style={padding}>New Channel</Button>
+            <Button color='inherit' component={Link} to="/parties/create" style={padding}>New Party</Button>
+            <Button color='inherit' component={Link} to="/parties" style={padding}>Parties</Button>
+            { user
+                ? <Button color='inherit' component={Link} to={`/players/${user.id}`} style={padding}>{user.name}</Button>
+                : <Button color='inherit' component='a' href={ getUrl() } style={padding}>Login</Button>
+            }
+          </Toolbar>
+        </AppBar>
 
-      <Switch>
-        <Route path="/channels/create">
-          <ChannelForm />
-        </Route>
-        <Route path="/parties/create">
-          <PartyForm />
-        </Route>
-        <Route path="/parties/:id">
-          <Party />
-        </Route>
-        <Route path="/parties">
-          <Parties />
-        </Route>
-        <Route path="/players/:id">
-          <User />
-        </Route>
-        <Route path="/">
-          <h1>Home Page</h1>
-        </Route>
-      </Switch>
+        <Switch>
+          <Route path="/channels/create">
+            <ChannelForm />
+          </Route>
+          <Route path="/parties/create">
+            <PartyForm />
+          </Route>
+          <Route path="/parties/:id">
+            <Party />
+          </Route>
+          <Route path="/parties">
+            <Parties />
+          </Route>
+          <Route path="/players/:id">
+            <User />
+          </Route>
+          <Route path="/">
+            <h1>Home Page</h1>
+          </Route>
+        </Switch>
 
-    </Router>
+      </Router>
+    </Container>
   )
 }
 

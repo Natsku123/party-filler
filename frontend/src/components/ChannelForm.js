@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
+import {
+  TextField,
+  Button,
+} from '@material-ui/core'
 
 import channelService from '../services/channels'
-
-// nimi, discordId, serverId
 
 const ChannelForm = () => {
   const [ name, setName ] = useState('')
@@ -30,15 +32,15 @@ const ChannelForm = () => {
   return (
     <form onSubmit={createChannel}>
       <div>
-        Name: <input value={name} onChange={({target}) => setName(target.value)}/>
+        <TextField label="Name" value={name} onChange={({target}) => setName(target.value)}/>
       </div>
       <div>
-        Discord Id: <input value={discordId} onChange={({target}) => setDiscordId(target.value)}/>
+        <TextField label="Discord Id" value={discordId} onChange={({target}) => setDiscordId(target.value)}/>
       </div>
       <div>
-        Server Id: <input type='number' value={serverId} onChange={({target}) => setServerId(target.value)}/>
+        <TextField label="Server Id" type='number' value={serverId} onChange={({target}) => setServerId(target.value)}/>
       </div>
-      <button type='submit'>Create Channel</button>
+      <Button variant='contained' color='primary' type='submit'>Create Channel</Button>
     </form>
   )
 }
