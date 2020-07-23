@@ -37,7 +37,7 @@ const App = () => {
   }
 
   return (
-    <Router>
+    <Router basename="/#">
       <div>
         <Link to="/" style={padding}>Home</Link>
         <Link to="/channels/create" style={padding}>New Channel</Link>
