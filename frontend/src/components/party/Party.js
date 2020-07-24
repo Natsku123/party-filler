@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import {
   Button,
+  List,
+  ListItem,
 } from '@material-ui/core'
 
 import PartyEdit from './PartyEdit'
@@ -113,9 +115,9 @@ const Party = () => {
       <p>Leader: {party.leader.name}</p>
       */}
       <h2>Members</h2>
-      <ul>
-        {members.map(member => <li key={member.player.id}>{member.player.name}</li>)}
-      </ul>
+      <List>
+        {members.map(member => <ListItem key={member.player.id}>{member.player.name}</ListItem>)}
+      </List>
     </div>
   )
 }
