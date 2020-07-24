@@ -71,7 +71,7 @@ const PartyEdit = ({ party, setEdit, setParty }) => {
           <DateTimePicker label="Start Time" value={startTime} onChange={setStartTime}/>
         </div>
         <div>
-          <TextField label="End Time" value={endTime} onChange={setEndTime}/>
+          <DateTimePicker label="End Time" value={endTime} onChange={setEndTime}/>
         </div>
       </MuiPickersUtilsProvider>
 

@@ -46,8 +46,8 @@ const PartyForm = () => {
     setMaxPlayers(5)
     setMinPlayers(5)
     setDescription('')
-    setStartTime('')
-    setEndTime('')
+    setStartTime(new Date())
+    setEndTime(new Date())
 
     // setChannelId(5)
   }
@@ -77,7 +77,7 @@ const PartyForm = () => {
           <DateTimePicker label="Start Time" value={startTime} onChange={setStartTime}/>
         </div>
         <div>
-          <TextField label="End Time" value={endTime} onChange={setEndTime}/>
+          <DateTimePicker label="End Time" value={endTime} onChange={setEndTime}/>
         </div>
       </MuiPickersUtilsProvider>
 
