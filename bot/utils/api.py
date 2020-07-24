@@ -69,6 +69,7 @@ async def webhook(request):
                 if len(jhook['party']['description']) > 1000:
                     jhook['party']['description'] = jhook['party']['description'][:1000] + "..."
 
+                # TODO add join link
                 embed.description = "**{0}** is looking for more player to play **{1}**." \
                                     "\n{2}".format(
                     jhook['party']['leader']['name'],

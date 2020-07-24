@@ -597,8 +597,32 @@ class ChannelResource(Resource):
 
 class ChannelResources(Resource):
     method_decorators = {
+        'get': [login_required],
         'post': [login_required],
     }
+
+    @swagger.operation(
+        notes='Get all channels for users servers.',
+        responseClass=Channel.__name__,
+        responseMessages=[
+            {
+                "code": 404,
+                "message": "Player not found."
+            }
+        ]
+    )
+    def get(self):
+        player = Player.query.filter_by(id=current_user.id).first()
+        if player is None:
+            abort(404)
+
+        server_ids = []
+        for server in player.servers:
+            server_ids.append(server.id)
+
+        channels = Channel.query.filter(Channel.server_id.in_(server_ids)).all
+        return list(map(lambda channel: channel.serialize(), channels))
+
     @swagger.operation(
         notes='Add a channel to a server.',
         responseClass=Channel.__name__,
