@@ -3,6 +3,11 @@ import {
   TextField,
   Button,
 } from '@material-ui/core'
+import {
+  DateTimePicker,
+  MuiPickersUtilsProvider,
+} from '@material-ui/pickers'
+import MomentUtils from '@date-io/moment';
 
 import partyService from '../../services/parties'
 
@@ -15,8 +20,10 @@ const PartyForm = () => {
   const [ minPlayers, setMinPlayers ] = useState(5)
   const [ description, setDescription ] = useState('')
   const [ channelId, setChannelId ] = useState(5)
-  const [ startTime, setStartTime ] = useState('1996-10-15T00:05:32.000Z')
+  const [ startTime, setStartTime ] = useState(new Date())
   const [ endTime, setEndTime ] = useState('1996-10-15T00:05:32.000Z')
+
+  console.log(startTime.toISOString())
 
   const createParty = (event) => {
     event.preventDefault()
@@ -41,10 +48,10 @@ const PartyForm = () => {
     setMaxPlayers(5)
     setMinPlayers(5)
     setDescription('')
+    setStartTime('')
+    setEndTime('')
 
     // setChannelId(5)
-    // setStartTime('')
-    // setEndTime('')
   }
 
   return (
@@ -67,6 +74,15 @@ const PartyForm = () => {
       <div>
         <TextField label="Description" value={description} onChange={({target}) => setDescription(target.value)}/>
       </div>
+      <MuiPickersUtilsProvider utils={MomentUtils}>
+        <div>
+          <DateTimePicker label="Start Time" value={startTime} onChange={setStartTime}/>
+        </div>
+        <div>
+          <TextField label="End Time" value={endTime} onChange={setEndTime}/>
+        </div>
+      </MuiPickersUtilsProvider>
+
       {/*
       <div>
         <TextField label="Channel Id" type='number' value={channelId} onChange={({target}) => setChannelId(target.value)}/>
