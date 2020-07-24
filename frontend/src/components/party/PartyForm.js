@@ -21,9 +21,7 @@ const PartyForm = () => {
   const [ description, setDescription ] = useState('')
   const [ channelId, setChannelId ] = useState(5)
   const [ startTime, setStartTime ] = useState(new Date())
-  const [ endTime, setEndTime ] = useState('1996-10-15T00:05:32.000Z')
-
-  console.log(startTime.toISOString())
+  const [ endTime, setEndTime ] = useState(new Date())
 
   const createParty = (event) => {
     event.preventDefault()
@@ -72,7 +70,7 @@ const PartyForm = () => {
         <TextField label="Min Players" type='number' min='1' value={minPlayers} onChange={({target}) => setMinPlayers(target.value)}/>
       </div>
       <div>
-        <TextField label="Description" value={description} onChange={({target}) => setDescription(target.value)}/>
+        <TextField label="Description" value={description} onChange={({target}) => setDescription(target.value)} multiline/>
       </div>
       <MuiPickersUtilsProvider utils={MomentUtils}>
         <div>

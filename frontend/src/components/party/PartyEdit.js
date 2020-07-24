@@ -13,6 +13,8 @@ const PartyEdit = ({ party, setEdit, setParty }) => {
   const [ maxPlayers, setMaxPlayers ] = useState(party.maxPlayers)
   const [ minPlayers, setMinPlayers ] = useState(party.maxPlayers)
   const [ description, setDescription ] = useState(party.description)
+  const [ startTime, setStartTime ] = useState(new Date())
+  const [ endTime, setEndTime ] = useState(new Date())
 
   const editParty = (event) => {
     event.preventDefault()
@@ -24,6 +26,8 @@ const PartyEdit = ({ party, setEdit, setParty }) => {
         maxPlayers,
         minPlayers,
         description,
+        startTime,
+        endTime,
       }
     }
 
@@ -55,8 +59,17 @@ const PartyEdit = ({ party, setEdit, setParty }) => {
         <TextField label="Min Players" type='number' min='1' value={minPlayers} onChange={({target}) => setMinPlayers(target.value)}/>
       </div>
       <div>
-        <TextField label="Description" value={description} onChange={({target}) => setDescription(target.value)}/>
+        <TextField label="Description" value={description} onChange={({target}) => setDescription(target.value)} multiline/>
       </div>
+      <MuiPickersUtilsProvider utils={MomentUtils}>
+        <div>
+          <DateTimePicker label="Start Time" value={startTime} onChange={setStartTime}/>
+        </div>
+        <div>
+          <TextField label="End Time" value={endTime} onChange={setEndTime}/>
+        </div>
+      </MuiPickersUtilsProvider>
+
       {/*
       <div>
         <TextField label="Channel Id" type='number' value={channelId} onChange={({target}) => setChannelId(target.value)}/>
