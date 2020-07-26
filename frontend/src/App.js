@@ -19,7 +19,7 @@ import User from './components/User'
 
 import playerService from './services/users'
 
-const getUrl = () => {
+const getLoginUrl = () => {
   const params = [
     'client_id=718047907617439804',
     'redirect_uir=http%3A%2F%2Fapi.party.hellshade.fi%2Foauth2%2Fcallback',
@@ -28,6 +28,10 @@ const getUrl = () => {
   ].join('&')
 
   return `https://discord.com/api/oauth2/authorize?${params}`
+}
+
+const getLogoutUrl = () => {
+  return 'http://api.party.hellshade.fi/logout'
 }
 
 const App = () => {
@@ -53,9 +57,12 @@ const App = () => {
             <Button color='inherit' component={Link} to="/channels/create" style={padding}>New Channel</Button>
             <Button color='inherit' component={Link} to="/parties/create" style={padding}>New Party</Button>
             <Button color='inherit' component={Link} to="/parties" style={padding}>Parties</Button>
-            { user
-                ? <Button color='inherit' component={Link} to={`/players/${user.id}`} style={padding}>{user.name}</Button>
-                : <Button color='inherit' component='a' href={ getUrl() } style={padding}>Login</Button>
+            { user ?
+                <div>
+                  <Button color='inherit' component={Link} to={`/players/${user.id}`} style={padding}>{user.name}</Button>
+                  <Button color='inherit' component='a' href={ getLogoutUrl() } style={padding}>Logout</Button>
+                </div> :
+                <Button color='inherit' component='a' href={ getLoginUrl() } style={padding}>Login</Button>
             }
           </Toolbar>
         </AppBar>
