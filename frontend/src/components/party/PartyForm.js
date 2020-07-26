@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   TextField,
   Button,
@@ -9,11 +9,21 @@ import {
 } from '@material-ui/pickers'
 import MomentUtils from '@date-io/moment';
 
+import SplitButton from '../SplitButton'
+
 import partyService from '../../services/parties'
+import channelService from '../../services/channels'
+
+const initialChannels = [
+  "none",
+  "chess",
+  "gw",
+  "dotka",
+]
 
 const PartyForm = () => {
-  // TODO: custom hook, fix time
   const [ title, setTitle ] = useState('')
+  const [ selectedChannel, setSelectedChannel ] = useState(0)
   const [ leaderId, setLeaderId ] = useState(1)
   const [ game, setGame ] = useState('Dota 2')
   const [ maxPlayers, setMaxPlayers ] = useState(5)
@@ -22,6 +32,18 @@ const PartyForm = () => {
   const [ channelId, setChannelId ] = useState(5)
   const [ startTime, setStartTime ] = useState(new Date())
   const [ endTime, setEndTime ] = useState(new Date())
+
+  const [ channels, setChannels ] = useState(null)
+
+  useEffect(() => {
+    setChannels(initialChannels)
+    /*
+     * Wait for backend to implement 'get all channels'
+    channelService
+      .getAll()
+      .then(res => setChannels(res))
+      */
+  }, [])
 
   const createParty = (event) => {
     event.preventDefault()
@@ -56,6 +78,15 @@ const PartyForm = () => {
     <form onSubmit={createParty}>
       <div>
         <TextField label="title" value={title} onChange={({target}) => setTitle(target.value)}/>
+      </div>
+      <div>
+        { channels ?
+            <div>
+              channel:
+              <SplitButton options={channels} selected={selectedChannel} setSelected={setSelectedChannel}/>
+            </div> :
+            <div>loading channels...</div>
+        }
       </div>
       <div>
         <TextField label="Leader Id" type='number' value={leaderId} onChange={({target}) => setLeaderId(target.value)}/>

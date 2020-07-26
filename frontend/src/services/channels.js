@@ -19,6 +19,12 @@ const create = async (channelObj) => {
   return response.data
 }
 
+const getAll = async () => {
+  const response = await instance.get('')
+  return response.data
+}
+
 export default {
   create,
+  getAll,
 }
