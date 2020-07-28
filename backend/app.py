@@ -328,7 +328,7 @@ class PartyPageResource(Resource):
     )
     @check_camel
     def get(self, page, per_page):
-        return list(map(lambda party: party.serialize(), Party.query.order_by(Party.id.desc()).all().paginate(page, per_page)))
+        return list(map(lambda party: party.serialize(), Party.query.order_by(Party.id.desc()).paginate(page, per_page).items))
 
 
 class ServerResource(Resource):
