@@ -25,19 +25,18 @@ echo "Bot owner (Discord ID): "
 read bot_owner
 echo "Debug / default channel (Discord ID): "
 read debug_channel
-echo -e "DATABASE=$database\n" | tee -a .env
-echo -e "DB_USER=$db_user\n" | tee -a .env
-echo -e "DB_PASSWORD=$db_pass\n" | tee -a .env
-echo -e "ROOT_PASSWORD=$root_pass\n" | tee -a .env
-echo -e "CLIENT_ID=$client_id\n" | tee -a .env
-echo -e "CLIENT_SECRET=$client_secret\n" | tee -a .env
-echo -e "API_HOSTNAME=$api_hostname\n" | tee -a .env
-echo -e "SITE_HOSTNAME=$site_hostname\n" | tee -a .env
-echo -e "FLASK_SECRET=$flask_secret\n" | tee -a .env
-echo -e "BOT_TOKEN=$bot_token\n" | tee -a .env
-echo -e "BOT_OWNER=$bot_owner\n" | tee -a .env
-echo -e "DEBUG_CHANNEL=$debug_channel\n" | tee -a .env
-echo -e "WEBHOOK_ID=" | tee -a .env
+echo "DATABASE=$database" >> .env
+echo "DB_USER=$db_user" >> .env
+echo "DB_PASSWORD=$db_pass" >> .env
+echo "ROOT_PASSWORD=$root_pass" >> .env
+echo "CLIENT_ID=$client_id" >> .env
+echo "CLIENT_SECRET=$client_secret" >> .env
+echo "API_HOSTNAME=$api_hostname" >> .env
+echo "SITE_HOSTNAME=$site_hostname" >> .env
+echo "FLASK_SECRET=$flask_secret" >> .env
+echo "BOT_TOKEN=$bot_token" >> .env
+echo "BOT_OWNER=$bot_owner" >> .env
+echo "DEBUG_CHANNEL=$debug_channel" >> .env
 
 echo "Building docker containers..."
 docker-compose -f docker-compose-production.yml build
