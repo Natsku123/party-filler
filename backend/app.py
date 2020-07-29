@@ -620,7 +620,7 @@ class ChannelResources(Resource):
         for server in player.servers:
             server_ids.append(server.id)
 
-        channels = Channel.query.filter(Channel.server_id.in_(server_ids)).all
+        channels = Channel.query.filter(Channel.server_id.in_(server_ids)).all()
         return list(map(lambda channel: channel.serialize(), channels))
 
     @swagger.operation(
