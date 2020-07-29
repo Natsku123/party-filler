@@ -295,7 +295,7 @@ class Party(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True)
     title = db.Column(db.String(255), nullable=False)
     leader_id = db.Column(db.Integer, db.ForeignKey('players.id'))
-    game = db.Column(db.String(64))
+    game_id = db.Column(db.Integer, db.ForeignKey('games.id'))
     max_players = db.Column(db.Integer)
     min_players = db.Column(db.Integer)
     description = db.Column(db.Text())
@@ -306,6 +306,7 @@ class Party(db.Model):
     channel = db.relationship('Channel')
     leader = db.relationship('Player')
     members = db.relationship('Member')
+    game = db.relationship('Game')
 
     swagger_metadata = {
         "id": {
@@ -443,3 +444,33 @@ class Role(db.Model):
             "max_players": self.max_players,
             "party": base_serialize(self.party)
         }
+
+
+@modules.utils.model
+class Game(db.Model):
+    __tablename__ = 'games'
+    id = db.Column(db.Integer, primary_key=True, unique=True)
+    name = db.Column(db.String(255), nullable=False)
+    default_max_players = db.Column(db.Integer)
+
+    swagger_metadata = {
+        "id": {
+            "type": int.__name__
+        },
+        "name": {
+            "type": str.__name__
+        },
+        "default_max_players": {
+            "type": int.__name__
+        }
+    }
+
+    def base_serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "default_max_players": self.default_max_players
+        }
+
+    def serialize(self):
+        return self.base_serialize()

@@ -10,7 +10,7 @@ from flask_cors import CORS
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from authlib.integrations.flask_client import OAuth, token_update
 
-from modules.models import db, Player, Party, Role, Member, Server, Channel, OAuth2Token
+from modules.models import db, Player, Party, Role, Member, Server, Channel, OAuth2Token, Game
 from modules.utils import custom_get, custom_check, snake_dict_to_camel, send_webhook, get_channel_info, datetime_to_string
 
 app = Flask(__name__)
@@ -328,7 +328,7 @@ class PartyPageResource(Resource):
     )
     @check_camel
     def get(self, page, per_page):
-        return list(map(lambda party: party.serialize(), Party.query.order_by(Party.id.desc()).all().paginate(page, per_page)))
+        return list(map(lambda party: party.serialize(), Party.query.order_by(Party.id.desc()).paginate(page, per_page).items))
 
 
 class ServerResource(Resource):
@@ -597,8 +597,32 @@ class ChannelResource(Resource):
 
 class ChannelResources(Resource):
     method_decorators = {
+        'get': [login_required],
         'post': [login_required],
     }
+
+    @swagger.operation(
+        notes='Get all channels for users servers.',
+        responseClass=Channel.__name__,
+        responseMessages=[
+            {
+                "code": 404,
+                "message": "Player not found."
+            }
+        ]
+    )
+    def get(self):
+        player = Player.query.filter_by(id=current_user.id).first()
+        if player is None:
+            abort(404)
+
+        server_ids = []
+        for server in player.servers:
+            server_ids.append(server.id)
+
+        channels = Channel.query.filter(Channel.server_id.in_(server_ids)).all
+        return list(map(lambda channel: channel.serialize(), channels))
+
     @swagger.operation(
         notes='Add a channel to a server.',
         responseClass=Channel.__name__,
@@ -1242,6 +1266,54 @@ class RoleResources(Resource):
         return role_obj.serialize()
 
 
+class GameResources(Resource):
+    method_decorators = {
+        'post': [login_required]
+    }
+
+    @swagger.operation(
+        notes='Get list of registered games.',
+        responseClass=Game.__name__
+    )
+    @check_camel
+    def get(self):
+        return list(map(lambda game: game.serialize(), Game.query.order_by(Game.name.asc()).all()))
+
+    @swagger.operation(
+        notes='Register game',
+        responseClass=Game.__name__,
+        responseMessages=[
+            {
+                "code": 400,
+                "message": "Game object not found as input."
+            }
+        ],
+        parameters=[
+            {
+                "dataType": Game.__name__,
+                "required": True,
+                "name": "game"
+            }
+        ]
+    )
+    @check_camel
+    def post(self):
+        game = custom_get(request.get_json(), 'game')
+
+        if game is None:
+            abort(400)
+
+        game_obj = Game(
+            name=custom_get(game, 'name'),
+            defaul_max_players=custom_get(game, 'default_max_players')
+        )
+
+        db.session.add(game_obj)
+        db.session.commit()
+
+        return game_obj.serialize()
+
+
 api.add_resource(PartyResource, '/parties/<int:party_id>')
 api.add_resource(PartyResources, '/parties')
 api.add_resource(PartyPageResource, '/parties/page/<int:page>/per/<int:per_page>')
@@ -1256,6 +1328,7 @@ api.add_resource(MemberResource, '/parties/<int:party_id>/players/<int:player_id
 api.add_resource(MemberResources, '/parties/<int:party_id>/players')
 api.add_resource(RoleResource, '/roles/<int:role_id>')
 api.add_resource(RoleResources, '/parties/<int:party_id>/roles')
+api.add_resource(GameResources, '/games')
 
 
 @app.route('/login')
