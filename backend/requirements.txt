@@ -1,12 +1,2 @@
-flask
-flask-restful
-flask-restful-swagger
-flask-sqlalchemy
-flask-migrate
-flask-cors
-flask-login
-authlib
-mysql-connector-python
-pymysql
-requests
-blinker
+fastapi[all]
+uvicorn
