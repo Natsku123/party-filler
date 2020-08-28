@@ -2,31 +2,6 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
-# Forward declaration
-class Server:
-    pass
-
-
-class Party:
-    pass
-
-
-class Channel:
-    pass
-
-
-class Role:
-    pass
-
-
-class Game:
-    pass
-
-
-class Player:
-    pass
-
-
 class OAuth2TokenBase(BaseModel):
     player_id: int
     name: str
@@ -119,7 +94,7 @@ class GameCreate(GameBase):
 
 class OAuth2Token(OAuth2TokenBase):
     token_id: int
-    player: Player
+    player: 'Player'
 
     class Config:
         orm_mode = True
@@ -127,7 +102,7 @@ class OAuth2Token(OAuth2TokenBase):
 
 class Player(PlayerBase):
     id: int
-    servers: List[Server] = []
+    servers: List['Server'] = []
 
     class Config:
         orm_mode = True
@@ -135,9 +110,9 @@ class Player(PlayerBase):
 
 class Member(MemberBase):
     id: int
-    party: Party
+    party: 'Party'
     player: Player
-    role: Role
+    role: 'Role'
 
     class Config:
         orm_mode = True
@@ -145,10 +120,10 @@ class Member(MemberBase):
 
 class Party(PartyBase):
     id: int
-    channel: Channel
+    channel: 'Channel'
     leader: Player
     members: List[Member] = []
-    game: Game
+    game: 'Game'
 
     class Config:
         orm_mode = True
@@ -183,3 +158,13 @@ class Game(GameBase):
 
     class Config:
         orm_mode = True
+
+
+OAuth2Token.update_forward_refs()
+Player.update_forward_refs()
+Member.update_forward_refs()
+Party.update_forward_refs()
+Channel.update_forward_refs()
+Server.update_forward_refs()
+Role.update_forward_refs()
+Game.update_forward_refs()
