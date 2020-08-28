@@ -1,3 +1,9 @@
-fastapi[all]
+fastapi
 uvicorn
 sqlalchemy
+PyJWT
+alembic
+pytz
+requests
+pymysql
+cryptography
