@@ -5,19 +5,20 @@ from modules.utils import base_serialize, datetime_to_string
 from sqlalchemy import Boolean, \
     Column, ForeignKey, Integer, String, Table, DateTime, Text
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import declarative_base
 
-Base = declarative_base()
+from modules import Base
 
 
 player_server_association = Table(
     'players_servers',
+    Base.metadata,
     Column('player_id', Integer, ForeignKey('players.id')),
     Column('server_id', Integer, ForeignKey('servers.id'))
 )
 
 
 class OAuth2Token(Base):
+    __tablename__ = 'o_auth2_token'
     token_id = Column(Integer, primary_key=True, nullable=False)
     player_id = Column(Integer, ForeignKey('players.id'), nullable=False)
     name = Column(String(20), nullable=False)
