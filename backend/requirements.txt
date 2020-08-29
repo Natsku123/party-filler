@@ -1,7 +1,6 @@
 fastapi
 uvicorn
 sqlalchemy
-PyJWT
 alembic
 pytz
 requests

@@ -1,8 +1,7 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Request
 
 from starlette.middleware.sessions import SessionMiddleware
 from authlib.integrations.starlette_client import OAuth
-from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
 from config import settings
@@ -21,8 +20,7 @@ app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
 oauth = OAuth()
 
 
-def fetch_discord_token():
-    current_user = get_current_user()
+def fetch_discord_token(current_user: Player = Depends(get_current_user)):
     token = OAuth2Token.query.filter_by(name='discord', player_id=current_user.id).first()
     if token:
         return token.to_token()
@@ -57,7 +55,7 @@ async def login(request: Request, redirect: str = None):
 
     request.session['redirect_url'] = redirect
 
-    return oauth.discord.authorize_redirect(request, redirect_uri)
+    return await oauth.discord.authorize_redirect(request, redirect_uri)
 
 
 @app.route("/logout")
