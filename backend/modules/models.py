@@ -68,6 +68,15 @@ class Player(Base):
 
     servers = relationship('Server', secondary=player_server_association, back_populates="players")
 
+    def dict(self):
+        return {
+            "id": self.id,
+            "discord_id": self.discord_id,
+            "name": self.name,
+            "discriminator": self.discriminator,
+            "icon": self.icon
+        }
+
 
 class Member(Base):
     __tablename__ = 'members'
