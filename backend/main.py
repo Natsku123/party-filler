@@ -1,10 +1,6 @@
-import os
-from typing import List
+from fastapi import FastAPI
 
-from fastapi import Depends, FastAPI, HTTPException
-from sqlalchemy.orm import Session
-
-from modules import crud, models, schemas
+from modules.endpoints.parties import router as party_router
 
 
 app = FastAPI()
@@ -13,3 +9,6 @@ app = FastAPI()
 @app.get("/")
 async def root():
     return {"message": "Hello world!"}
+
+
+app.include_router(party_router, prefix="/parties")
