@@ -8,4 +8,4 @@ data/
 backend/migrations
 backend/test.py
 bot/files
-/backend/alembic/versions/
+backend/alembic/versions/*.py

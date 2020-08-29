@@ -44,7 +44,6 @@ echo "Setting up docker..."
 docker-compose -f docker-compose-profuction.yml up -d
 
 echo "Setting up database..."
-docker exec partyfiller_backend_1 python3.8 config/database.py
 docker exec partyfiller_backend_1 alembic revision --autogenerate -m "Initial migration."
 docker exec partyfiller_backend_1 alembic upgrade head
 
