@@ -2,8 +2,8 @@ from __future__ import with_statement
 
 from logging.config import fileConfig
 
-from modules.database import SQLALCHEMY_DATABASE_URL
-from modules import Base
+from core.database import SQLALCHEMY_DATABASE_URL
+from core import Base
 
 from sqlalchemy import pool, engine_from_config
 

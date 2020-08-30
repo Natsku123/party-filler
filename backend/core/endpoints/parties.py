@@ -3,12 +3,12 @@ from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from modules import crud, models, schemas, deps
+from core import crud, models, schemas, deps
 
 router = APIRouter()
 
 
-@router.get('/', response_model=List[schemas.Party])
+@router.get('/', response_model=List[schemas.Party], tags=["parties"])
 def get_parties(
         db: Session = Depends(deps.get_db),
         skip: int = 0,
@@ -17,7 +17,7 @@ def get_parties(
     return crud.party.get_multi(db, skip=skip, limit=limit)
 
 
-@router.post('/', response_model=schemas.Party)
+@router.post('/', response_model=schemas.Party, tags=["parties"])
 def create_party(
         *,
         db: Session = Depends(deps.get_db),
@@ -29,7 +29,7 @@ def create_party(
     return crud.party.create(db, obj_in=party)
 
 
-@router.put('/{id}', response_model=schemas.Party)
+@router.put('/{id}', response_model=schemas.Party, tags=["parties"])
 def update_party(
         *,
         db: Session = Depends(deps.get_db),
@@ -49,7 +49,7 @@ def update_party(
     return db_party
 
 
-@router.get('/{id}', response_model=schemas.Party)
+@router.get('/{id}', response_model=schemas.Party, tags=["parties"])
 def get_party(
         *,
         db: Session = Depends(deps.get_db),
@@ -63,7 +63,7 @@ def get_party(
     return party
 
 
-@router.delete('/{id}', response_model=schemas.Party)
+@router.delete('/{id}', response_model=schemas.Party, tags=["parties"])
 def delete_party(
         *,
         db: Session = Depends(deps.get_db),

@@ -2,6 +2,7 @@ import datetime
 import pytz
 import requests
 import os
+import re
 
 
 def snake_to_camel(snake: str):
@@ -17,6 +18,20 @@ def snake_to_camel(snake: str):
         camel += temp[i][0].upper() + temp[i][1:]
 
     return camel
+
+
+def camel_to_snake(camel: str):
+    temp = re.sub('([A-Z][a-z]+)', r' \1', re.sub('([A-Z]+)', r' \1', camel)).split()
+    snake = ""
+
+    # Convert to snake case
+    for i in range(len(temp)):
+        if i != 0:
+            snake += "_" + temp[i].lower()
+        else:
+            snake += temp[i].lower()
+
+    return snake
 
 
 # TODO better function name
@@ -60,6 +75,28 @@ def snake_dict_to_camel(snake_obj):
             camel_obj[snake_to_camel(key)] = value
         return camel_obj
     return snake_obj
+
+
+def camel_dict_to_snake(camel_obj):
+    """
+    Convert dictionary or list recursively to use
+    snake_case keys instead of camelCase
+    :param camel_obj: dictionary or list to be converted
+    :return: snake_case version of camel_obj
+    """
+    snake_obj = {}
+    if isinstance(camel_obj, list):
+        for i in range(len(camel_obj)):
+            if isinstance(camel_obj[i], dict) or \
+                    isinstance(camel_obj[i], list):
+                camel_obj[i] = camel_dict_to_snake(camel_obj[i])
+    if isinstance(camel_obj, dict):
+        for key, value in camel_obj.items():
+            if isinstance(value, dict) or isinstance(value, list):
+                value = camel_dict_to_snake(value)
+            snake_obj[camel_to_snake(key)] = value
+        return snake_obj
+    return camel_obj
 
 
 def base_serialize(obj):

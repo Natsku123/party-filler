@@ -5,17 +5,30 @@ from authlib.integrations.starlette_client import OAuth
 from starlette.responses import RedirectResponse
 
 from config import settings
-from modules.models import OAuth2Token, Player, Server
+from core.models import OAuth2Token, Player, Server
 from sqlalchemy.orm import Session
 
-from modules.deps import get_current_user, get_db
+from core.deps import get_current_user, get_db
+from core.utils import camel_dict_to_snake
+from core.utils import snake_dict_to_camel
 
-from modules.endpoints.parties import router as party_router
+from core.endpoints.parties import router as party_router
+from core.endpoints.servers import router as server_router
 
 
 app = FastAPI()
 
 app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
+
+
+# @app.middleware("http")
+# async def camel_case(request: Request, call_next):
+#     body = await request.json()
+#     snake_body = camel_dict_to_snake(request.json())
+#     response = await call_next(request)
+#     process_time = time.time() - start_time
+#     response.headers["X-Process-Time"] = str(process_time)
+#     return response
 
 oauth = OAuth()
 
@@ -48,7 +61,7 @@ async def root():
 
 @app.route('/login')
 async def login(request: Request, redirect: str = None):
-    redirect_uri = request.url_for('authorize', _external=True)
+    redirect_uri = settings.API_HOSTNAME + "/authorize"
 
     if redirect is None:
         redirect = settings.SITE_HOSTNAME
@@ -136,3 +149,4 @@ async def authorize(request: Request, db: Session = Depends(get_db)):
 
 
 app.include_router(party_router, prefix="/parties")
+app.include_router(server_router, prefix="/servers")

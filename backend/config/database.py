@@ -1,6 +1,6 @@
 from alembic.config import Config
 from alembic import command
-from modules.database import Base, create_engine, SQLALCHEMY_DATABASE_URL
+from core.database import Base, create_engine, SQLALCHEMY_DATABASE_URL
 
 
 def init():
