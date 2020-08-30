@@ -18,13 +18,28 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def __init__(self, model: Type[ModelType]):
         self.model = model
 
-    def get(self, db: Session, id: Any) -> Optional[ModelType]:
+    def get(
+            self,
+            db: Session,
+            id: Any
+    ) -> Optional[ModelType]:
         return db.query(self.model).filter(self.model.id == id).first()
 
-    def get_multi(self, db: Session, *, skip: int = 0, limit: int = 100) -> List[ModelType]:
+    def get_multi(
+            self,
+            db: Session,
+            *,
+            skip: int = 0,
+            limit: int = 100
+    ) -> List[ModelType]:
         return db.query(self.model).offset(skip).limit(limit).all()
 
-    def create(self, db: Session, *, obj_in: CreateSchemaType) -> ModelType:
+    def create(
+            self,
+            db: Session,
+            *,
+            obj_in: CreateSchemaType
+    ) -> ModelType:
         obj_in_data = jsonable_encoder(obj_in)
         db_obj = self.model(**obj_in_data)
         db.add(db_obj)
@@ -32,7 +47,13 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db.refresh(db_obj)
         return db_obj
 
-    def update(self, db: Session, *, db_obj: ModelType, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
+    def update(
+            self,
+            db: Session,
+            *,
+            db_obj: ModelType,
+            obj_in: Union[UpdateSchemaType, Dict[str, Any]]
+    ) -> ModelType:
         obj_data = jsonable_encoder(db_obj)
 
         if isinstance(obj_in, dict):
@@ -49,15 +70,27 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db.refresh(db_obj)
         return db_obj
 
-    def remove(self, db: Session, *, id: int) -> ModelType:
+    def remove(
+            self,
+            db: Session,
+            *,
+            id: int
+    ) -> ModelType:
         obj = db.query(self.model).get(id)
         db.delete(obj)
         db.commit()
         return obj
 
 
-class CRUDParty(CRUDBase[models.Party, schemas.PartyCreate, schemas.PartyBase]):
-    def create(self, db: Session, *, obj_in: CreateSchemaType) -> ModelType:
+class CRUDParty(
+    CRUDBase[models.Party, schemas.PartyCreate, schemas.PartyBase]
+):
+    def create(
+            self,
+            db: Session,
+            *,
+            obj_in: CreateSchemaType
+    ) -> ModelType:
         obj_in_data = jsonable_encoder(obj_in)
         start_time = None
         end_time = None
@@ -85,7 +118,13 @@ class CRUDParty(CRUDBase[models.Party, schemas.PartyCreate, schemas.PartyBase]):
         db.refresh(db_party)
         return db_party
 
-    def update(self, db: Session, *, db_obj: ModelType, obj_in: Union[UpdateSchemaType, Dict[str, Any]]) -> ModelType:
+    def update(
+            self,
+            db: Session,
+            *,
+            db_obj: ModelType,
+            obj_in: Union[UpdateSchemaType, Dict[str, Any]]
+    ) -> ModelType:
         obj_data = jsonable_encoder(db_obj)
 
         if isinstance(obj_in, dict):
@@ -95,9 +134,17 @@ class CRUDParty(CRUDBase[models.Party, schemas.PartyCreate, schemas.PartyBase]):
 
         for field in obj_data:
             if field in update_data and field == "start_time":
-                setattr(db_obj, field, dateutil.parser.parse(update_data['start_time']))
+                setattr(
+                    db_obj,
+                    field,
+                    dateutil.parser.parse(update_data['start_time'])
+                )
             elif field in update_data and field == "end_time":
-                setattr(db_obj, field, dateutil.parser.parse(update_data['end_time']))
+                setattr(
+                    db_obj,
+                    field,
+                    dateutil.parser.parse(update_data['end_time'])
+                )
             elif field in update_data:
                 setattr(db_obj, field, update_data[field])
 
@@ -107,29 +154,47 @@ class CRUDParty(CRUDBase[models.Party, schemas.PartyCreate, schemas.PartyBase]):
         return db_obj
 
 
-class CRUDServer(CRUDBase[
-                     models.Server, schemas.ServerCreate, schemas.ServerBase]):
+class CRUDServer(
+    CRUDBase[models.Server, schemas.ServerCreate, schemas.ServerBase]
+):
     pass
 
 
-class CRUDChannel(CRUDBase[
-                      models.Channel, schemas.ChannelCreate, schemas.ChannelBase]):
-    def get_multi_by_server(self, db: Session, *, server_id: int, skip: int = 0, limit: int = 100) -> List[
-        models.Channel]:
+class CRUDChannel(
+    CRUDBase[models.Channel, schemas.ChannelCreate, schemas.ChannelBase]
+):
+    def get_multi_by_server(
+            self,
+            db: Session,
+            *,
+            server_id: int,
+            skip: int = 0,
+            limit: int = 100
+    ) -> List[models.Channel]:
         return db.query(self.model).filter(
-            models.Channel.server_id == server_id).offset(skip).limit(limit).all()
+            models.Channel.server_id == server_id
+        ).offset(skip).limit(limit).all()
 
 
-class CRUDPlayer(CRUDBase[
-                     models.Player, schemas.PlayerCreate, schemas.PlayerBase]):
+class CRUDPlayer(
+    CRUDBase[models.Player, schemas.PlayerCreate, schemas.PlayerBase]
+):
     pass
 
 
-class CRUDMember(CRUDBase[
-                     models.Member, schemas.MemberCreate, schemas.MemberBase]):
-    def get_multi_by_party(self, db: Session, *, party_id: int, skip: int = 0, limit: int = 100) -> List[
-        models.Member]:
-        return db.query(self.model).filter(models.Member.party_id == party_id).offset(skip).limit(limit).all()
+class CRUDMember(
+    CRUDBase[models.Member, schemas.MemberCreate, schemas.MemberBase]
+):
+    def get_multi_by_party(
+            self,
+            db: Session,
+            *,
+            party_id: int,
+            skip: int = 0,
+            limit: int = 100
+    ) -> List[models.Member]:
+        return db.query(self.model).filter(models.Member.party_id == party_id)\
+            .offset(skip).limit(limit).all()
 
 
 class CRUDRole(CRUDBase[models.Role, schemas.RoleCreate, schemas.RoleBase]):
