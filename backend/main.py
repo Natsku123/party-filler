@@ -5,12 +5,10 @@ from authlib.integrations.starlette_client import OAuth
 from starlette.responses import RedirectResponse
 
 from config import settings
-from core.models import OAuth2Token, Player, Server
+from core.database.models import OAuth2Token, Player, Server
 from sqlalchemy.orm import Session
 
 from core.deps import get_current_user, get_db
-from core.utils import camel_dict_to_snake
-from core.utils import snake_dict_to_camel
 
 from core.endpoints.parties import router as party_router
 from core.endpoints.servers import router as server_router

@@ -1,7 +1,3 @@
-import datetime
-import core.utils
-from core.utils import base_serialize, datetime_to_string
-
 from sqlalchemy import Boolean, \
     Column, ForeignKey, Integer, String, Table, DateTime, Text
 from sqlalchemy.orm import relationship, backref

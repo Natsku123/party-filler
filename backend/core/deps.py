@@ -1,11 +1,10 @@
 from typing import Generator
 
-from fastapi import Depends, HTTPException, status, Request
+from fastapi import Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
-from . import models
-from . import crud
-from .database import SessionLocal, engine
+from .database import crud, models
+from core.database import SessionLocal
 
 
 def get_db() -> Generator:
