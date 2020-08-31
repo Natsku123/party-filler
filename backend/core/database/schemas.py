@@ -35,6 +35,9 @@ class OAuth2TokenBase(BaseModel):
         description="Token expiration"
     )
 
+    class Config:
+        allow_population_by_field_name = True
+
 
 class PlayerBase(BaseModel):
     name: str = Field(
@@ -54,6 +57,9 @@ class PlayerBase(BaseModel):
         None,
         description="Discord icon hash"
     )
+
+    class Config:
+        allow_population_by_field_name = True
 
 
 class MemberBase(BaseModel):
@@ -81,6 +87,9 @@ class MemberBase(BaseModel):
         alias="playerReq",
         description="Required number of players for member to play"
     )
+
+    class Config:
+        allow_population_by_field_name = True
 
 
 class PartyBase(BaseModel):
@@ -133,6 +142,9 @@ class PartyBase(BaseModel):
         description="Party search end time"
     )
 
+    class Config:
+        allow_population_by_field_name = True
+
 
 class ChannelBase(BaseModel):
     name: str = Field(
@@ -150,6 +162,9 @@ class ChannelBase(BaseModel):
         description="ID of server associated with"
     )
 
+    class Config:
+        allow_population_by_field_name = True
+
 
 class ServerBase(BaseModel):
     name: str = Field(
@@ -165,6 +180,9 @@ class ServerBase(BaseModel):
         alias="discordId",
         description="Discord ID of server"
     )
+
+    class Config:
+        allow_population_by_field_name = True
 
 
 class RoleBase(BaseModel):
@@ -185,6 +203,9 @@ class RoleBase(BaseModel):
         description="Maximum number of players of role"
     )
 
+    class Config:
+        allow_population_by_field_name = True
+
 
 class GameBase(BaseModel):
     name: str = Field(
@@ -197,6 +218,9 @@ class GameBase(BaseModel):
         alias="defaultMaxPlayers",
         description="Default number of maximum players for this game"
     )
+
+    class Config:
+        allow_population_by_field_name = True
 
 
 class OAuth2TokenCreate(OAuth2TokenBase):
@@ -269,7 +293,7 @@ class OAuth2Token(OAuth2TokenBase):
         alias="tokenId",
         description="ID of token"
     )
-    player: 'Player' = Field(
+    player: 'PlayerShort' = Field(
         ...,
         description="Player object"
     )
@@ -283,7 +307,7 @@ class Player(PlayerBase):
         ...,
         description="ID of player"
     )
-    servers: List['Server'] = Field(
+    servers: List['ServerShort'] = Field(
         [],
         description="List of server objects player is on"
     )
@@ -297,15 +321,15 @@ class Member(MemberBase):
         ...,
         description="ID of member"
     )
-    party: 'Party' = Field(
+    party: 'PartyShort' = Field(
         ...,
         description="Party object"
     )
-    player: Player = Field(
+    player: 'PlayerShort' = Field(
         ...,
         description="Player object"
     )
-    role: Optional['Role'] = Field(
+    role: Optional['RoleShort'] = Field(
         None,
         description="Role object"
     )
@@ -319,19 +343,19 @@ class Party(PartyBase):
         ...,
         description="ID of party"
     )
-    channel: Optional['Channel'] = Field(
+    channel: Optional['ChannelShort'] = Field(
         None,
         description="Channel object"
     )
-    leader: Player = Field(
+    leader: 'PlayerShort' = Field(
         ...,
         description="Player object of leader"
     )
-    members: List[Member] = Field(
+    members: List['MemberShort'] = Field(
         [],
         description="Member objects of party"
     )
-    game: 'Game' = Field(
+    game: 'GameShort' = Field(
         None,
         description="Game object"
     )
@@ -355,11 +379,11 @@ class Server(ServerBase):
         ...,
         description="ID of server"
     )
-    channels: List[Channel] = Field(
+    channels: List['ChannelShort'] = Field(
         [],
         description="Channel objects"
     )
-    players: List[Player] = Field(
+    players: List['PlayerShort'] = Field(
         [],
         description="Players objects"
     )
@@ -373,7 +397,7 @@ class Role(RoleBase):
         ...,
         description="ID of role"
     )
-    party: Optional[Party] = Field(
+    party: Optional['PartyShort'] = Field(
         None,
         description="Party object"
     )
@@ -383,6 +407,87 @@ class Role(RoleBase):
 
 
 class Game(GameBase):
+    id: int = Field(
+        ...,
+        description="ID of game"
+    )
+
+    class Config:
+        orm_mode = True
+
+
+class OAuth2TokenShort(OAuth2TokenBase):
+    token_id: int = Field(
+        ...,
+        alias="tokenId",
+        description="ID of token"
+    )
+
+    class Config:
+        orm_mode = True
+
+
+class PlayerShort(PlayerBase):
+    id: int = Field(
+        ...,
+        description="ID of player"
+    )
+
+    class Config:
+        orm_mode = True
+
+
+class MemberShort(MemberBase):
+    id: int = Field(
+        ...,
+        description="ID of member"
+    )
+
+    class Config:
+        orm_mode = True
+
+
+class PartyShort(PartyBase):
+    id: int = Field(
+        ...,
+        description="ID of party"
+    )
+
+    class Config:
+        orm_mode = True
+
+
+class ChannelShort(ChannelBase):
+    id: int = Field(
+        ...,
+        description="ID of channel"
+    )
+
+    class Config:
+        orm_mode = True
+
+
+class ServerShort(ServerBase):
+    id: int = Field(
+        ...,
+        description="ID of server"
+    )
+
+    class Config:
+        orm_mode = True
+
+
+class RoleShort(RoleBase):
+    id: int = Field(
+        ...,
+        description="ID of role"
+    )
+
+    class Config:
+        orm_mode = True
+
+
+class GameShort(GameBase):
     id: int = Field(
         ...,
         description="ID of game"
