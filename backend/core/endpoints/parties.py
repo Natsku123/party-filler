@@ -83,3 +83,24 @@ def delete_party(
 
     return party
 
+
+@router.get(
+    '/{id}',
+    response_model=List[schemas.Member],
+    tags=["parties", "members"]
+)
+def get_members(
+        *,
+        db: Session = Depends(deps.get_db),
+        id: int,
+        skip: int = 0,
+        limit: int = 100
+) -> Any:
+    party = crud.party.get(db=db, id=id)
+
+    if not party:
+        raise HTTPException(status_code=404, detail="Party not found")
+
+    return crud.member.get_multi_by_party(
+        db, party_id=id, skip=skip, limit=limit
+    )
