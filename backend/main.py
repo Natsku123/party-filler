@@ -15,6 +15,7 @@ from core.endpoints.servers import router as server_router
 from core.endpoints.channels import router as channel_router
 from core.endpoints.players import router as player_router
 from core.endpoints.members import router as member_router
+from core.endpoints.roles import router as role_router
 
 
 app = FastAPI()
@@ -154,3 +155,4 @@ app.include_router(server_router, prefix="/servers")
 app.include_router(channel_router, prefix="/channels")
 app.include_router(player_router, prefix="/players")
 app.include_router(member_router, prefix="/members")
+app.include_router(role_router, prefix="/roles")
