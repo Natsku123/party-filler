@@ -83,7 +83,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
 
 class CRUDParty(
-    CRUDBase[models.Party, schemas.PartyCreate, schemas.PartyBase]
+    CRUDBase[models.Party, schemas.PartyCreate, schemas.PartyUpdate]
 ):
     def create(
             self,
@@ -155,13 +155,13 @@ class CRUDParty(
 
 
 class CRUDServer(
-    CRUDBase[models.Server, schemas.ServerCreate, schemas.ServerBase]
+    CRUDBase[models.Server, schemas.ServerCreate, schemas.ServerUpdate]
 ):
     pass
 
 
 class CRUDChannel(
-    CRUDBase[models.Channel, schemas.ChannelCreate, schemas.ChannelBase]
+    CRUDBase[models.Channel, schemas.ChannelCreate, schemas.ChannelUpdate]
 ):
     def get_multi_by_server(
             self,
@@ -177,13 +177,13 @@ class CRUDChannel(
 
 
 class CRUDPlayer(
-    CRUDBase[models.Player, schemas.PlayerCreate, schemas.PlayerBase]
+    CRUDBase[models.Player, schemas.PlayerCreate, schemas.PlayerUpdate]
 ):
     pass
 
 
 class CRUDMember(
-    CRUDBase[models.Member, schemas.MemberCreate, schemas.MemberBase]
+    CRUDBase[models.Member, schemas.MemberCreate, schemas.MemberUpdate]
 ):
     def get_multi_by_party(
             self,
@@ -197,11 +197,11 @@ class CRUDMember(
             .offset(skip).limit(limit).all()
 
 
-class CRUDRole(CRUDBase[models.Role, schemas.RoleCreate, schemas.RoleBase]):
+class CRUDRole(CRUDBase[models.Role, schemas.RoleCreate, schemas.RoleUpdate]):
     pass
 
 
-class CRUDGame(CRUDBase[models.Game, schemas.GameCreate, schemas.GameBase]):
+class CRUDGame(CRUDBase[models.Game, schemas.GameCreate, schemas.GameUpdate]):
     pass
 
 

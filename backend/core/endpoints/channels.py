@@ -35,7 +35,7 @@ def update_channel(
         *,
         db: Session = Depends(deps.get_db),
         id: int,
-        channel: schemas.ChannelBase,
+        channel: schemas.ChannelUpdate,
         current_user: models.Player = Depends(deps.get_current_user)
 ) -> Any:
     db_channel = crud.channel.get(db=db, id=id)

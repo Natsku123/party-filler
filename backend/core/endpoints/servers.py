@@ -35,7 +35,7 @@ def update_server(
         *,
         db: Session = Depends(deps.get_db),
         id: int,
-        server: schemas.ServerBase,
+        server: schemas.ServerUpdate,
         current_user: models.Player = Depends(deps.get_current_user)
 ) -> Any:
     db_server = crud.server.get(db=db, id=id)

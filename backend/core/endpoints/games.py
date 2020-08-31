@@ -35,7 +35,7 @@ def update_game(
         *,
         db: Session = Depends(deps.get_db),
         id: int,
-        game: schemas.GameBase,
+        game: schemas.GameUpdate,
         current_user: models.Player = Depends(deps.get_current_user)
 ) -> Any:
     db_game = crud.game.get(db=db, id=id)

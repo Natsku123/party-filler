@@ -39,7 +39,7 @@ def update_player(
         *,
         db: Session = Depends(deps.get_db),
         id: int,
-        player: schemas.PlayerBase,
+        player: schemas.PlayerUpdate,
         current_user: models.Player = Depends(deps.get_current_user)
 ) -> Any:
     db_player = crud.player.get(db=db, id=id)

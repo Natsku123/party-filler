@@ -36,7 +36,7 @@ def update_member(
         *,
         db: Session = Depends(deps.get_db),
         id: int,
-        member: schemas.MemberBase,
+        member: schemas.MemberUpdate,
         current_user: models.Player = Depends(deps.get_current_user)
 ) -> Any:
     db_member = crud.member.get(db=db, id=id)

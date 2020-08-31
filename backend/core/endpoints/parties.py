@@ -35,7 +35,7 @@ def update_party(
         *,
         db: Session = Depends(deps.get_db),
         id: int,
-        party: schemas.PlayerBase,
+        party: schemas.PlayerUpdate,
         current_user: models.Player = Depends(deps.get_current_user)
 ) -> Any:
     db_party = crud.party.get(db=db, id=id)

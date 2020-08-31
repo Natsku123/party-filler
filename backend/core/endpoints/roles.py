@@ -35,7 +35,7 @@ def update_role(
         *,
         db: Session = Depends(deps.get_db),
         id: int,
-        role: schemas.RoleBase,
+        role: schemas.RoleUpdate,
         current_user: models.Player = Depends(deps.get_current_user)
 ) -> Any:
     db_role = crud.role.get(db=db, id=id)

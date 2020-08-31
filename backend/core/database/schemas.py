@@ -92,6 +92,38 @@ class GameCreate(GameBase):
     pass
 
 
+class OAuth2TokenUpdate(OAuth2TokenBase):
+    pass
+
+
+class PlayerUpdate(PlayerBase):
+    pass
+
+
+class MemberUpdate(MemberBase):
+    pass
+
+
+class PartyUpdate(PartyBase):
+    pass
+
+
+class ChannelUpdate(ChannelBase):
+    pass
+
+
+class ServerUpdate(ServerBase):
+    pass
+
+
+class RoleUpdate(RoleBase):
+    pass
+
+
+class GameUpdate(GameBase):
+    pass
+
+
 class OAuth2Token(OAuth2TokenBase):
     token_id: int
     player: 'Player'
