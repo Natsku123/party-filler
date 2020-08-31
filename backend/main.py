@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, Request
+from fastapi.middleware.cors import CORSMiddleware
 
 from starlette.middleware.sessions import SessionMiddleware
 from authlib.integrations.starlette_client import OAuth
@@ -22,6 +23,13 @@ from core.endpoints.games import router as game_router
 app = FastAPI()
 
 app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # @app.middleware("http")

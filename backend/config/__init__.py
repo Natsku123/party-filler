@@ -28,6 +28,14 @@ class Settings(BaseSettings):
     DATABASE_PASSWORD: str = os.environ.get("DB_PASS")
     DATABASE_NAME: str = os.environ.get("DB_NAME")
 
+    ORIGINS: List[AnyHttpUrl] = [
+        os.environ.get("API_HOSTNAME", "http://localhost:8800"),
+        os.environ.get("SITE_HOSTNAME", "http://localhost:3001"),
+        "http://localhost",
+        "http://localhost:8800",
+        "http://localhost:3001"
+    ]
+
     class Config:
         case_sensitive = True
 
