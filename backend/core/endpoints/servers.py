@@ -95,7 +95,7 @@ def get_channels(
         id: int,
         skip: int = 0,
         limit: int = 100
-):
+) -> Any:
     server = crud.server.get(db=db, id=id)
 
     if not server:
