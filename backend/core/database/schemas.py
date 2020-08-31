@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 class OAuth2TokenBase(BaseModel):
     player_id: int = Field(
         ...,
+        gt=0,
         alias="playerId",
         description="ID of player"
     )
@@ -29,6 +30,7 @@ class OAuth2TokenBase(BaseModel):
     )
     expires_at: Optional[int] = Field(
         0,
+        ge=0,
         alias="expiresAt",
         description="Token expiration"
     )
@@ -57,21 +59,25 @@ class PlayerBase(BaseModel):
 class MemberBase(BaseModel):
     party_id: int = Field(
         ...,
+        gt=0,
         alias="partyId",
         description="ID of party"
     )
     player_id: int = Field(
         ...,
+        gt=0,
         alias="playerId",
         description="ID of player"
     )
     role_id: Optional[int] = Field(
         None,
+        gt=0,
         alias="roleId",
         description="ID of role"
     )
     player_req: Optional[int] = Field(
         None,
+        gt=0,
         alias="playerReq",
         description="Required number of players for member to play"
     )
@@ -84,21 +90,25 @@ class PartyBase(BaseModel):
     )
     leader_id: int = Field(
         ...,
+        gt=0,
         alias="leaderId",
         description="ID of party leader"
     )
     game_id: int = Field(
         ...,
+        gt=0,
         alias="gameId",
         description="ID of game to be played"
     )
     max_players: Optional[int] = Field(
         None,
+        gt=0,
         alias="maxPlayers",
         description="Maximum number of players"
     )
     min_players: Optional[int] = Field(
         None,
+        gt=0,
         alias="minPlayers",
         description="Minimum number of players"
     )
@@ -108,6 +118,7 @@ class PartyBase(BaseModel):
     )
     channel_id: Optional[int] = Field(
         None,
+        gt=0,
         alias="channelId",
         description="ID of channel"
     )
@@ -159,6 +170,7 @@ class ServerBase(BaseModel):
 class RoleBase(BaseModel):
     party_id: Optional[int] = Field(
         None,
+        gt=0,
         alias="partyId",
         description="ID of party"
     )
@@ -168,6 +180,7 @@ class RoleBase(BaseModel):
     )
     max_players: Optional[int] = Field(
         None,
+        gt=0,
         alias="maxPlayers",
         description="Maximum number of players of role"
     )
@@ -180,6 +193,7 @@ class GameBase(BaseModel):
     )
     default_max_players: Optional[int] = Field(
         None,
+        gt=0,
         alias="defaultMaxPlayers",
         description="Default number of maximum players for this game"
     )
