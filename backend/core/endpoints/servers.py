@@ -82,3 +82,28 @@ def delete_server(
     crud.server.remove(db=db, id=id)
 
     return server
+
+
+@router.get(
+    '/{id}/channels',
+    response_model=List[schemas.Channel],
+    tags=["servers", "channels"]
+)
+def get_channels(
+        *,
+        db: Session = Depends(deps.get_db),
+        id: int,
+        skip: int = 0,
+        limit: int = 100
+):
+    server = crud.server.get(db=db, id=id)
+
+    if not server:
+        raise HTTPException(status_code=404, detail="Server not found")
+
+    return crud.channel.get_multi_by_server(
+        db,
+        server_id=id,
+        skip=skip,
+        limit=limit
+    )

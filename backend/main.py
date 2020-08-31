@@ -12,6 +12,7 @@ from core.deps import get_current_user, get_db
 
 from core.endpoints.parties import router as party_router
 from core.endpoints.servers import router as server_router
+from core.endpoints.channels import router as channel_router
 
 
 app = FastAPI()
@@ -148,3 +149,4 @@ async def authorize(request: Request, db: Session = Depends(get_db)):
 
 app.include_router(party_router, prefix="/parties")
 app.include_router(server_router, prefix="/servers")
+app.include_router(channel_router, prefix="/channels")
