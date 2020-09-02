@@ -10,7 +10,6 @@ from core.database.models import OAuth2Token, Player, Server
 from sqlalchemy.orm import Session
 
 from core.deps import get_current_user, get_db
-from core.utils import async_run
 
 from core.endpoints.parties import router as party_router
 from core.endpoints.servers import router as server_router
@@ -83,31 +82,20 @@ async def login(request: Request, redirect: str = None):
     return await oauth.discord.authorize_redirect(request, redirect_uri)
 
 
-@app.route("/logout")
-async def logout(request: Request):
-    redirect_url = settings.SITE_HOSTNAME
-    request.session.pop('user', None)
-    return RedirectResponse(url=redirect_url)
-
-
-@app.route('/authorize')
-def authorize(request: Request, db: Session = Depends(get_db)):
-    token = async_run(oauth.discord.authorize_access_token, request)
-    resp = async_run(oauth.discord.get, 'users/@me', token=token)
-    profile = resp.json()
-
-    url = request.session.get('redirect_url')
-    if url is None:
-        url = settings.SITE_HOSTNAME
-    else:
-        del request.session['redirect_url']
-
+@app.post('/discord_update')
+def discord_update(
+        *,
+        request: Request,
+        db: Session = Depends(get_db)
+):
+    profile = request.session['profile']
+    token = request.session['token']
     # Get player
     player = db.query(Player).filter_by(discord_id=profile['id']).first()
 
     # If player doesn't exist, create a new one.
     if player is None:
-        #logger.debug("Player object" + str(profile))
+        # logger.debug("Player object" + str(profile))
         player = Player(
             discord_id=profile.get('id'),
             name=profile.get('username'),
@@ -157,6 +145,33 @@ def authorize(request: Request, db: Session = Depends(get_db)):
 
     request.session['user'] = player.dict()
 
+    url = request.session.get('redirect_url')
+    if url is None:
+        url = settings.SITE_HOSTNAME
+    else:
+        del request.session['redirect_url']
+
+    request.session.pop('profile', None)
+    request.session.pop('token', None)
+
+    return RedirectResponse(url=url)
+
+
+@app.route("/logout")
+async def logout(request: Request):
+    redirect_url = settings.SITE_HOSTNAME
+    request.session.pop('user', None)
+    return RedirectResponse(url=redirect_url)
+
+
+@app.route('/authorize')
+def authorize(request: Request):
+    token = await oauth.discord.authorize_access_token(request)
+    resp = await oauth.discord.get('users/@me', token=token)
+    profile = resp.json()
+    request.session["profile"] = profile
+    request.session["token"] = token
+    url = settings.API_HOSTNAME + "/discord_update"
     return RedirectResponse(url=url)
 
 
