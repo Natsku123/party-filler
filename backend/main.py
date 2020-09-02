@@ -91,9 +91,9 @@ async def logout(request: Request):
 
 @app.route('/authorize')
 async def authorize(request: Request, db: Session = Depends(get_db)):
-    token = oauth.discord.authorize_access_token(request)
-    resp = oauth.discord.get('users/@me')
-    profile = await resp.json()
+    token = await oauth.discord.authorize_access_token(request)
+    resp = await oauth.discord.get('users/@me', token=token)
+    profile = resp.json()
 
     url = request.session.get('redirect_url')
     if url is None:
@@ -115,7 +115,7 @@ async def authorize(request: Request, db: Session = Depends(get_db)):
         )
 
         # Get servers that Player uses
-        guilds = oauth.discord.get('users/@me/guilds')
+        guilds = oauth.discord.get('users/@me/guilds', token=token)
 
         # Create new servers if doesn't already exist
         for guild in guilds.json():
