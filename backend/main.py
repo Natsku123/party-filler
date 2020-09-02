@@ -102,7 +102,7 @@ async def authorize(request: Request, db: Session = Depends(get_db)):
         del request.session['redirect_url']
 
     # Get player
-    player = Player.query.filter_by(discord_id=profile['id']).first()
+    player = db.query(Player).filter_by(discord_id=profile['id']).first()
 
     # If player doesn't exist, create a new one.
     if player is None:
@@ -119,7 +119,7 @@ async def authorize(request: Request, db: Session = Depends(get_db)):
 
         # Create new servers if doesn't already exist
         for guild in guilds.json():
-            server = Server.query.filter_by(discord_id=guild['id']).first()
+            server = db.query(Server).filter_by(discord_id=guild['id']).first()
             if server is None:
                 server = Server(
                     name=guild.get('name'),
@@ -134,7 +134,7 @@ async def authorize(request: Request, db: Session = Depends(get_db)):
         db.add(player)
 
     # Update token
-    token_obj = OAuth2Token.query.filter_by(player_id=player.id).first()
+    token_obj = db.query(OAuth2Token).filter_by(player_id=player.id).first()
     if token_obj is None:
         token_obj = OAuth2Token(
             player_id=player.id,
