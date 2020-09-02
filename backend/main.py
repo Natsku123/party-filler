@@ -10,6 +10,7 @@ from core.database.models import OAuth2Token, Player, Server
 from sqlalchemy.orm import Session
 
 from core.deps import get_current_user, get_db
+from core.utils import async_run
 
 from core.endpoints.parties import router as party_router
 from core.endpoints.servers import router as server_router
@@ -71,7 +72,7 @@ async def root():
 
 
 @app.route('/login')
-def login(request: Request, redirect: str = None):
+async def login(request: Request, redirect: str = None):
     redirect_uri = settings.API_HOSTNAME + "/authorize"
 
     if redirect is None:
@@ -79,11 +80,11 @@ def login(request: Request, redirect: str = None):
 
     request.session['redirect_url'] = redirect
 
-    return oauth.discord.authorize_redirect(request, redirect_uri)
+    return await oauth.discord.authorize_redirect(request, redirect_uri)
 
 
 @app.route("/logout")
-def logout(request: Request):
+async def logout(request: Request):
     redirect_url = settings.SITE_HOSTNAME
     request.session.pop('user', None)
     return RedirectResponse(url=redirect_url)
@@ -91,8 +92,8 @@ def logout(request: Request):
 
 @app.route('/authorize')
 def authorize(request: Request, db: Session = Depends(get_db)):
-    token = oauth.discord.authorize_access_token(request)
-    resp = oauth.discord.get('users/@me', token=token)
+    token = async_run(oauth.discord.authorize_access_token, request)
+    resp = async_run(oauth.discord.get, 'users/@me', token=token)
     profile = resp.json()
 
     url = request.session.get('redirect_url')
