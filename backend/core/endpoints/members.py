@@ -1,3 +1,4 @@
+import datetime
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -5,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from core import deps
 from core.database import crud, models, schemas
+from core.utils import send_webhook, datetime_to_string
 
 router = APIRouter()
 
@@ -23,12 +25,28 @@ def create_member(
         *,
         db: Session = Depends(deps.get_db),
         member: schemas.MemberCreate,
-        current_user: models.Player = Depends(deps.get_current_user)
+        current_user: models.Player = Depends(deps.get_current_user),
+        notify: bool = False
 ) -> Any:
     if not current_user or current_user.id != member.player_id:
         raise HTTPException(status_code=401, detail="Not authorized")
 
-    return crud.member.create(db, obj_in=member)
+    member = crud.member.create(db, obj_in=member)
+
+    # Send webhook to bot if notification wanted
+    if notify and member.party.channel:
+        webhook_data = {
+            "member": member,
+            "channel": member.party.channel,
+            "event": {
+                "name": "on_member_join",
+                "datetime": datetime_to_string(datetime.datetime.now())
+            }
+        }
+        webhook = schemas.MemberJoinWebhook(**webhook_data)
+        send_webhook(webhook)
+
+    return member
 
 
 @router.put('/{id}', response_model=schemas.Member, tags=["members"])

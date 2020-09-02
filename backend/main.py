@@ -93,7 +93,7 @@ async def logout(request: Request):
 async def authorize(request: Request, db: Session = Depends(get_db)):
     token = oauth.discord.authorize_access_token(request)
     resp = oauth.discord.get('users/@me')
-    profile = resp.json()
+    profile = await resp.json()
 
     url = request.session.get('redirect_url')
     if url is None:

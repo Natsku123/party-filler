@@ -505,3 +505,40 @@ Channel.update_forward_refs()
 Server.update_forward_refs()
 Role.update_forward_refs()
 Game.update_forward_refs()
+
+
+class WebhookEvent(BaseModel):
+    name: str = Field(
+        ...,
+        description="Name / identifier of event"
+    ),
+    datetime: str = Field(
+        ...,
+        description="Timestamp"
+    )
+
+
+class MemberJoinWebhook(BaseModel):
+    member: 'Member' = Field(
+        ...,
+        description="Member that joined"
+    ),
+    channel: 'Channel' = Field(
+        ...,
+        description="Channel to notify"
+    ),
+    event: 'WebhookEvent' = Field(
+        ...,
+        description="Event info"
+    )
+
+
+class PartyCreateWebhook(BaseModel):
+    party: 'Party' = Field(
+        ...,
+        description="Party created"
+    ),
+    event: 'WebhookEvent' = Field(
+        ...,
+        description="Event info"
+    )

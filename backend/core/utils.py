@@ -3,6 +3,7 @@ import pytz
 import requests
 import os
 import re
+from pydantic import BaseModel
 
 
 def snake_to_camel(snake: str):
@@ -125,9 +126,9 @@ def get_channel_info(discord_id: str):
     return r.json()
 
 
-def send_webhook(content):
+def send_webhook(content: BaseModel):
     if os.environ.get('WEBHOOK_ID') and content:
         requests.post(
             'http://bot:9080//webhook/' + os.environ.get('WEBHOOK_ID'),
-            data=content
+            data=content.dict()
         )

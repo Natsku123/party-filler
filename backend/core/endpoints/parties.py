@@ -1,3 +1,4 @@
+import datetime
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -5,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from core import deps
 from core.database import crud, models, schemas
+from core.utils import send_webhook, datetime_to_string
 
 router = APIRouter()
 
@@ -23,11 +25,26 @@ def create_party(
         *,
         db: Session = Depends(deps.get_db),
         party: schemas.PartyCreate,
-        current_user: models.Player = Depends(deps.get_current_user)
+        current_user: models.Player = Depends(deps.get_current_user),
+        notify: bool = False
 ) -> Any:
     if not current_user:
         raise HTTPException(status_code=401, detail="Not authorized")
-    return crud.party.create(db, obj_in=party)
+    party = crud.party.create(db, obj_in=party)
+
+    # Send webhook to bot if notification wanted
+    if notify and party.channel:
+        webhook_data = {
+            "party": party,
+            "event": {
+                "name": "on_party_create",
+                "datetime": datetime_to_string(datetime.datetime.now())
+            }
+        }
+        webhook = schemas.PartyCreateWebhook(**webhook_data)
+        send_webhook(webhook)
+
+    return party
 
 
 @router.put('/{id}', response_model=schemas.Party, tags=["parties"])
