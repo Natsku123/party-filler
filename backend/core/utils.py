@@ -3,8 +3,6 @@ import pytz
 import requests
 import os
 import re
-import asyncio
-import threading
 from pydantic import BaseModel
 
 
@@ -111,32 +109,6 @@ def base_serialize(obj):
 
 def datetime_to_string(date: datetime):
     return date.replace(tzinfo=pytz.UTC).isoformat("T").split("+")[0] + "Z"
-
-
-def async_run(coroutine, *args, **kwargs):
-    """
-    Trick to run coroutines in synchronous code
-    :param coroutine:
-    :return: result
-    """
-    try:
-        event_loop = asyncio.get_event_loop()
-    except RuntimeError:
-        event_loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(event_loop)
-
-    event = threading.Event()
-
-    async def _wait_for_coro():
-        try:
-            return await coroutine(*args, **kwargs)
-        finally:
-            event.set()
-
-    t = asyncio.Task(_wait_for_coro(), loop=event_loop)
-    event.wait()
-
-    return t.result()
 
 
 def get_channel_info(discord_id: str):
