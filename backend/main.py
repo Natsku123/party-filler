@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, Request
+from fastapi import FastAPI, Depends, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from starlette.middleware.sessions import SessionMiddleware
@@ -82,14 +82,18 @@ async def login(request: Request, redirect: str = None):
     return await oauth.discord.authorize_redirect(request, redirect_uri)
 
 
-@app.post('/discord_update')
+@app.route('/discord_update')
 def discord_update(
         *,
         request: Request,
         db: Session = Depends(get_db)
 ):
-    profile = request.session['profile']
-    token = request.session['token']
+    profile = request.session.get('profile')
+    token = request.session.get('token')
+
+    if not profile or token:
+        raise HTTPException(status_code=400, detail="Profile or token missing")
+
     # Get player
     player = db.query(Player).filter_by(discord_id=profile['id']).first()
 
