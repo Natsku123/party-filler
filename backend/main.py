@@ -71,7 +71,7 @@ async def root():
 
 
 @app.route('/login')
-async def login(request: Request, redirect: str = None):
+def login(request: Request, redirect: str = None):
     redirect_uri = settings.API_HOSTNAME + "/authorize"
 
     if redirect is None:
@@ -83,16 +83,16 @@ async def login(request: Request, redirect: str = None):
 
 
 @app.route("/logout")
-async def logout(request: Request):
+def logout(request: Request):
     redirect_url = settings.SITE_HOSTNAME
     request.session.pop('user', None)
     return RedirectResponse(url=redirect_url)
 
 
 @app.route('/authorize')
-async def authorize(request: Request, db: Session = Depends(get_db)):
-    token = await oauth.discord.authorize_access_token(request)
-    resp = await oauth.discord.get('users/@me', token=token)
+def authorize(request: Request, db: Session = Depends(get_db)):
+    token = oauth.discord.authorize_access_token(request)
+    resp = oauth.discord.get('users/@me', token=token)
     profile = resp.json()
 
     url = request.session.get('redirect_url')
@@ -102,7 +102,7 @@ async def authorize(request: Request, db: Session = Depends(get_db)):
         del request.session['redirect_url']
 
     # Get player
-    player = Player.query.filter_by(discord_id=profile['id']).first()
+    player = db.query(Player).filter_by(discord_id=profile['id']).first()
 
     # If player doesn't exist, create a new one.
     if player is None:
@@ -119,7 +119,7 @@ async def authorize(request: Request, db: Session = Depends(get_db)):
 
         # Create new servers if doesn't already exist
         for guild in guilds.json():
-            server = Server.query.filter_by(discord_id=guild['id']).first()
+            server = db.query(Server).filter_by(discord_id=guild['id']).first()
             if server is None:
                 server = Server(
                     name=guild.get('name'),
@@ -134,7 +134,7 @@ async def authorize(request: Request, db: Session = Depends(get_db)):
         db.add(player)
 
     # Update token
-    token_obj = OAuth2Token.query.filter_by(player_id=player.id).first()
+    token_obj = db.query(OAuth2Token).filter_by(player_id=player.id).first()
     if token_obj is None:
         token_obj = OAuth2Token(
             player_id=player.id,
