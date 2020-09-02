@@ -79,7 +79,7 @@ def login(request: Request, redirect: str = None):
 
     request.session['redirect_url'] = redirect
 
-    return await oauth.discord.authorize_redirect(request, redirect_uri)
+    return oauth.discord.authorize_redirect(request, redirect_uri)
 
 
 @app.route("/logout")
