@@ -90,7 +90,7 @@ def discord_update(
     profile = request.session.get('profile')
     token = request.session.get('token')
 
-    if not profile or token:
+    if not profile or not token:
         raise HTTPException(status_code=400, detail="Profile or token missing")
 
     # Get player
