@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
@@ -131,12 +132,12 @@ class PartyBase(BaseModel):
         alias="channelId",
         description="ID of channel"
     )
-    start_time: Optional[str] = Field(
+    start_time: Optional[datetime] = Field(
         None,
         alias="startTime",
         description="Party search start time"
     )
-    end_time: Optional[str] = Field(
+    end_time: Optional[datetime] = Field(
         None,
         alias="endTime",
         description="Party search end time"
