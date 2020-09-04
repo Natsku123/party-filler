@@ -130,7 +130,7 @@ TEST_PARTY_NO_LEADER = {
     "gameId": 1,
 }
 
-TEST_PARTY_NO_PARTY = {
+TEST_PARTY_NO_GAME = {
     "title": "nice party",
     "leaderId": 1,
 }
@@ -166,3 +166,9 @@ TEST_EMPTY = {
 
 }
 
+
+def id_in_list(list, id):
+    for item in list:
+        if item["id"] == id:
+            return True
+    return False
