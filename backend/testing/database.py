@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
 from core.database import Base, models, crud
+from testing import *
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 
@@ -14,7 +15,7 @@ TestingSessionLocal = sessionmaker(
 )
 
 
-def testing_get_db():
+def get_testing_get_db():
     db = TestingSessionLocal()
     try:
         yield db
@@ -22,7 +23,7 @@ def testing_get_db():
         db.close()
 
 
-def testing_current_user(db: Session = Depends(testing_get_db)) -> models.Player:
+def get_testing_current_user(db: Session = Depends(get_testing_get_db)) -> models.Player:
 
     user = crud.player.get(db, id=1)
     if not user:
@@ -36,12 +37,21 @@ def init_test_db():
 
     db = TestingSessionLocal()
 
-    test_player = models.Player(
+    test_player = db.query(models.Player).filter(
+            models.Player.discord_id == "1234567890"
+    ).first()
 
-    )
-    db.add(db)
-    db.commit()
-    db.refresh(test_player)
+    if not test_player:
+        test_player = models.Player(
+            discord_id="1234567890",
+            name="TEST PLAYER 1",
+            discriminator="0001"
+        )
+        db.add(test_player)
+        db.commit()
+        db.refresh(test_player)
+
+    db.close()
 
     return test_player
 

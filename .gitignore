@@ -9,3 +9,5 @@ backend/migrations
 backend/test.py
 bot/files
 backend/alembic/versions/*.py
+backend/testing/.pytest_cache
+backend/testing/test.db

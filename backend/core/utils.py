@@ -108,7 +108,7 @@ def base_serialize(obj):
 
 
 def datetime_to_string(date: datetime):
-    return date.replace(tzinfo=pytz.UTC).isoformat("T").split("+")[0] + "Z"
+    return date.replace(tzinfo=pytz.UTC).isoformat("T").split("+")[0]
 
 
 def get_channel_info(discord_id: str):

@@ -115,7 +115,7 @@ def test_create_channel_2():
     assert response.status_code == 200, response.text
 
     data = response.json()
-    for key, value in TEST_CHANNEL_1.items():
+    for key, value in TEST_CHANNEL_2.items():
         assert key in data
         assert data[key] == value
 

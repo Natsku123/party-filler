@@ -1,8 +1,9 @@
-import dateutil
+import dateutil.parser
 from sqlalchemy.orm import Session
 
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 from fastapi.encoders import jsonable_encoder
+from core.utils import camel_dict_to_snake
 
 from pydantic import BaseModel
 from core.database import Base
@@ -40,7 +41,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             *,
             obj_in: CreateSchemaType
     ) -> ModelType:
-        obj_in_data = jsonable_encoder(obj_in)
+        obj_in_data = camel_dict_to_snake(jsonable_encoder(obj_in))
         db_obj = self.model(**obj_in_data)
         db.add(db_obj)
         db.commit()
@@ -54,7 +55,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             db_obj: ModelType,
             obj_in: Union[UpdateSchemaType, Dict[str, Any]]
     ) -> ModelType:
-        obj_data = jsonable_encoder(db_obj)
+        obj_data = camel_dict_to_snake(jsonable_encoder(db_obj))
 
         if isinstance(obj_in, dict):
             update_data = obj_in
@@ -91,14 +92,14 @@ class CRUDParty(
             *,
             obj_in: CreateSchemaType
     ) -> ModelType:
-        obj_in_data = jsonable_encoder(obj_in)
+        obj_in_data = camel_dict_to_snake(jsonable_encoder(obj_in))
         start_time = None
         end_time = None
 
-        if obj_in_data["start_time"]:
+        if "start_time" in obj_in_data and obj_in_data["start_time"]:
             start_time = dateutil.parser.parse(obj_in_data["start_time"])
 
-        if obj_in_data["end_time"]:
+        if "end_time" in obj_in_data and obj_in_data["end_time"]:
             end_time = dateutil.parser.parse(obj_in_data["end_time"])
 
         db_party = models.Party(
@@ -125,7 +126,7 @@ class CRUDParty(
             db_obj: ModelType,
             obj_in: Union[UpdateSchemaType, Dict[str, Any]]
     ) -> ModelType:
-        obj_data = jsonable_encoder(db_obj)
+        obj_data = camel_dict_to_snake(jsonable_encoder(db_obj))
 
         if isinstance(obj_in, dict):
             update_data = obj_in

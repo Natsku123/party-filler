@@ -1,4 +1,5 @@
 import datetime
+from core.utils import datetime_to_string
 
 TEST_PLAYER_1 = {
     "discordId": "1234567890",
@@ -116,8 +117,8 @@ TEST_PARTY_2 = {
     "minPlayers": 1,
     "description": "asdasd",
     "channelId": 1,
-    "startTime": datetime.datetime.now(),
-    "endTime": datetime.datetime.now()
+    "startTime": datetime_to_string(datetime.datetime.now()),
+    "endTime": datetime_to_string(datetime.datetime.now())
 }
 
 TEST_PARTY_NO_TITLE = {
