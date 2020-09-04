@@ -102,7 +102,7 @@ def delete_party(
 
 
 @router.get(
-    '/{id}',
+    '/{id}/players',
     response_model=List[schemas.Member],
     tags=["parties", "members"]
 )
