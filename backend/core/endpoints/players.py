@@ -21,6 +21,20 @@ def get_current_player(
     return current_user
 
 
+@router.get('/superuser', response_model=schemas.IsSuperUser, tags=["players"])
+def get_is_superuser(
+        *,
+        current_user: models.Player = Depends(deps.get_current_user)
+) -> Any:
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Not authorized")
+
+    data = {
+        "isSuperuser": is_superuser(current_user)
+    }
+    return schemas.IsSuperUser(**data)
+
+
 @router.get('/{id}', response_model=schemas.Player, tags=["players"])
 def get_player(
         *,

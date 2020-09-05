@@ -1,4 +1,5 @@
 from core.utils import *
+from testing.test_main import client
 
 
 def test_snake_to_camel():
@@ -138,3 +139,11 @@ def test_no_change():
     new_camel_dict = snake_dict_to_camel(camel_dict)
     assert camel_dict == new_camel_dict
 
+
+def test_is_superuser():
+    response = client.get('/players/superuser')
+    assert response.status_code == 200, response.text
+
+    data = response.json()
+
+    assert data['isSuperuser']

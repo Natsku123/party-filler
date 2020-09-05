@@ -543,3 +543,11 @@ class PartyCreateWebhook(BaseModel):
         ...,
         description="Event info"
     )
+
+
+class IsSuperUser(BaseModel):
+    is_superuser: bool = Field(
+        ...,
+        alias="isSuperuser",
+        description="Is current user superuser"
+    )
