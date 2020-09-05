@@ -39,7 +39,7 @@ services:
       BOT_TOKEN: ${BOT_TOKEN}
       API_HOSTNAME: ${API_HOSTNAME}
       SITE_HOSTNAME: ${SITE_HOSTNAME}
-      FLASK_SECRET: ${FLASK_SECRET}
+      SECRET_KEY: ${SECRET_KEY}
       WEBHOOK_ID: ${WEBHOOK_ID}
     volumes:
       - "./backend:/app"
