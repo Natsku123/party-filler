@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [str(API_HOSTNAME), str(SITE_HOSTNAME)]
     DISCORD_CLIENT_ID: str = os.environ.get("DISCORD_CLIENT_ID")
     DISCORD_CLIENT_SECRET: str = os.environ.get("DISCORD_CLIENT_SECRET")
-    BOT_TOKEN: str = os.environ.get("BOT_TOKEN")
+    BOT_TOKEN: str = os.environ.get("BOT_TOKEN", "NO TOKEN")
     WEBHOOK_ID: str = os.environ.get("WEBHOOK_ID")
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)

@@ -127,7 +127,7 @@ def test_create_channel_no_name():
         '/channels/',
         json=TEST_CHANNEL_NO_NAME
     )
-    assert response.status_code == 422, response.text
+    assert response.status_code == 400, response.text
 
 
 def test_create_channel_no_id():
@@ -143,7 +143,7 @@ def test_create_channel_no_server():
         '/channels/',
         json=TEST_CHANNEL_NO_SERVER
     )
-    assert response.status_code == 422, response.text
+    assert response.status_code == 400, response.text
 
 
 def test_create_game_1():

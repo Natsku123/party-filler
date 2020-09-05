@@ -240,8 +240,24 @@ class PartyCreate(PartyBase):
     pass
 
 
-class ChannelCreate(ChannelBase):
-    pass
+class ChannelCreate(BaseModel):
+    name: Optional[str] = Field(
+        None,
+        description="Name of channel from Discord"
+    )
+    discord_id: str = Field(
+        ...,
+        alias="discordId",
+        description="Discord ID of channel"
+    )
+    server_id: Optional[int] = Field(
+        None,
+        alias="serverId",
+        description="ID of server associated with"
+    )
+
+    class Config:
+        allow_population_by_field_name = True
 
 
 class ServerCreate(ServerBase):

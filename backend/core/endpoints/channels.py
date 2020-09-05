@@ -3,9 +3,11 @@ from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from config import settings
+
 from core import deps
 from core.database import crud, models, schemas
-from core.utils import is_superuser
+from core.utils import is_superuser, get_channel_info
 
 router = APIRouter()
 
@@ -26,8 +28,36 @@ def create_channel(
         channel: schemas.ChannelCreate,
         current_user: models.Player = Depends(deps.get_current_user)
 ) -> Any:
+    if channel.server_id is None or channel.name is None:
+        if settings.BOT_TOKEN == "NO TOKEN":
+            raise HTTPException(status_code=400, detail="Data not available")
+
+        channel_data = get_channel_info(channel.discord_id)
+
+        if 'code' in channel_data:
+            if channel_data['code'] == 50001:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Discord bot has no access to channel"
+                )
+
+            raise HTTPException(
+                status_code=400, detail="Discord channel not found"
+            )
+        server = db.query(models.Server).filter(
+            models.Server.discord_id == str(channel_data.get('guild_id'))
+        ).first()
+        channel = schemas.ChannelCreate(
+            **{
+                "discordId": channel.discord_id,
+                "name": channel_data.get('name'),
+                "serverId": server.id
+            }
+        )
+
     if not current_user:
         raise HTTPException(status_code=401, detail="Not authorized")
+
     return crud.channel.create(db, obj_in=channel)
 
 
@@ -51,6 +81,33 @@ def update_channel(
 
     if db_server not in current_user.servers and not is_superuser(current_user):
         raise HTTPException(status_code=401, detail="Not authorized")
+
+    if channel.server_id is None or channel.name is None:
+        if settings.BOT_TOKEN == "NO TOKEN":
+            raise HTTPException(status_code=400, detail="Data not available")
+
+        channel_data = get_channel_info(channel.discord_id)
+
+        if 'code' in channel_data:
+            if channel_data['code'] == 50001:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Discord bot has no access to channel"
+                )
+
+            raise HTTPException(
+                status_code=400, detail="Discord channel not found"
+            )
+        server = db.query(models.Server).filter(
+            models.Server.discord_id == str(channel_data.get('guild_id'))
+        ).first()
+        channel = schemas.ChannelCreate(
+            **{
+                "discordId": channel.discord_id,
+                "name": channel_data.get('name'),
+                "serverId": server.id
+            }
+        )
 
     db_channel = crud.channel.update(db=db, db_obj=db_channel, obj_in=channel)
     return db_channel
