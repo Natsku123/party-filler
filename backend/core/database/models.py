@@ -82,9 +82,9 @@ class Member(Base):
     player_id = Column(Integer, ForeignKey('players.id'), nullable=False)
     role_id = Column(Integer, ForeignKey('roles.id'))
 
-    party = relationship('Party')
-    player = relationship('Player')
-    role = relationship('Role')
+    party = relationship('Party', lazy="joined")
+    player = relationship('Player', lazy="joined")
+    role = relationship('Role', lazy="joined")
 
 
 class Party(Base):
@@ -100,10 +100,10 @@ class Party(Base):
     start_time = Column(DateTime)
     end_time = Column(DateTime)
 
-    channel = relationship('Channel')
-    leader = relationship('Player')
+    channel = relationship('Channel', lazy="joined")
+    leader = relationship('Player', lazy="joined")
     members = relationship('Member')
-    game = relationship('Game')
+    game = relationship('Game', lazy="joined")
 
 
 class Role(Base):

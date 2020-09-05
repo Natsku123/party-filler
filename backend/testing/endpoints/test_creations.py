@@ -533,3 +533,149 @@ def test_create_member_no_player():
         json=TEST_MEMBER_NO_PLAYER
     )
     assert response.status_code == 422, response.text
+
+
+def test_delete_members():
+    response = client.get('/members/')
+    assert response.status_code == 200, response.text
+
+    data = response.json()
+
+    assert len(data) > 0
+
+    for member in data:
+        del_response = client.delete(f"/members/{member['id']}")
+
+        assert del_response.status_code == 200, response.text
+        del_data = del_response.json()
+
+        for key, value in member.items():
+            assert key in del_data
+            assert del_data[key] == value
+
+    response = client.get('/members/')
+    assert response.status_code == 200, response.text
+
+    data = response.json()
+
+    assert len(data) == 0
+
+
+def test_delete_roles():
+    response = client.get('/roles/')
+    assert response.status_code == 200, response.text
+
+    data = response.json()
+
+    assert len(data) > 0
+
+    for role in data:
+        del_response = client.delete(f"/roles/{role['id']}")
+
+        assert del_response.status_code == 200, response.text
+        del_data = del_response.json()
+
+        for key, value in role.items():
+            assert key in del_data
+            assert del_data[key] == value
+
+    response = client.get('/roles/')
+    assert response.status_code == 200, response.text
+
+    data = response.json()
+
+    assert len(data) == 0
+
+
+def test_delete_parties():
+    response = client.get('/parties/')
+    assert response.status_code == 200, response.text
+
+    data = response.json()
+
+    assert len(data) > 0
+
+    for party in data:
+        del_response = client.delete(f"/parties/{party['id']}")
+
+        assert del_response.status_code == 200, response.text
+        del_data = del_response.json()
+
+        for key, value in party.items():
+            assert key in del_data
+            assert del_data[key] == value
+
+    response = client.get('/parties/')
+    assert response.status_code == 200, response.text
+
+    data = response.json()
+
+    assert len(data) == 0
+
+
+def test_delete_games():
+    response = client.get('/games/')
+    assert response.status_code == 200, response.text
+
+    data = response.json()
+
+    assert len(data) > 0
+
+    for game in data:
+        del_response = client.delete(f"/games/{game['id']}")
+
+        assert del_response.status_code == 200, response.text
+        del_data = del_response.json()
+
+        for key, value in game.items():
+            assert key in del_data
+            assert del_data[key] == value
+
+    response = client.get('/games/')
+    assert response.status_code == 200, response.text
+
+    data = response.json()
+
+    assert len(data) == 0
+
+
+def test_delete_channels():
+    response = client.get('/channels/')
+    assert response.status_code == 200, response.text
+
+    data = response.json()
+
+    assert len(data) > 0
+
+    for channel in data:
+        del_response = client.delete(f"/channels/{channel['id']}")
+
+        assert del_response.status_code == 401, response.text
+
+    response = client.get('/channels/')
+    assert response.status_code == 200, response.text
+
+    data = response.json()
+
+    assert len(data) > 0
+
+
+def test_delete_servers():
+    response = client.get('/servers/')
+    assert response.status_code == 200, response.text
+
+    data = response.json()
+
+    assert len(data) > 0
+
+    for server in data:
+        del_response = client.delete(f"/servers/{server['id']}")
+
+        assert del_response.status_code == 401, response.text
+
+    response = client.get('/servers/')
+    assert response.status_code == 200, response.text
+
+    data = response.json()
+
+    assert len(data) > 0
