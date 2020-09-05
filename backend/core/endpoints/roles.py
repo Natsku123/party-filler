@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from core import deps
 from core.database import crud, models, schemas
+from core.utils import is_superuser
 
 router = APIRouter()
 
@@ -43,7 +44,8 @@ def update_role(
     if not db_role:
         raise HTTPException(status_code=404, detail="Role not found")
 
-    if db_role.party and db_role.party.leader_id != current_user.id:
+    if db_role.party and db_role.party.leader_id != current_user.id and \
+            not is_superuser(current_user):
         raise HTTPException(status_code=401, detail="Not authorized")
 
     db_role = crud.role.update(db=db, db_obj=db_role, obj_in=role)
@@ -76,7 +78,8 @@ def delete_role(
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
 
-    if role.party and role.party.leader_id != current_user.id:
+    if role.party and role.party.leader_id != current_user.id and \
+            not is_superuser(current_user):
         raise HTTPException(status_code=401, detail="Not authorized")
 
     crud.role.remove(db=db, id=id)

@@ -36,6 +36,10 @@ class Settings(BaseSettings):
         "http://localhost:3001"
     ]
 
+    SUPERUSERS: List[str] = os.environ.get(
+        "SUPERUSERS", "1234567890"
+    ).split(",")
+
     class Config:
         case_sensitive = True
 

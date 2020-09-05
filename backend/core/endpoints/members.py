@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core import deps
 from core.database import crud, models, schemas
-from core.utils import send_webhook, datetime_to_string
+from core.utils import send_webhook, datetime_to_string, is_superuser
 
 router = APIRouter()
 
@@ -28,7 +28,9 @@ def create_member(
         current_user: models.Player = Depends(deps.get_current_user),
         notify: bool = False
 ) -> Any:
-    if not current_user or current_user.id != member.player_id:
+    if not current_user or \
+            (current_user.id != member.player_id and
+             not is_superuser(current_user)):
         raise HTTPException(status_code=401, detail="Not authorized")
 
     member = crud.member.create(db, obj_in=member)
@@ -62,7 +64,7 @@ def update_member(
     if not db_member:
         raise HTTPException(status_code=404, detail="Member not found")
 
-    if db_member.player_id != current_user.id:
+    if db_member.player_id != current_user.id and not is_superuser(current_user):
         raise HTTPException(status_code=401, detail="Not authorized")
 
     db_member = crud.member.update(db=db, db_obj=db_member, obj_in=member)
@@ -95,7 +97,7 @@ def delete_member(
     if not member:
         raise HTTPException(status_code=404, detail="Member not found")
 
-    if member.player_id != current_user.id:
+    if member.player_id != current_user.id and not is_superuser(current_user):
         raise HTTPException(status_code=401, detail="Not authorized")
 
     crud.member.remove(db=db, id=id)

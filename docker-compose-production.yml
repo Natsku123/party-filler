@@ -32,6 +32,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile.production
     environment:
+      SERVER_NAME: ${SERVER_NAME}
       DB_NAME: ${DATABASE}
       DB_USER: ${DB_USER}
       DB_PASS: ${DB_PASSWORD}
@@ -42,6 +43,7 @@ services:
       SITE_HOSTNAME: ${SITE_HOSTNAME}
       SECRET_KEY: ${SECRET_KEY}
       WEBHOOK_ID: ${WEBHOOK_ID}
+      SUPERUSERS: ${SUPERUSERS}
     volumes:
       - "./backend:/app"
     ports:
@@ -55,5 +57,7 @@ services:
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
+      SUPERUSERS: ${SUPERUSERS}
+
     volumes:
       - "/srv/docker/data/party-finder/mysql:/var/lib/mysql"

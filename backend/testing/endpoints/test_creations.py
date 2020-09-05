@@ -650,14 +650,14 @@ def test_delete_channels():
     for channel in data:
         del_response = client.delete(f"/channels/{channel['id']}")
 
-        assert del_response.status_code == 401, response.text
+        assert del_response.status_code == 200, response.text
 
     response = client.get('/channels/')
     assert response.status_code == 200, response.text
 
     data = response.json()
 
-    assert len(data) > 0
+    assert len(data) == 0
 
 
 def test_delete_servers():
@@ -671,11 +671,11 @@ def test_delete_servers():
     for server in data:
         del_response = client.delete(f"/servers/{server['id']}")
 
-        assert del_response.status_code == 401, response.text
+        assert del_response.status_code == 200, response.text
 
     response = client.get('/servers/')
     assert response.status_code == 200, response.text
 
     data = response.json()
 
-    assert len(data) > 0
+    assert len(data) == 0

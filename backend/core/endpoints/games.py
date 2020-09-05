@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from core import deps
 from core.database import crud, models, schemas
+from core.utils import is_superuser
 
 router = APIRouter()
 
@@ -43,7 +44,7 @@ def update_game(
     if not db_game:
         raise HTTPException(status_code=404, detail="Game not found")
 
-    if not current_user:
+    if not current_user and not is_superuser(current_user):
         raise HTTPException(status_code=401, detail="Not authorized")
 
     db_game = crud.game.update(db=db, db_obj=db_game, obj_in=game)
@@ -76,7 +77,7 @@ def delete_game(
     if not game:
         raise HTTPException(status_code=404, detail="Game not found")
 
-    if not current_user:
+    if not current_user and not is_superuser(current_user):
         raise HTTPException(status_code=401, detail="Not authorized")
 
     crud.game.remove(db=db, id=id)

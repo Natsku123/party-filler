@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from core import deps
 from core.database import crud, models, schemas
+from core.utils import is_superuser
 
 router = APIRouter()
 
@@ -43,7 +44,7 @@ def update_server(
     if not db_server:
         raise HTTPException(status_code=404, detail="Server not found")
 
-    if db_server not in current_user.servers:
+    if db_server not in current_user.servers and not is_superuser(current_user):
         raise HTTPException(status_code=401, detail="Not authorized")
 
     db_server = crud.server.update(db=db, db_obj=db_server, obj_in=server)
@@ -76,7 +77,7 @@ def delete_server(
     if not server:
         raise HTTPException(status_code=404, detail="Server not found")
 
-    if server not in current_user.servers:
+    if server not in current_user.servers and not is_superuser(current_user):
         raise HTTPException(status_code=401, detail="Not authorized")
 
     crud.server.remove(db=db, id=id)

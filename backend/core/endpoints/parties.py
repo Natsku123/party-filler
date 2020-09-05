@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core import deps
 from core.database import crud, models, schemas
-from core.utils import send_webhook, datetime_to_string
+from core.utils import send_webhook, datetime_to_string, is_superuser
 
 router = APIRouter()
 
@@ -60,7 +60,7 @@ def update_party(
     if not db_party:
         raise HTTPException(status_code=404, detail="Party not found")
 
-    if db_party.leader_id != current_user.id:
+    if db_party.leader_id != current_user.id and not is_superuser(current_user):
         raise HTTPException(status_code=401, detail="Not authorized")
 
     db_party = crud.party.update(db=db, db_obj=db_party, obj_in=party)
@@ -93,7 +93,7 @@ def delete_party(
     if not party:
         raise HTTPException(status_code=404, detail="Party not found")
 
-    if party.leader_id != current_user.id:
+    if party.leader_id != current_user.id and not is_superuser(current_user):
         raise HTTPException(status_code=401, detail="Not authorized")
 
     crud.party.remove(db=db, id=id)

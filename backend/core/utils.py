@@ -4,6 +4,8 @@ import requests
 import os
 import re
 from pydantic import BaseModel
+from core.database import models
+from config import settings
 
 
 def snake_to_camel(snake: str):
@@ -132,3 +134,12 @@ def send_webhook(content: BaseModel):
             'http://bot:9080//webhook/' + os.environ.get('WEBHOOK_ID'),
             data=content.dict()
         )
+
+
+def is_superuser(user: models.Player):
+    """
+    Check if user/player is a super user.
+    :param user:
+    :return:
+    """
+    return user.discord_id in settings.SUPERUSERS
