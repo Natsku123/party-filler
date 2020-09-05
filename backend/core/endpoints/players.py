@@ -1,3 +1,4 @@
+import main
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -67,6 +68,68 @@ def update_player(
 
     db_player = crud.player.update(db=db, db_obj=db_player, obj_in=player)
     return db_player
+
+
+@router.put('/{id}', response_model=schemas.Player, tags=["players"])
+def update_player(
+        *,
+        db: Session = Depends(deps.get_db),
+        id: int,
+        current_user: models.Player = Depends(deps.get_current_user)
+) -> Any:
+    db_player = crud.player.get(db=db, id=id)
+
+    if not db_player:
+        raise HTTPException(status_code=404, detail="Player not found")
+
+    if db_player.id != current_user.id and not is_superuser(current_user):
+        raise HTTPException(status_code=401, detail="Not authorized")
+
+    resp = main.oauth.discord.get('users/@me')
+    profile = resp.json()
+
+    if 'code' not in profile:
+        # Update player info
+        player = schemas.PlayerUpdate(
+            **{
+                "name": profile.get('username'),
+                "discriminator": profile.get('discriminator'),
+                "icon": profile.get('avatar')
+            }
+        )
+
+        db_player = crud.player.update(db, db_obj=db_player, obj_in=player)
+
+        # Get servers that Player uses
+        guilds = main.oauth.discord.get('users/@me/guilds')
+
+        # Create new servers if doesn't already exist or update existing
+        for guild in guilds.json():
+            server = crud.server.get_by_discord_id(
+                db, discord_id=guild.get('id')
+            )
+
+            if server is None:
+                server_obj = schemas.ServerCreate(**{
+                    "name": guild.get('name'),
+                    "icon": guild.get('icon'),
+                    "discordId": guild.get('id')
+                })
+
+                server = crud.server.create(db, obj_in=server_obj)
+                db_player.servers.append(server)
+
+            elif server.name != guild.get('name', server.name) or server.icon != guild.get('icon', server.icon):
+                server_obj = schemas.ServerUpdate(**{
+                    "name": guild.get('name'),
+                    "icon": guild.get('icon'),
+                    "discordId": guild.get('id')
+                })
+
+                server = crud.server.update(db, db_obj=server, obj_in=server_obj)
+
+        db.commit()
+        db.refresh(db_player)
 
 
 @router.delete('/{id}', response_model=schemas.Player, tags=["players"])

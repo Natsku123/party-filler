@@ -158,7 +158,15 @@ class CRUDParty(
 class CRUDServer(
     CRUDBase[models.Server, schemas.ServerCreate, schemas.ServerUpdate]
 ):
-    pass
+    def get_by_discord_id(
+            self,
+            db: Session,
+            *,
+            discord_id: str
+    ) -> models.Server:
+        return db.query(self.model).filter(
+            models.Server.discord_id == discord_id
+        ).first()
 
 
 class CRUDChannel(
