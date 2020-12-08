@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const baseUrl = 'http://api.party.hellshade.fi/parties'
+const baseUrl = ((window.REACT_APP_API_HOSTNAME) ? window.REACT_APP_API_HOSTNAME : 'http://localhost:8800');
 
 const instance = axios.create({
     baseURL: baseUrl,
