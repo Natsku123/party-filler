@@ -1,4 +1,4 @@
-from testing.test_main import client
+from test.test_main import client
 
 
 def test_get_current_player():

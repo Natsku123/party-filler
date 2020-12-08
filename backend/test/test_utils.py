@@ -1,5 +1,5 @@
 from core.utils import *
-from testing.test_main import client
+from test.test_main import client
 
 
 def test_snake_to_camel():

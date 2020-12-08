@@ -1,5 +1,5 @@
-from testing.test_main import client
-from testing import *
+from test.test_main import client
+from test import *
 
 
 def test_create_server_1():
