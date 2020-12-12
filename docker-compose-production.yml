@@ -17,12 +17,10 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile.production
-    volumes:
-      - './frontend:/app'
-      - './frontend/app/node_modules:/app/node_modules'
     ports:
       - "3443:443"
       - "3080:80"
+    stdin_open: true
     environment:
       CHOKIDAR_USEPOLLING: "true"
       API_HOSTNAME: ${API_HOSTNAME}
@@ -32,6 +30,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile.production
     environment:
+      SERVER_NAME: ${SERVER_NAME}
       DB_NAME: ${DATABASE}
       DB_USER: ${DB_USER}
       DB_PASS: ${DB_PASSWORD}
@@ -40,10 +39,9 @@ services:
       BOT_TOKEN: ${BOT_TOKEN}
       API_HOSTNAME: ${API_HOSTNAME}
       SITE_HOSTNAME: ${SITE_HOSTNAME}
-      FLASK_SECRET: ${FLASK_SECRET}
+      SECRET_KEY: ${SECRET_KEY}
       WEBHOOK_ID: ${WEBHOOK_ID}
-    volumes:
-      - "./backend:/app"
+      SUPERUSERS: ${SUPERUSERS}
     ports:
       - "8080:80"
       - "8443:443"
@@ -55,5 +53,7 @@ services:
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
+      SUPERUSERS: ${SUPERUSERS}
+
     volumes:
       - "/srv/docker/data/party-finder/mysql:/var/lib/mysql"

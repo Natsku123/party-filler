@@ -2,25 +2,10 @@ import datetime
 import pytz
 import requests
 import os
-from flask_restful_swagger import registry
-from flask_restful_swagger.swagger import _parse_doc
-
-
-def model(c=None, *args, **kwargs):
-    add_model(c)
-    return c
-
-
-def add_model(model_class):
-    models = registry["models"]
-    name = model_class.__name__
-    model = models[name] = {"id": name}
-    model["description"], model["notes"] = _parse_doc(model_class)
-    properties = model["properties"] = {}
-
-    if "swagger_metadata" in dir(model_class):
-        for field_name, field_metadata in model_class.swagger_metadata.items():
-            properties[field_name] = field_metadata
+import re
+from pydantic import BaseModel
+from core.database import models
+from config import settings
 
 
 def snake_to_camel(snake: str):
@@ -36,6 +21,20 @@ def snake_to_camel(snake: str):
         camel += temp[i][0].upper() + temp[i][1:]
 
     return camel
+
+
+def camel_to_snake(camel: str):
+    temp = re.sub('([A-Z][a-z]+)', r' \1', re.sub('([A-Z]+)', r' \1', camel)).split()
+    snake = ""
+
+    # Convert to snake case
+    for i in range(len(temp)):
+        if i != 0:
+            snake += "_" + temp[i].lower()
+        else:
+            snake += temp[i].lower()
+
+    return snake
 
 
 # TODO better function name
@@ -81,6 +80,28 @@ def snake_dict_to_camel(snake_obj):
     return snake_obj
 
 
+def camel_dict_to_snake(camel_obj):
+    """
+    Convert dictionary or list recursively to use
+    snake_case keys instead of camelCase
+    :param camel_obj: dictionary or list to be converted
+    :return: snake_case version of camel_obj
+    """
+    snake_obj = {}
+    if isinstance(camel_obj, list):
+        for i in range(len(camel_obj)):
+            if isinstance(camel_obj[i], dict) or \
+                    isinstance(camel_obj[i], list):
+                camel_obj[i] = camel_dict_to_snake(camel_obj[i])
+    if isinstance(camel_obj, dict):
+        for key, value in camel_obj.items():
+            if isinstance(value, dict) or isinstance(value, list):
+                value = camel_dict_to_snake(value)
+            snake_obj[camel_to_snake(key)] = value
+        return snake_obj
+    return camel_obj
+
+
 def base_serialize(obj):
     try:
         return obj.base_serialize()
@@ -89,7 +110,7 @@ def base_serialize(obj):
 
 
 def datetime_to_string(date: datetime):
-    return date.replace(tzinfo=pytz.UTC).isoformat("T").split("+")[0] + "Z"
+    return date.replace(tzinfo=pytz.UTC).isoformat("T").split("+")[0]
 
 
 def get_channel_info(discord_id: str):
@@ -107,9 +128,18 @@ def get_channel_info(discord_id: str):
     return r.json()
 
 
-def send_webhook(content):
+def send_webhook(content: BaseModel):
     if os.environ.get('WEBHOOK_ID') and content:
         requests.post(
             'http://bot:9080//webhook/' + os.environ.get('WEBHOOK_ID'),
-            data=content
+            data=content.dict()
         )
+
+
+def is_superuser(user: models.Player):
+    """
+    Check if user/player is a super user.
+    :param user:
+    :return:
+    """
+    return user.discord_id in settings.SUPERUSERS
