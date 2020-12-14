@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const baseUrl = 'http://api.party.hellshade.fi/parties'
+const baseUrl = ((window.REACT_APP_API_HOSTNAME) ? window.REACT_APP_API_HOSTNAME : 'http://localhost:8800');
 
 const instance = axios.create({
     baseURL: baseUrl,
@@ -25,7 +25,12 @@ const getPage = async (page, per) => {
 }
 
 const getOne = async (partyId) => {
-  const response = instance.get(`/${partyId}`)
+  const response = await instance.get(`/${partyId}`)
+  return response.data
+}
+
+const getPlayers = async (partyId) => {
+  const response = await instance.get(`/${partyId}/players`)
   return response.data
 }
 
@@ -44,13 +49,13 @@ const remove = async (partyId) => {
   return response.data
 }
 
-const join = async (partyId, playerId) => {
-  const response = await instance.post(`${partyId}/players`, playerId)
+const join = async (partyId, memberObj) => {
+  const response = await instance.post(`/${partyId}/players`, memberObj)
   return response.data
 }
 
 const leave = async (partyId, playerId) => {
-  const response = await instance.delete(`${partyId}/players/${playerId}`)
+  const response = await instance.delete(`/${partyId}/players/${playerId}`)
   return response.data
 }
 
@@ -58,9 +63,10 @@ export default {
   getAll,
   getPage,
   getOne,
+  getPlayers,
   create,
   update,
   remove,
   join,
-  leave
+  leave,
 }

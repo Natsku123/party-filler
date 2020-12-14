@@ -1,6 +1,10 @@
 import React, { useState } from 'react'
+import {
+  TextField,
+  Button,
+} from '@material-ui/core'
 
-import partyService from '../services/parties'
+import partyService from '../../services/parties'
 
 const PartyForm = () => {
   // TODO: custom hook, fix time
@@ -10,7 +14,7 @@ const PartyForm = () => {
   const [ maxPlayers, setMaxPlayers ] = useState(5)
   const [ minPlayers, setMinPlayers ] = useState(5)
   const [ description, setDescription ] = useState('')
-  const [ channelId, setChannelId ] = useState('')
+  const [ channelId, setChannelId ] = useState(5)
   const [ startTime, setStartTime ] = useState('1996-10-15T00:05:32.000Z')
   const [ endTime, setEndTime ] = useState('1996-10-15T00:05:32.000Z')
 
@@ -24,7 +28,6 @@ const PartyForm = () => {
         maxPlayers,
         minPlayers,
         description,
-        channelId,
         startTime,
         endTime,
       }
@@ -38,8 +41,8 @@ const PartyForm = () => {
     setMaxPlayers(5)
     setMinPlayers(5)
     setDescription('')
-    setChannelId(5)
 
+    // setChannelId(5)
     // setStartTime('')
     // setEndTime('')
   }
@@ -47,27 +50,29 @@ const PartyForm = () => {
   return (
     <form onSubmit={createParty}>
       <div>
-        Title: <input value={title} onChange={({target}) => setTitle(target.value)}/>
+        <TextField label="title" value={title} onChange={({target}) => setTitle(target.value)}/>
       </div>
       <div>
-        Leader Id: <input type='number' value={leaderId} onChange={({target}) => setLeaderId(target.value)}/>
+        <TextField label="Leader Id" type='number' value={leaderId} onChange={({target}) => setLeaderId(target.value)}/>
       </div>
       <div>
-        Game: <input value={game} onChange={({target}) => setGame(target.value)}/>
+        <TextField label="Game" value={game} onChange={({target}) => setGame(target.value)}/>
       </div>
       <div>
-        Max Players: <input type='number' min='1' value={maxPlayers} onChange={({target}) => setMaxPlayers(target.value)}/>
+        <TextField label="Max Players" type='number' min='1' value={maxPlayers} onChange={({target}) => setMaxPlayers(target.value)}/>
       </div>
       <div>
-        Min Players: <input type='number' min='1' value={minPlayers} onChange={({target}) => setMinPlayers(target.value)}/>
+        <TextField label="Min Players" type='number' min='1' value={minPlayers} onChange={({target}) => setMinPlayers(target.value)}/>
       </div>
       <div>
-        Description: <input value={description} onChange={({target}) => setDescription(target.value)}/>
+        <TextField label="Description" value={description} onChange={({target}) => setDescription(target.value)}/>
       </div>
+      {/*
       <div>
-        Channel Id: <input value={channelId} onChange={({target}) => setChannelId(target.value)}/>
+        <TextField label="Channel Id" type='number' value={channelId} onChange={({target}) => setChannelId(target.value)}/>
       </div>
-      <button type='submit'>Create Party</button>
+      */}
+      <Button variant='contained' color='primary' type='submit'>Create Party</Button>
     </form>
   )
 }

@@ -4,3 +4,5 @@ frontend/build
 frontend/Dockerfile
 frontend/Dockerfile.production
 backend/Dockerfile
+.env.backup
+.env
