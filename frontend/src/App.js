@@ -8,30 +8,36 @@ import {
   AppBar,
   Toolbar,
   IconButton,
-  Button,
+  Button, Snackbar,
 } from '@material-ui/core'
 
 import ChannelForm from './components/ChannelForm'
 import PartyForm from './components/party/PartyForm'
 import Parties from './components/Parties'
 import Party from './components/party/Party'
-import User from './components/User'
+import Player from './components/Player'
 
-import playerService from './services/users'
+import { playerService } from './services/players'
+import MuiAlert from "@material-ui/lab/Alert";
+
+const baseUrl = ((window.REACT_APP_API_HOSTNAME) ? window.REACT_APP_API_HOSTNAME : 'http://localhost:8800');
 
 const getLoginUrl = () => {
+
+  /*
   const params = [
     'client_id=718047907617439804',
-    'redirect_uir=http%3A%2F%2Fapi.party.hellshade.fi%2Foauth2%2Fcallback',
+    `redirect_uir=${redirectUrl}/authorize`,
     'response_type=code',
     'scope=identify%20guilds'
   ].join('&')
 
-  return `https://discord.com/api/oauth2/authorize?${params}`
+  return `https://discord.com/api/oauth2/authorize?${params}`*/
+  return `${baseUrl}/login`
 }
 
 const getLogoutUrl = () => {
-  return 'http://api.party.hellshade.fi/logout'
+  return `${baseUrl}/logout`
 }
 
 const App = () => {
@@ -39,7 +45,7 @@ const App = () => {
 
   useEffect(() => {
     playerService
-      .getUser()
+      .getCurrent()
       .then(res => setUser(res))
   }, [])
 
@@ -47,12 +53,42 @@ const App = () => {
     padding: 5
   }
 
+  // Error handling
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarStatus, setSnackbarStatus] = useState("error");
+
+
+  const Alert = (props) => {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+  }
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setSnackbarOpen(false);
+  };
+
+  const showError = (message) => {
+    setSnackbarMessage(message);
+    setSnackbarStatus("error");
+    setSnackbarOpen(true);
+  }
+
+  const showSuccess = (message) => {
+    setSnackbarMessage(message);
+    setSnackbarStatus("success");
+    setSnackbarOpen(true);
+  }
+
   return (
     <Container>
       <Router basename="/#">
         <AppBar position='static'>
           <Toolbar>
-            <IconButton edge="start" color="inherit" aria-label="menu"></IconButton>
+            <IconButton edge="start" color="inherit" aria-label="menu"/>
             <Button color='inherit' component={Link} to="/" style={padding}>Home</Button>
             <Button color='inherit' component={Link} to="/channels/create" style={padding}>New Channel</Button>
             <Button color='inherit' component={Link} to="/parties/create" style={padding}>New Party</Button>
@@ -69,19 +105,19 @@ const App = () => {
 
         <Switch>
           <Route path="/channels/create">
-            <ChannelForm />
+            <ChannelForm onError={showError} onSuccess={showSuccess} />
           </Route>
           <Route path="/parties/create">
-            <PartyForm />
+            <PartyForm onError={showError} onSuccess={showSuccess}/>
           </Route>
           <Route path="/parties/:id">
-            <Party />
+            <Party onError={showError} onSuccess={showSuccess}/>
           </Route>
           <Route path="/parties">
-            <Parties />
+            <Parties onError={showError}/>
           </Route>
           <Route path="/players/:id">
-            <User />
+            <Player onError={showError}/>
           </Route>
           <Route path="/">
             <h1>Home Page</h1>
@@ -89,6 +125,16 @@ const App = () => {
         </Switch>
 
       </Router>
+      <Snackbar
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'center',
+          }}
+          open={snackbarOpen}
+          autoHideDuration={6000}
+          onClose={handleSnackbarClose}
+      ><Alert severity={snackbarStatus}>{snackbarMessage}</Alert>
+      </Snackbar>
     </Container>
   )
 }
