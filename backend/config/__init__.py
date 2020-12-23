@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     SERVER_NAME: str = os.environ.get("SERVER_NAME", "PartyFiller Backend")
     SECRET_KEY: str = os.environ.get("SECRET_KEY")
     API_HOSTNAME: AnyHttpUrl = os.environ.get("API_HOSTNAME", "http://localhost:8000")
+    REDIRECT_URL: AnyHttpUrl = os.environ.get("REDIRECT_URL", API_HOSTNAME)
     SITE_HOSTNAME: AnyHttpUrl = os.environ.get("SITE_HOSTNAME", "http://localhost:3000")
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [str(API_HOSTNAME), str(SITE_HOSTNAME)]
     DISCORD_CLIENT_ID: str = os.environ.get("DISCORD_CLIENT_ID")

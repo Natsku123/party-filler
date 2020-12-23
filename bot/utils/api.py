@@ -38,7 +38,7 @@ async def webhook(request):
     db = request.app['db']
     hook = db.get_webhook(ide=request.match_info['ide'])
 
-    channel_id = 367058034154930196
+    channel_id = 790711365714182207
 
     logger.debug("Incoming webhook: " + str(request.match_info['ide']))
 
