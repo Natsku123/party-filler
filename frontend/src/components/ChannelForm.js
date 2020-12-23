@@ -1,24 +1,29 @@
 import React, { useState } from 'react'
 import {
   TextField,
-  Button,
+  Button
 } from '@material-ui/core'
 
-import channelService from '../services/channels'
 
-const ChannelForm = () => {
+import { channelService } from '../services/channels'
+
+
+
+const ChannelForm = (props) => {
   const [ discordId, setDiscordId ] = useState('')
 
   const createChannel = (event) => {
     event.preventDefault()
     const channelObj = {
-      channel: {
-        discordId,
-      }
+      discordId
     }
 
-    channelService.create(channelObj)
-    setDiscordId('')
+    channelService.create(channelObj).then((r) => {
+      props.onSuccess("Channel '" + r.name + "' created.");
+      setDiscordId('');
+    }, (e) => {
+      props.onError(e.response.data.detail);
+    });
   }
 
   return (

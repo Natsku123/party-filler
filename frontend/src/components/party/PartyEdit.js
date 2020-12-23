@@ -9,7 +9,7 @@ import {
 } from '@material-ui/pickers'
 import MomentUtils from '@date-io/moment';
 
-import partyService from '../../services/parties'
+import { partyService } from '../../services/parties'
 
 const PartyEdit = ({ party, setEdit, setParty }) => {
   const [ title, setTitle ] = useState(party.title)

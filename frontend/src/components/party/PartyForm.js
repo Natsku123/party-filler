@@ -11,17 +11,11 @@ import MomentUtils from '@date-io/moment';
 
 import SplitButton from '../SplitButton'
 
-import partyService from '../../services/parties'
-import channelService from '../../services/channels'
+import { partyService } from '../../services/parties'
+import {playerService} from "../../services/players";
+import {serverService} from "../../services/servers";
 
-const initialChannels = [
-  "none",
-  "chess",
-  "gw",
-  "dotka",
-]
-
-const PartyForm = () => {
+const PartyForm = (props) => {
   const [ title, setTitle ] = useState('')
   const [ selectedChannel, setSelectedChannel ] = useState(0)
   const [ leaderId, setLeaderId ] = useState(1)
@@ -34,33 +28,74 @@ const PartyForm = () => {
   const [ endTime, setEndTime ] = useState(new Date())
 
   const [ channels, setChannels ] = useState(null)
+  const [ chNames, setChNames ] = useState(["No channel"]);
+  const [ currentUser, setCurrentUser ] = useState(null);
 
   useEffect(() => {
-    setChannels(initialChannels)
-    /*
-     * Wait for backend to implement 'get all channels'
-    channelService
-      .getAll()
-      .then(res => setChannels(res))
-      */
-  }, [])
+      let foundChannels = [];
+      let channelNames = ["No channel"]
+      playerService.getCurrent().then(r => {
+          r.servers.forEach(server => {
+              serverService.getChannels(server.id).then(res => {
+                  res.forEach(c => {
+                      foundChannels.push(c);
+                      console.log(c);
+                      channelNames.push(server.name + " - " + c.name);
+                  });
+              });
+          });
+          setChannels(foundChannels);
+          setChNames(channelNames);
+          setCurrentUser(r);
+
+      }, e => {
+          props.onError(e.response.detail);
+      });
+  }, [props])
 
   const createParty = (event) => {
     event.preventDefault()
-    const partyObject = {
-      "party": {
-        title,
-        leaderId,
-        game,
-        maxPlayers,
-        minPlayers,
-        description,
-        startTime,
-        endTime,
-      }
+    console.log(selectedChannel);
+    let channelDetails;
+    if (selectedChannel > 0) {
+        channelDetails = channels[selectedChannel-1];
+    } else {
+        channelDetails = null;
     }
 
-    partyService.create(partyObject)
+    let partyObject;
+    if (channelDetails !== null) {
+        setChannelId(channelDetails.id);
+
+        partyObject = {
+            title,
+            leaderId,
+            game,
+            channelId,
+            maxPlayers,
+            minPlayers,
+            description,
+            startTime,
+            endTime,
+        }
+    } else {
+        partyObject = {
+            title,
+            leaderId,
+            game,
+            maxPlayers,
+            minPlayers,
+            description,
+            startTime,
+            endTime,
+        }
+    }
+
+    partyService.create(partyObject).then(r => {
+        props.onSuccess("Party " + r.title + " created.");
+    }, e => {
+        props.onError(e.response.detail);
+    });
 
     setTitle('')
     setLeaderId(2)
@@ -83,7 +118,7 @@ const PartyForm = () => {
         { channels ?
             <div>
               channel:
-              <SplitButton options={channels} selected={selectedChannel} setSelected={setSelectedChannel}/>
+              <SplitButton options={chNames} selected={selectedChannel} setSelected={setSelectedChannel}/>
             </div> :
             <div>loading channels...</div>
         }

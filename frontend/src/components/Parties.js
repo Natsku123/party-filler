@@ -11,18 +11,21 @@ import {
   Paper,
 } from '@material-ui/core'
 
-import partyService from '../services/parties'
+import { partyService } from '../services/parties'
 
-const Parties = () => {
+const Parties = (props) => {
   const [ parties, setParties ] = useState([])
 
   useEffect(() => {
     partyService
       .getAll()
       .then(data => {
+        console.log(data);
         setParties(data)
+      }, error => {
+        props.onError(error.response.data.detail);
       })
-  }, [])
+  }, [props])
 
 
   const padding = {

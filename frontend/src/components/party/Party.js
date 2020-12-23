@@ -8,33 +8,35 @@ import {
 
 import PartyEdit from './PartyEdit'
 
-import partyService from '../../services/parties'
-import userService from '../../services/users'
+import { partyService } from '../../services/parties'
+import { joinParty, leaveParty } from '../../services/utils';
+import { playerService } from '../../services/players'
 
-const Party = () => {
+const Party = (props) => {
   const id = useParams().id
   const [ party, setParty ] = useState(null)
   const [ members, setMembers ] = useState([])
   const [ user, setUser ] = useState(null)
   const [ edit, setEdit ] = useState(false)
+  const [ member, setMember ] = useState();
 
   useEffect(() => {
     partyService
       .getOne(id)
-      .then(res => setParty(res))
-  }, [ id ])
+      .then(res => setParty(res), error => props.onError(error.response.data.detail));
+  }, [props, id ])
 
   useEffect(() => {
     partyService
-      .getPlayers(id)
-      .then(res => setMembers(res))
-  }, [ id ])
+      .getMembers(id)
+      .then(res => setMembers(res), error => props.onError(error.response.data.detail));
+  }, [props, id ])
 
   useEffect(() => {
-    userService
-      .getUser()
-      .then(res => setUser(res))
-  }, [])
+    playerService
+      .getCurrent()
+      .then(res => setUser(res), error => props.onError(error.response.data.detail));
+  }, [props])
 
   if (!party) {
     return <div>loading...</div>
@@ -46,31 +48,24 @@ const Party = () => {
 
   const isLeader = user && user.id === party.leaderId
 
-  const join = () => {
+  const join = (roleId) => {
     const notify = window.confirm("Do you want discord notifications?")
 
-    const memberObj = {
-      "member" : {
-        partyReq: party.min_players,
-        partyId: party.id,
-        playerId: user.id,
-        notify,
-      }
-    }
-
-    partyService
-      .join(party.id, memberObj)
-      .then(member => setMembers(members.concat(member)) )
+    joinParty(party.id, user.id, roleId, party.min_players, notify)
+      .then(member => {
+          setMembers(members.concat(member));
+          setMember(member);
+          props.onSuccess("Successfully joined " + party.title + "!");
+      }, error => props.onError(error.response.data.detail));
   }
 
   const leave = () => {
-    partyService
-      .leave(party.id, user.id)
-      .then(res => {
-        if (res.status === "success") {
-          setMembers(members.filter(member => member.player.id !== user.id))
-        }
-      })
+
+    leaveParty(member.id)
+      .then(removedMember => {
+          setMembers(members.filter(member => member.id !== removedMember.id));
+          props.onSuccess("Successfully left " + party.title + "!");
+      }, error => props.onError(error.response.data.detail));
   }
 
   if (isLeader && edit) {
