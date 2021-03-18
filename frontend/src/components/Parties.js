@@ -20,8 +20,7 @@ const Parties = (props) => {
     partyService
       .getAll()
       .then(data => {
-        console.log(data);
-        setParties(data)
+        setParties(data);
       }, error => {
         props.onError(error.response.data.detail);
       })
@@ -47,8 +46,8 @@ const Parties = (props) => {
           {parties.map((party, i) =>
             <TableRow key={i}>
               <TableCell style={padding} >{party.title}</TableCell>
-              <TableCell style={padding} >{party.game}</TableCell>
-              <TableCell style={padding} >{`${party.members.length}`}</TableCell>
+              <TableCell style={padding} >{party.game.name}</TableCell>
+              <TableCell style={padding} >{`${party.members.length + 1}`}</TableCell>
               <TableCell style={padding} >
                 <Link to={`/parties/${party.id}`}>
                   <Button variant='contained' color='primary' type='button'>show</Button>

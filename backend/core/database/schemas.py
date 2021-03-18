@@ -360,7 +360,7 @@ class Party(PartyBase):
         ...,
         description="ID of party"
     )
-    channel: Optional['ChannelShort'] = Field(
+    channel: Optional['Channel'] = Field(
         None,
         description="Channel object"
     )
@@ -385,6 +385,10 @@ class Channel(ChannelBase):
     id: int = Field(
         ...,
         description="ID of channel"
+    )
+    server: 'ServerShort' = Field(
+        ...,
+        description="Server of channel"
     )
 
     class Config:

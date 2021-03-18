@@ -3,14 +3,22 @@ import {BaseApiService} from "./baseApiService";
 
 class PlayerService extends BaseApiService {
     getCurrent = async () => {
-        const response = await this.instance.get('');
-        return response.data;
-    }
+        return new Promise(async (resolve, reject) => {
+            this.instance.get('').then(r => resolve(r.data)).catch(reject);
+        });
+    };
 
     getIsSuperuser = async () => {
-        const response = await this.instance.get('/superuser');
-        return response.data;
-    }
+        return new Promise(async (resolve, reject) => {
+            this.instance.get('/superuser').then(r => resolve(r.data)).catch(reject);
+        });
+    };
+
+    getVisibleChannels = async () => {
+        return new Promise(async (resolve, reject) => {
+            this.instance.get('/channels').then(r => resolve(r.data)).catch(reject);
+        });
+    };
 }
 
 export const playerService = new PlayerService('/players');

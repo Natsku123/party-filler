@@ -12,7 +12,19 @@ import {
 } from '@material-ui/core'
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
 
+import {makeStyles} from "@material-ui/core/styles";
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    background: "rgba(255,255,255,0.1)",
+    backdropFilter: "blur(40px)",
+    border: "solid 2px transparent",
+  }
+}))
+
 const SplitButton = ({ options, selected, setSelected }) => {
+  const classes = useStyles()
+
   const [open, setOpen] = useState(false);
   const anchorRef = useRef(null);
 
@@ -50,7 +62,7 @@ const SplitButton = ({ options, selected, setSelected }) => {
                 transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom',
               }}
             >
-              <Paper>
+              <Paper className={classes.root}>
                 <ClickAwayListener onClickAway={handleClose}>
                   <MenuList id="split-button-menu">
                     {options.map((option, index) => (

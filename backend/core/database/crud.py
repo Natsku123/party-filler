@@ -184,6 +184,18 @@ class CRUDChannel(
             models.Channel.server_id == server_id
         ).offset(skip).limit(limit).all()
 
+    def get_multi_by_servers(
+            self,
+            db: Session,
+            *,
+            server_ids: List[int],
+            skip: int = 0,
+            limit: int = 100
+    ) -> List[models.Channel]:
+        return db.query(self.model).filter(
+            models.Channel.server_id.in_(server_ids)
+        ).offset(skip).limit(limit).all()
+
 
 class CRUDPlayer(
     CRUDBase[models.Player, schemas.PlayerCreate, schemas.PlayerUpdate]

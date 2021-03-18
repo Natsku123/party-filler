@@ -34,7 +34,7 @@ def create_channel(
 
     if db_channel is not None:
         raise HTTPException(status_code=400, detail="Channel already exists")
-    
+
     if channel.server_id is None or channel.name is None:
         if settings.BOT_TOKEN == "NO TOKEN":
             raise HTTPException(status_code=400, detail="Data not available")

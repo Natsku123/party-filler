@@ -4,9 +4,14 @@ import {
   Button,
   List,
   ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Avatar
 } from '@material-ui/core'
 
 import PartyEdit from './PartyEdit'
+import Glass from '../Glass'
+
 
 import { partyService } from '../../services/parties'
 import { joinParty, leaveParty } from '../../services/utils';
@@ -78,7 +83,7 @@ const Party = (props) => {
 
   return (
     <div>
-      <h1>Party</h1>
+      <h1>{party.title}</h1>
       { !user ?
           <p>Et ole kirjautunut</p> :
           <div>
@@ -87,31 +92,42 @@ const Party = (props) => {
                   <p>Olet johtaja</p>
                   <Button variant='contained' color='primary' onClick={ () => setEdit(true) }>Edit</Button>
                 </div> :
-                <p>Et ole johtaja</p>
+                <div>
+                    { isMember ?
+                        <Button variant='contained' color='secondary' onClick={leave}>Leave</Button> :
+                        <Button variant='contained' color='primary' onClick={join}>Join</Button>
+                    }
+                </div>
             }
-            { isMember ?
-                <Button variant='contained' color='secondary' onClick={leave}>Leave</Button> :
-                <Button variant='contained' color='primary' onClick={join}>Join</Button>
-            }
+
           </div>
       }
       <h2>Information</h2>
-      <p>Party Id: {party.id}</p>
-      <p>Title: {party.title}</p>
-      <p>Game: {party.game}</p>
+      <p>Game: {party.game.name}</p>
       <p>Max Players: {party.maxPlayers}</p>
       <p>Min Players: {party.minPlayers}</p>
       <p>Description: {party.description}</p>
-      <p>Channel Id: {party.channelId}</p>
       <p>Start Time: {party.startTime}</p>
       <p>End Time: {party.endTime}</p>
-      {/*
-      <p>Channel: {party.channel.name}</p>
-      <p>Leader: {party.leader.name}</p>
-      */}
+      <p>Channel: {party.channel.name} @ {party.channel.server.name}</p>
       <h2>Members</h2>
       <List>
-        {members.map(member => <ListItem key={member.player.id}>{member.player.name}</ListItem>)}
+          <ListItem key={0}>
+              <ListItemAvatar>
+                  <Avatar alt={party.leader.name} src={`https://cdn.discordapp.com/avatars/${party.leader.discordId}/${party.leader.icon}`} />
+              </ListItemAvatar>
+              <ListItemText primary={party.leader.name} secondary="Leader" />
+          </ListItem>
+        {members.map(member => {
+            return (
+                <ListItem key={member.id}>
+                    <ListItemAvatar>
+                        <Avatar alt={member.player.name} src={`https://cdn.discordapp.com/avatars/${member.player.discordId}/${member.player.icon}`} />
+                    </ListItemAvatar>
+                    <ListItemText primary={member.player.name} secondary="Member" />
+                </ListItem>
+            )
+        })}
       </List>
     </div>
   )
