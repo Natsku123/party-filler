@@ -7,7 +7,8 @@ import {
   DialogActions,
   DialogTitle,
   DialogContent,
-  DialogContentText
+  DialogContentText,
+  TextField as TF
 } from '@material-ui/core'
 import {
   MuiPickersUtilsProvider,
@@ -35,10 +36,12 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const PartyForm = () => {
-  const [ channels, setChannels ] = useState(null)
-  const [ chNames, setChNames ] = useState(["No channel"]);
+const PartyForm = (props) => {
+  const classes = useStyles();
+  const [ channels, setChannels ] = useState([])
   const [ currentUser, setCurrentUser ] = useState(null);
+  const [ games, setGames ] = useState(null);
+  const [ gNames, setGNames ] = useState(null);
 
   const [ newGameDialog, setNewGameDialog ] = useState(false);
 
@@ -46,8 +49,6 @@ const PartyForm = () => {
   const [ newGameSize, setNewGameSize ] = useState(5);
 
   useEffect(() => {
-      let channelNames = ["No channel"]
-
       playerService.getCurrent().then(r => {
           setCurrentUser(r);
       }, e => {
@@ -55,11 +56,7 @@ const PartyForm = () => {
       });
 
       playerService.getVisibleChannels().then(r => {
-          r.forEach(c => {
-              channelNames.push(c.server.name + " - " + c.name);
-          });
           setChannels(r);
-          setChNames(channelNames);
       }, e => {
           props.onError(e.response.data.detail);
       });
@@ -67,71 +64,13 @@ const PartyForm = () => {
 
   useEffect(() => {
       gameService.getAll().then(r => {
-          let names = [];
-          r.forEach(game => {
-              names.push(game.name);
-          })
+          const names  = r.map(game => game.name);
           setGames(r);
           setGNames(names);
       }, e => {
           props.onError(e.response.data.detail);
       });
   }, [props])
-
-  const createParty = (event) => {
-    event.preventDefault()
-    console.log(selectedChannel);
-    let channelDetails;
-    if (selectedChannel > 0) {
-        channelDetails = channels[selectedChannel-1];
-    } else {
-        channelDetails = null;
-    }
-
-    let partyObject;
-    if (channelDetails !== null) {
-        console.log(channelDetails);
-        setChannelId(channelDetails.id);
-
-        partyObject = {
-            title,
-            leaderId: currentUser.id,
-            gameId: games[selectedGame].id,
-            channelId,
-            maxPlayers,
-            minPlayers,
-            description,
-            startTime,
-            endTime,
-        }
-    } else {
-        partyObject = {
-            title,
-            leaderId: currentUser.id,
-            gameId: games[selectedGame].id,
-            maxPlayers,
-            minPlayers,
-            description,
-            startTime,
-            endTime,
-        }
-    }
-
-    partyService.create(partyObject).then(r => {
-        props.onSuccess("Party " + r.title + " created.");
-        setTitle('')
-        setDescription('')
-        setStartTime(new Date())
-        setEndTime(new Date(startTime.getTime() + (60*60*1000)))
-    }, e => {
-        props.onError(e.response.data.detail);
-
-    });
-
-
-
-    // setChannelId(5)
-  }
 
   const openNewGameDialog = () => {
     setNewGameDialog(true);
@@ -141,13 +80,6 @@ const PartyForm = () => {
     setNewGameDialog(false);
     setNewGameName("");
     setNewGameSize(5);
-  }
-
-  const changeGame = (game) => {
-      setSelectedGame(game);
-      const newCurrent = games[game];
-      setMaxPlayers(newCurrent.defaultMaxPlayers);
-      setMinPlayers(newCurrent.defaultMaxPlayers);
   }
 
   const createGame = () => {
@@ -174,9 +106,8 @@ const PartyForm = () => {
       <Formik
         initialValues={{
           title: '',
-          leaderId: 2,
-          channel: 'none',
-          game: 'Dota 2',
+          channelId: '',
+          gameId: '',
           maxPlayers: 5,
           minPlayers: 5,
           description: '',
@@ -191,10 +122,17 @@ const PartyForm = () => {
           return errors;
         }}
         onSubmit={(values, { setSubmitting }) => {
-          setTimeout(() => {
+          const partyObject = {
+            leaderId: currentUser.id,
+            ...values
+          }
+          partyService.create(partyObject).then(r => {
+              props.onSuccess("Party " + r.title + " created.");
+            }, e => {
+              props.onError(e.response.data.detail);
+          }).finally(() => {
             setSubmitting(false);
-            alert(JSON.stringify(values, null, 2));
-          }, 500);
+          });
         }}
       >
         {({ submitForm, isSubmitting }) => (
@@ -202,17 +140,22 @@ const PartyForm = () => {
             <Field component={TextField} name="title" label="Title" />
             <br />
             { channels &&
-            <Field component={Select} name="channel" displayEmpty>
+            <Field component={Select} name="channelId" label="Channel">
               { channels.map(channel => (
-                <MenuItem value={channel} key={channel} >{channel}</MenuItem>
+                <MenuItem value={channel.id} key={channel.id} >{channel.server.name} - {channel.name}</MenuItem>
               ))
               }
             </Field>
             }
             <br />
-            <Field component={TextField} name="leaderId" type="number" label="Leader Id" />
-            <br />
-            <Field component={TextField} name="game" label="Game" />
+            {games &&
+            <Field component={Select} name="gameId" label="Game">
+              {games.map(game => (
+                <MenuItem value={game.id} key={game.id}>{game.name}</MenuItem>
+              ))
+              }
+            </Field>
+            }
             <br />
             <Button variant="outlined" color="primary" onClick={openNewGameDialog}>New Game</Button>
             <br />
@@ -223,8 +166,6 @@ const PartyForm = () => {
             <br />
             <Field component={TextField} name="description" label="Description" />
             <br />
-            <Field component={TextField} name="channelId" type="number" label="Channel Id" />
-                <br />
             <Field component={DateTimePicker} label="Start Time" name="startTime" />;
             <br />
             <Field component={DateTimePicker} label="End Time" name="endTime" />;
@@ -237,40 +178,40 @@ const PartyForm = () => {
             >
               Create Party
             </Button>
-              <Dialog open={newGameDialog} onClose={closeNewGameDialog} aria-labelledby="form-dialog-title" className={classes.root}>
-                  <DialogTitle id="form-dialog-title" className={classes.dialog}>Create a new game</DialogTitle>
-                  <DialogContent className={classes.dialog}>
-                      <DialogContentText>
-                          To create a new game, give the name of the game and a default party maximum party size
-                      </DialogContentText>
-                      <TextField
-                          autoFocus
-                          margin="dense"
-                          id="game-name"
-                          label="Name"
-                          value={newGameName}
-                          onChange={({target}) => setNewGameName(target.value)}
-                          fullWidth
-                      />
-                      <TextField
-                          margin="dense"
-                          id="game-max-size"
-                          label="Max Party size"
-                          type="number"
-                          value={newGameSize}
-                          onChange={({target}) => setNewGameSize(Number(target.value))}
-                          fullWidth
-                      />
-                  </DialogContent>
-                  <DialogActions className={classes.dialog}>
-                      <Button onClick={closeNewGameDialog} color="primary">
-                          Cancel
-                      </Button>
-                      <Button onClick={createGame} color="primary">
-                          Create
-                      </Button>
-                  </DialogActions>
-              </Dialog>
+            <Dialog open={newGameDialog} onClose={closeNewGameDialog} aria-labelledby="form-dialog-title" className={classes.root}>
+              <DialogTitle id="form-dialog-title" className={classes.dialog}>Create a new game</DialogTitle>
+              <DialogContent className={classes.dialog}>
+                <DialogContentText>
+                  To create a new game, give the name of the game and a default party maximum party size
+                </DialogContentText>
+                <TF
+                  autoFocus
+                  margin="dense"
+                  id="game-name"
+                  label="Name"
+                  value={newGameName}
+                  onChange={({target}) => setNewGameName(target.value)}
+                  fullWidth
+                />
+                <TF
+                  margin="dense"
+                  id="game-max-size"
+                  label="Max Party size"
+                  type="number"
+                  value={newGameSize}
+                  onChange={({target}) => setNewGameSize(Number(target.value))}
+                  fullWidth
+                />
+              </DialogContent>
+              <DialogActions className={classes.dialog}>
+                <Button onClick={closeNewGameDialog} color="primary">
+                  Cancel
+                </Button>
+                <Button onClick={createGame} color="primary">
+                  Create
+                </Button>
+              </DialogActions>
+            </Dialog>
           </Form>
         )}
       </Formik>
