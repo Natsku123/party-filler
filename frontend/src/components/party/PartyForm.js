@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 
 import {
   Button,
@@ -8,98 +8,87 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  TextField as TF
-} from '@material-ui/core'
+} from '@material-ui/core';
 import {
   MuiPickersUtilsProvider,
-} from '@material-ui/pickers'
+} from '@material-ui/pickers';
 import MomentUtils from '@date-io/moment';
 
 import { Formik, Form, Field } from 'formik';
 import { TextField, Select } from 'formik-material-ui';
-import { DateTimePicker } from 'formik-material-ui-pickers'
+import { DateTimePicker } from 'formik-material-ui-pickers';
 
-import { partyService } from '../../services/parties'
-import { playerService } from "../../services/players";
-import { serverService } from "../../services/servers";
-import {gameService} from "../../services/games";
-import {makeStyles} from "@material-ui/core/styles";
+import { partyService } from '../../services/parties';
+import { playerService } from '../../services/players';
+import { serverService } from '../../services/servers';
+import { gameService } from '../../services/games';
+import { makeStyles } from '@material-ui/core/styles';
 
-const useStyles = makeStyles((theme) => ({
-    root: {
-        position: "relative",
-        backdropFilter: "blur(40px)",
-        backgroundClip: "padding-box"
-    },
-    dialog: {
-        backgroundColor: "#333333"
-    }
-}))
+import NewGameDialog from '../NewGameDialog';
 
 const PartyForm = (props) => {
-  const classes = useStyles();
-  const [ channels, setChannels ] = useState([])
+  const [ channels, setChannels ] = useState([]);
   const [ currentUser, setCurrentUser ] = useState(null);
   const [ games, setGames ] = useState(null);
   const [ gNames, setGNames ] = useState(null);
 
   const [ newGameDialog, setNewGameDialog ] = useState(false);
 
-  const [ newGameName, setNewGameName ] = useState("");
+  const [ newGameName, setNewGameName ] = useState('');
   const [ newGameSize, setNewGameSize ] = useState(5);
 
   useEffect(() => {
-      playerService.getCurrent().then(r => {
-          setCurrentUser(r);
-      }, e => {
-          props.onError(e.response.data.detail);
-      });
+    playerService.getCurrent().then(r => {
+      setCurrentUser(r);
+    }, e => {
+      props.onError(e.response.data.detail);
+    });
 
-      playerService.getVisibleChannels().then(r => {
-          setChannels(r);
-      }, e => {
-          props.onError(e.response.data.detail);
-      });
-  }, [props])
+    playerService.getVisibleChannels().then(r => {
+      setChannels(r);
+    }, e => {
+      props.onError(e.response.data.detail);
+    });
+  }, [props]);
 
   useEffect(() => {
-      gameService.getAll().then(r => {
-          const names  = r.map(game => game.name);
-          setGames(r);
-          setGNames(names);
-      }, e => {
-          props.onError(e.response.data.detail);
-      });
-  }, [props])
+    gameService.getAll().then(r => {
+      const names  = r.map(game => game.name);
+      setGames(r);
+      setGNames(names);
+    }, e => {
+      props.onError(e.response.data.detail);
+    });
+  }, [props]);
 
   const openNewGameDialog = () => {
     setNewGameDialog(true);
-  }
+  };
 
   const closeNewGameDialog = () => {
     setNewGameDialog(false);
-    setNewGameName("");
+    setNewGameName('');
     setNewGameSize(5);
-  }
+  };
 
   const createGame = () => {
     const newObject = {
-        "name": newGameName,
-        "defaultMaxPlayers": newGameSize
+      'name': newGameName,
+      'defaultMaxPlayers': newGameSize
     };
     gameService.create(newObject).then(r => {
-        props.onSuccess("Game " + r.name + " created.")
-        const g = games;
-        const gn = gNames;
-        gn.push(r.name);
-        g.push(r);
-        setGames(g);
-        setGNames(gn);
+      props.onSuccess('Game ' + r.name + ' created.');
+      const g = games;
+      const gn = gNames;
+      gn.push(r.name);
+      g.push(r);
+      setGames(g);
+      setGNames(gn);
     }, e => {
-        props.onError(e.response.data.detail)
+      props.onError(e.response.data.detail);
     });
     closeNewGameDialog();
-  }
+  };
 
   return (
     <MuiPickersUtilsProvider utils={MomentUtils}>
@@ -115,7 +104,7 @@ const PartyForm = (props) => {
           endTime: new Date(),
         }}
         validate={values => {
-          const errors = {}
+          const errors = {};
           if (!values.title) {
             errors.title = 'Required';
           }
@@ -125,11 +114,11 @@ const PartyForm = (props) => {
           const partyObject = {
             leaderId: currentUser.id,
             ...values
-          }
+          };
           partyService.create(partyObject).then(r => {
-              props.onSuccess("Party " + r.title + " created.");
-            }, e => {
-              props.onError(e.response.data.detail);
+            props.onSuccess('Party ' + r.title + ' created.');
+          }, e => {
+            props.onError(e.response.data.detail);
           }).finally(() => {
             setSubmitting(false);
           });
@@ -178,45 +167,20 @@ const PartyForm = (props) => {
             >
               Create Party
             </Button>
-            <Dialog open={newGameDialog} onClose={closeNewGameDialog} aria-labelledby="form-dialog-title" className={classes.root}>
-              <DialogTitle id="form-dialog-title" className={classes.dialog}>Create a new game</DialogTitle>
-              <DialogContent className={classes.dialog}>
-                <DialogContentText>
-                  To create a new game, give the name of the game and a default party maximum party size
-                </DialogContentText>
-                <TF
-                  autoFocus
-                  margin="dense"
-                  id="game-name"
-                  label="Name"
-                  value={newGameName}
-                  onChange={({target}) => setNewGameName(target.value)}
-                  fullWidth
-                />
-                <TF
-                  margin="dense"
-                  id="game-max-size"
-                  label="Max Party size"
-                  type="number"
-                  value={newGameSize}
-                  onChange={({target}) => setNewGameSize(Number(target.value))}
-                  fullWidth
-                />
-              </DialogContent>
-              <DialogActions className={classes.dialog}>
-                <Button onClick={closeNewGameDialog} color="primary">
-                  Cancel
-                </Button>
-                <Button onClick={createGame} color="primary">
-                  Create
-                </Button>
-              </DialogActions>
-            </Dialog>
           </Form>
         )}
       </Formik>
+      <NewGameDialog
+        newGameDialog={newGameDialog}
+        closeNewGameDialog={closeNewGameDialog}
+        newGameName={newGameName}
+        setNewGameName={setNewGameName}
+        createGame={createGame}
+        newGameSize={newGameSize}
+        setNewGameSize={setNewGameSize}
+      />
     </MuiPickersUtilsProvider>
-  )
-}
+  );
+};
 
-export default PartyForm
+export default PartyForm;

@@ -1,67 +1,53 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import {
   BrowserRouter as Router,
   Switch, Route, Link
-} from 'react-router-dom'
+} from 'react-router-dom';
 import {
   Container,
   AppBar,
   Toolbar,
   IconButton,
   Button, Snackbar,
-} from '@material-ui/core'
+} from '@material-ui/core';
 
-import ChannelForm from './components/ChannelForm'
-import PartyForm from './components/party/PartyForm'
-import Parties from './components/Parties'
-import Party from './components/party/Party'
-import Player from './components/Player'
+import ChannelForm from './components/ChannelForm';
+import PartyForm from './components/party/PartyForm';
+import Parties from './components/Parties';
+import Party from './components/party/Party';
+import Player from './components/Player';
 
-import { playerService } from './services/players'
-import MuiAlert from "@material-ui/lab/Alert";
+import { playerService } from './services/players';
+import MuiAlert from '@material-ui/lab/Alert';
 
 const baseUrl = ((window.REACT_APP_API_HOSTNAME) ? window.REACT_APP_API_HOSTNAME : 'http://localhost:8800');
 
 const getLoginUrl = () => {
-
-  /*
-  const params = [
-    'client_id=718047907617439804',
-    `redirect_uir=${redirectUrl}/authorize`,
-    'response_type=code',
-    'scope=identify%20guilds'
-  ].join('&')
-
-  return `https://discord.com/api/oauth2/authorize?${params}`*/
-  return `${baseUrl}/login`
-}
+  return `${baseUrl}/login`;
+};
 
 const getLogoutUrl = () => {
-  return `${baseUrl}/logout`
-}
+  return `${baseUrl}/logout`;
+};
 
 const App = () => {
-  const [ user, setUser ] = useState(null)
+  const [ user, setUser ] = useState(null);
 
   useEffect(() => {
     playerService
       .getCurrent()
-      .then(res => setUser(res))
-  }, [])
-
-  const padding = {
-    padding: 5
-  }
+      .then(res => setUser(res));
+  }, []);
 
   // Error handling
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarStatus, setSnackbarStatus] = useState("error");
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarStatus, setSnackbarStatus] = useState('error');
 
 
   const Alert = (props) => {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
-  }
+  };
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -73,15 +59,20 @@ const App = () => {
 
   const showError = (message) => {
     setSnackbarMessage(message);
-    setSnackbarStatus("error");
+    setSnackbarStatus('error');
     setSnackbarOpen(true);
-  }
+  };
 
   const showSuccess = (message) => {
     setSnackbarMessage(message);
-    setSnackbarStatus("success");
+    setSnackbarStatus('success');
     setSnackbarOpen(true);
-  }
+  };
+
+
+  const padding = {
+    padding: 5
+  };
 
   return (
     <Container>
@@ -94,11 +85,11 @@ const App = () => {
             <Button color='inherit' component={Link} to="/parties/create" style={padding}>New Party</Button>
             <Button color='inherit' component={Link} to="/parties" style={padding}>Parties</Button>
             { user ?
-                <div>
-                  <Button color='inherit' component={Link} to={`/players/${user.id}`} style={padding}>{user.name}</Button>
-                  <Button color='inherit' component='a' href={ getLogoutUrl() } style={padding}>Logout</Button>
-                </div> :
-                <Button color='inherit' component='a' href={ getLoginUrl() } style={padding}>Login</Button>
+              <div>
+                <Button color='inherit' component={Link} to={`/players/${user.id}`} style={padding}>{user.name}</Button>
+                <Button color='inherit' component='a' href={ getLogoutUrl() } style={padding}>Logout</Button>
+              </div> :
+              <Button color='inherit' component='a' href={ getLoginUrl() } style={padding}>Login</Button>
             }
           </Toolbar>
         </AppBar>
@@ -126,17 +117,17 @@ const App = () => {
 
       </Router>
       <Snackbar
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'center',
-          }}
-          open={snackbarOpen}
-          autoHideDuration={6000}
-          onClose={handleSnackbarClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
       ><Alert severity={snackbarStatus}>{snackbarMessage}</Alert>
       </Snackbar>
     </Container>
-  )
-}
+  );
+};
 
-export default App
+export default App;

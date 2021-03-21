@@ -1,4 +1,4 @@
-import {BaseApiService} from "./baseApiService";
+import { BaseApiService } from './baseApiService';
 
 
 class GameService extends BaseApiService {

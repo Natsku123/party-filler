@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef } from 'react';
 import {
   Grid,
   ButtonGroup,
@@ -9,41 +9,41 @@ import {
   MenuList,
   MenuItem,
   ClickAwayListener,
-} from '@material-ui/core'
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
+} from '@material-ui/core';
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 
-import {makeStyles} from "@material-ui/core/styles";
+import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    background: "rgba(255,255,255,0.1)",
-    backdropFilter: "blur(40px)",
-    border: "solid 2px transparent",
+    background: 'rgba(255,255,255,0.1)',
+    backdropFilter: 'blur(40px)',
+    border: 'solid 2px transparent',
   }
-}))
+}));
 
 const SplitButton = ({ options, selected, setSelected }) => {
-  const classes = useStyles()
+  const classes = useStyles();
 
   const [open, setOpen] = useState(false);
   const anchorRef = useRef(null);
 
   const handleToggle = () => {
-    setOpen(!open)
-  }
+    setOpen(!open);
+  };
 
   const handleClose = (event) => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
       return;
     }
 
-    setOpen(false)
-  }
+    setOpen(false);
+  };
 
   const handleMenuItemClick = (event, index) => {
-    setSelected(index)
-    setOpen(false)
-  }
+    setSelected(index);
+    setOpen(false);
+  };
 
   return (
     <Grid container>
@@ -82,7 +82,7 @@ const SplitButton = ({ options, selected, setSelected }) => {
         </Popper>
       </Grid>
     </Grid>
-  )
-}
+  );
+};
 
-export default SplitButton
+export default SplitButton;

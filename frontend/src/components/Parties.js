@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Table,
   TableHead,
@@ -9,12 +9,12 @@ import {
   TableRow,
   Button,
   Paper,
-} from '@material-ui/core'
+} from '@material-ui/core';
 
-import { partyService } from '../services/parties'
+import { partyService } from '../services/parties';
 
 const Parties = (props) => {
-  const [ parties, setParties ] = useState([])
+  const [ parties, setParties ] = useState([]);
 
   useEffect(() => {
     partyService
@@ -23,13 +23,13 @@ const Parties = (props) => {
         setParties(data);
       }, error => {
         props.onError(error.response.data.detail);
-      })
-  }, [props])
+      });
+  }, [props]);
 
 
   const padding = {
     padding: 5
-  }
+  };
 
   return (
     <TableContainer component={Paper}>
@@ -58,7 +58,7 @@ const Parties = (props) => {
         </TableBody>
       </Table>
     </TableContainer>
-  )
-}
+  );
+};
 
-export default Parties
+export default Parties;

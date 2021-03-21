@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
-import { makeStyles } from '@material-ui/core/styles'
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { makeStyles } from '@material-ui/core/styles';
 import {
   Avatar,
-} from '@material-ui/core'
+} from '@material-ui/core';
 
-import { playerService } from '../services/players'
-import Glass from './Glass'
+import { playerService } from '../services/players';
+import Glass from './Glass';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -23,22 +23,22 @@ const useStyles = makeStyles((theme) => ({
     width: theme.spacing(7),
     height: theme.spacing(7),
   },
-}))
+}));
 
 
 const Player = (props) => {
-  const id = useParams().id
-  const [ user, setUser ] = useState(null)
-  const classes = useStyles()
+  const id = useParams().id;
+  const [ user, setUser ] = useState(null);
+  const classes = useStyles();
 
   useEffect(() => {
     playerService
       .getOne(id)
       .then(res => setUser(res), error => props.onError(error.response.data.detail));
-  }, [ props, id ])
+  }, [ props, id ]);
 
   if (!user) {
-    return <div>loading...</div>
+    return <div>loading...</div>;
   }
 
   return (
@@ -47,7 +47,7 @@ const Player = (props) => {
       <br />
       {user.name}
     </div>
-  )
-}
+  );
+};
 
-export default Player
+export default Player;
