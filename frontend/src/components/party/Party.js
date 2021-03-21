@@ -10,7 +10,6 @@ import {
 } from '@material-ui/core';
 
 import PartyEdit from './PartyEdit';
-import Glass from '../Glass';
 
 
 import { partyService } from '../../services/parties';
@@ -78,6 +77,8 @@ const Party = (props) => {
       party={party}
       setEdit={setEdit}
       setParty={setParty}
+      onError={props.onError}
+      onSuccess={props.onSuccess}
     />;
   }
 
