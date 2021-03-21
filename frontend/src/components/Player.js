@@ -6,7 +6,6 @@ import {
 } from '@material-ui/core';
 
 import { playerService } from '../services/players';
-import Glass from './Glass';
 
 const useStyles = makeStyles((theme) => ({
   root: {

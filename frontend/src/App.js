@@ -8,17 +8,18 @@ import {
   AppBar,
   Toolbar,
   IconButton,
-  Button, Snackbar,
+  Button,
 } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 
 import ChannelForm from './components/ChannelForm';
 import PartyForm from './components/party/PartyForm';
 import Parties from './components/Parties';
 import Party from './components/party/Party';
 import Player from './components/Player';
+import NotifySnackbar, { useSnackbar } from './components/NotifySnackbar';
 
 import { playerService } from './services/players';
-import MuiAlert from '@material-ui/lab/Alert';
 
 const baseUrl = ((window.REACT_APP_API_HOSTNAME) ? window.REACT_APP_API_HOSTNAME : 'http://localhost:8800');
 
@@ -30,8 +31,21 @@ const getLogoutUrl = () => {
   return `${baseUrl}/logout`;
 };
 
+const useStyles = makeStyles(() => ({
+  link: {
+    padding: 5,
+  },
+}));
+
 const App = () => {
   const [ user, setUser ] = useState(null);
+  const classes = useStyles();
+  const {
+    handleSnackbarClose,
+    showSnackbar,
+    snackbarStatus,
+  } = useSnackbar();
+
 
   useEffect(() => {
     playerService
@@ -39,40 +53,14 @@ const App = () => {
       .then(res => setUser(res));
   }, []);
 
-  // Error handling
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarStatus, setSnackbarStatus] = useState('error');
-
-
-  const Alert = (props) => {
-    return <MuiAlert elevation={6} variant="filled" {...props} />;
-  };
-
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    setSnackbarOpen(false);
+  const showSuccess = (message) => {
+    showSnackbar(message, 'success');
   };
 
   const showError = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarStatus('error');
-    setSnackbarOpen(true);
+    showSnackbar(message, 'error');
   };
 
-  const showSuccess = (message) => {
-    setSnackbarMessage(message);
-    setSnackbarStatus('success');
-    setSnackbarOpen(true);
-  };
-
-
-  const padding = {
-    padding: 5
-  };
 
   return (
     <Container>
@@ -80,16 +68,16 @@ const App = () => {
         <AppBar position='static'>
           <Toolbar>
             <IconButton edge="start" color="inherit" aria-label="menu"/>
-            <Button color='inherit' component={Link} to="/" style={padding}>Home</Button>
-            <Button color='inherit' component={Link} to="/channels/create" style={padding}>New Channel</Button>
-            <Button color='inherit' component={Link} to="/parties/create" style={padding}>New Party</Button>
-            <Button color='inherit' component={Link} to="/parties" style={padding}>Parties</Button>
+            <Button color='inherit' component={Link} to="/" className={classes.link}>Home</Button>
+            <Button color='inherit' component={Link} to="/channels/create" className={classes.link}>New Channel</Button>
+            <Button color='inherit' component={Link} to="/parties/create" className={classes.link}>New Party</Button>
+            <Button color='inherit' component={Link} to="/parties" className={classes.link}>Parties</Button>
             { user ?
               <div>
-                <Button color='inherit' component={Link} to={`/players/${user.id}`} style={padding}>{user.name}</Button>
-                <Button color='inherit' component='a' href={ getLogoutUrl() } style={padding}>Logout</Button>
+                <Button color='inherit' component={Link} to={`/players/${user.id}`} className={classes.link}>{user.name}</Button>
+                <Button color='inherit' component='a' href={ getLogoutUrl() } className={classes.link}>Logout</Button>
               </div> :
-              <Button color='inherit' component='a' href={ getLoginUrl() } style={padding}>Login</Button>
+              <Button color='inherit' component='a' href={ getLoginUrl() } className={classes.link}>Login</Button>
             }
           </Toolbar>
         </AppBar>
@@ -116,16 +104,8 @@ const App = () => {
         </Switch>
 
       </Router>
-      <Snackbar
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center',
-        }}
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-      ><Alert severity={snackbarStatus}>{snackbarMessage}</Alert>
-      </Snackbar>
+
+      <NotifySnackbar handleSnackbarClose={handleSnackbarClose} {...snackbarStatus} />
     </Container>
   );
 };

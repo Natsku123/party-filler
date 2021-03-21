@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
   Button,
-  MenuItem,
   Dialog,
   DialogActions,
   DialogTitle,
   DialogContent,
   DialogContentText,
-  TextField as TF
+  TextField,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+
+import { gameService } from '../services/games';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -23,26 +24,38 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const NewGameDialog = (props) => {
-  const {
-    newGameDialog,
-    closeNewGameDialog,
-    newGameName,
-    setNewGameName,
-    newGameSize,
-    setNewGameSize,
-    createGame
-  } = props;
+const NewGameDialog = ({ newGameDialog, closeNewGameDialog, onError, onSuccess }) => {
   const classes = useStyles();
+  const [ newGameName, setNewGameName ] = useState('');
+  const [ newGameSize, setNewGameSize ] = useState(5);
+
+  const close = () => {
+    closeNewGameDialog();
+    setNewGameName('');
+    setNewGameSize(5);
+  };
+
+  const createGame = (name, size) => {
+    const newObject = {
+      'name': name,
+      'defaultMaxPlayers': size,
+    };
+    gameService.create(newObject).then(res => {
+      onSuccess(`Game ${res.name} created.`);
+    }, e => {
+      onError(e.response.data.detail);
+    });
+    closeNewGameDialog();
+  };
 
   return (
-    <Dialog open={newGameDialog} onClose={closeNewGameDialog} aria-labelledby="form-dialog-title" className={classes.root}>
+    <Dialog open={newGameDialog} onClose={close} aria-labelledby="form-dialog-title" className={classes.root}>
       <DialogTitle id="form-dialog-title" className={classes.dialog}>Create a new game</DialogTitle>
       <DialogContent className={classes.dialog}>
         <DialogContentText>
           To create a new game, give the name of the game and a default party maximum party size
         </DialogContentText>
-        <TF
+        <TextField
           autoFocus
           margin="dense"
           id="game-name"
@@ -51,21 +64,21 @@ const NewGameDialog = (props) => {
           onChange={({ target }) => setNewGameName(target.value)}
           fullWidth
         />
-        <TF
+        <TextField
           margin="dense"
           id="game-max-size"
           label="Max Party size"
           type="number"
           value={newGameSize}
-          onChange={({ target }) => setNewGameSize(Number(target.value))}
+          onChange={({ target }) => setNewGameSize(target.value)}
           fullWidth
         />
       </DialogContent>
       <DialogActions className={classes.dialog}>
-        <Button onClick={closeNewGameDialog} color="primary">
+        <Button onClick={close} color="primary">
           Cancel
         </Button>
-        <Button onClick={createGame} color="primary">
+        <Button onClick={() => createGame(newGameName, newGameSize)} color="primary">
           Create
         </Button>
       </DialogActions>
