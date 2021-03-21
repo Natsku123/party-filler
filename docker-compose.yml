@@ -17,6 +17,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    volumes:
+      - "./frontend:/app"
     ports:
       - "3001:3000"
     stdin_open: true
@@ -24,6 +26,7 @@ services:
       CHOKIDAR_USEPOLLING: "true"
       API_HOSTNAME: ${API_HOSTNAME}
       SITE_HOSTNAME: ${SITE_HOSTNAME}
+      REDIRECT_URL: ${REDIRECT_URL}
   backend:
     build:
       context: ./backend
@@ -41,6 +44,7 @@ services:
       SECRET_KEY: ${SECRET_KEY}
       WEBHOOK_ID: ${WEBHOOK_ID}
       SUPERUSERS: ${SUPERUSERS}
+      REDIRECT_URL: ${REDIRECT_URL}
     volumes:
       - "./backend:/app"
     ports:

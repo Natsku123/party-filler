@@ -43,7 +43,33 @@ async def db_session_middleware(request: Request, call_next):
         request.state.db.close()
     return response
 
-oauth = OAuth()
+
+def update_token(name, token, refresh_token=None, access_token=None):
+
+    db = SessionLocal()
+    if refresh_token:
+        item = db.query(OAuth2Token).filter_by(
+            name=name, refresh_token=refresh_token
+        ).first()
+    elif access_token:
+        item = db.query(OAuth2Token).filter_by(
+            name=name, access_token=access_token
+        ).first()
+    else:
+        db.close()
+        return
+
+    # update old token
+    item.access_token = token['access_token']
+    item.refresh_token = token.get('refresh_token')
+    item.expires_at = token['expires_at']
+    db.add(item)
+    db.commit()
+
+    db.close()
+
+
+oauth = OAuth(update_token=update_token)
 
 
 def fetch_discord_token(current_user: Player = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -74,7 +100,7 @@ async def root():
 
 @app.get('/login')
 async def login(request: Request, redirect: str = None):
-    redirect_uri = settings.API_HOSTNAME + "/authorize"
+    redirect_uri = settings.REDIRECT_URL + "/authorize"
 
     if redirect is None:
         redirect = settings.SITE_HOSTNAME
@@ -89,6 +115,37 @@ async def logout(request: Request):
     redirect_url = settings.SITE_HOSTNAME
     request.session.pop('user', None)
     return RedirectResponse(url=redirect_url)
+
+
+@app.get('/player_update')
+async def player_update(
+        player: Player = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    token = db.query(OAuth2Token).filter_by(player_id=player.id).first()
+    if token is None:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    guilds = await oauth.discord.get(
+        'users/@me/guilds', token=token.to_token()
+    )
+
+    # Create new servers if doesn't already exist
+    for guild in guilds.json():
+        server = db.query(Server).filter_by(discord_id=guild['id']).first()
+        if server is None:
+            server = Server(
+                name=guild.get('name'),
+                icon=guild.get('icon'),
+                discord_id=guild.get('id')
+            )
+            db.add(server)
+        player.servers.append(server)
+
+    db.add(player)
+    db.commit()
+    db.refresh(player)
+
+    return {"status": "player updated"}
 
 
 @app.get('/authorize')
@@ -131,9 +188,8 @@ async def authorize(request: Request, db: Session = Depends(get_db)):
                     discord_id=guild.get('id')
                 )
 
-                # Link server to player
-                player.servers.append(server)
                 db.add(server)
+            player.servers.append(server)
 
         db.add(player)
         db.commit()

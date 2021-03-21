@@ -1,71 +1,163 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import {
-  TextField,
   Button,
-} from '@material-ui/core'
+  MenuItem,
+} from '@material-ui/core';
+import {
+  MuiPickersUtilsProvider,
+} from '@material-ui/pickers';
+import MomentUtils from '@date-io/moment';
 
-import partyService from '../../services/parties'
+import { Formik, Form, Field } from 'formik';
+import { TextField, Select } from 'formik-material-ui';
+import { DateTimePicker } from 'formik-material-ui-pickers';
 
-const PartyEdit = ({ party, setEdit, setParty }) => {
-  const [ title, setTitle ] = useState(party.title)
-  const [ leaderId, setLeaderId ] = useState(party.leaderId)
-  const [ game, setGame ] = useState(party.game)
-  const [ maxPlayers, setMaxPlayers ] = useState(party.maxPlayers)
-  const [ minPlayers, setMinPlayers ] = useState(party.maxPlayers)
-  const [ description, setDescription ] = useState(party.description)
+import { partyService } from '../../services/parties';
+import { playerService } from '../../services/players';
+import { gameService } from '../../services/games';
 
-  const editParty = (event) => {
-    event.preventDefault()
-    const newParty = {
-      party: {
-        title,
-        leaderId,
-        game,
-        maxPlayers,
-        minPlayers,
-        description,
-      }
+import NewGameDialog from '../NewGameDialog';
+
+const PartyEdit = ({ party, setEdit, setParty, onError, onSuccess }) => {
+  const [ channels, setChannels ] = useState(null);
+  const [ games, setGames ] = useState(null);
+
+  const [ newGameDialog, setNewGameDialog ] = useState(false);
+
+  useEffect(() => {
+    playerService.getVisibleChannels().then(res => {
+      setChannels(res);
+    }, e => {
+      onError(e.response.data.detail);
+    });
+
+    gameService.getAll().then(res => {
+      setGames(res);
+    }, e => {
+      onError(e.response.data.detail);
+    });
+  }, [onError, party.gameId]);
+
+  const openNewGameDialog = () => {
+    setNewGameDialog(true);
+  };
+
+  const closeNewGameDialog = () => {
+    setNewGameDialog(false);
+  };
+
+  if (channels === null || games === null) {
+    return (<div>Loading...</div>);
+  }
+
+  const {
+    title,
+    channelId,
+    leaderId,
+    gameId,
+    maxPlayers,
+    minPlayers,
+    description,
+    startTime,
+    endTime,
+  } = party;
+
+  const initialFormValues = {
+    title,
+    channelId,
+    leaderId,
+    gameId,
+    maxPlayers,
+    minPlayers,
+    description,
+    startTime,
+    endTime,
+  };
+
+  const validateString = value => {
+    let error;
+    if (!value) {
+      error = 'Required';
+    } else if (value.length < 3) {
+      error = 'Too short! (Minimum 3 characters)';
     }
+    return error;
+  };
 
-    partyService
-      .update(party.id, newParty)
-      .then(res => setParty(res))
-    setEdit(false)
-  }
-
-  const cancel = (event) => {
-    setEdit(false)
-  }
+  const submitForm = (values, { setSubmitting }) => {
+    const partyObject = {
+      ...values
+    };
+    partyService.create(partyObject).then(r => {
+      onSuccess(`Party ${r.title} updated.`);
+    }, e => {
+      onError(e.response.data.detail);
+    }).finally(() => {
+      setSubmitting(false);
+      setEdit(false);
+    });
+  };
 
   return (
-    <div>
-      <div>
-        <TextField label="Title" value={title} onChange={({target}) => setTitle(target.value)}/>
-      </div>
-      <div>
-        <TextField label="Leader Id" type='number' value={leaderId} onChange={({target}) => setLeaderId(target.value)}/>
-      </div>
-      <div>
-        <TextField label="Game" value={game} onChange={({target}) => setGame(target.value)}/>
-      </div>
-      <div>
-        <TextField label="Max Players" type='number' min='1' value={maxPlayers} onChange={({target}) => setMaxPlayers(target.value)}/>
-      </div>
-      <div>
-        <TextField label="Min Players" type='number' min='1' value={minPlayers} onChange={({target}) => setMinPlayers(target.value)}/>
-      </div>
-      <div>
-        <TextField label="Description" value={description} onChange={({target}) => setDescription(target.value)}/>
-      </div>
-      {/*
-      <div>
-        <TextField label="Channel Id" type='number' value={channelId} onChange={({target}) => setChannelId(target.value)}/>
-      </div>
-      */}
-      <Button variant='contained' color='primary' onClick={editParty}>Save</Button>
-      <Button variant='contained' color='secondary' onClick={cancel}>Cancel</Button>
-    </div>
-  )
-}
+    <MuiPickersUtilsProvider utils={MomentUtils}>
+      <Formik
+        initialValues={initialFormValues}
+        onSubmit={submitForm}
+      >
+        {({ submitForm, isSubmitting }) => (
+          <Form>
+            <Field component={TextField} name="title" label="Title" validate={validateString} />
+            <br />
+            { channels &&
+            <Field component={Select} name="channelId" label="Channel">
+              { channels.map(channel => (
+                <MenuItem value={channel.id} key={channel.id} >{channel.server.name} - {channel.name}</MenuItem>
+              ))
+              }
+            </Field>
+            }
+            <br />
+            {games &&
+            <Field component={Select} name="gameId" label="Game">
+              {games.map(game => (
+                <MenuItem value={game.id} key={game.id}>{game.name}</MenuItem>
+              ))
+              }
+            </Field>
+            }
+            <br />
+            <Button variant="outlined" color="primary" onClick={openNewGameDialog}>New Game</Button>
+            <br />
+            <Field component={TextField} name="maxPlayers" type="number" label="Max Players" />
+            <br />
+            <Field component={TextField} name="minPlayers" type="number" label="Min Players"
+            />
+            <br />
+            <Field component={TextField} name="description" label="Description" validate={validateString} />
+            <br />
+            <Field component={DateTimePicker} label="Start Time" name="startTime" />;
+            <br />
+            <Field component={DateTimePicker} label="End Time" name="endTime" />;
+            <br />
+            <Button
+              variant="contained"
+              color="primary"
+              disabled={isSubmitting}
+              onClick={submitForm}
+            >
+              Create Party
+            </Button>
+          </Form>
+        )}
+      </Formik>
+      <NewGameDialog
+        newGameDialog={newGameDialog}
+        closeNewGameDialog={closeNewGameDialog}
+        onError={onError}
+        onSuccess={onSuccess}
+      />
+    </MuiPickersUtilsProvider>
+  );
+};
 
-export default PartyEdit
+export default PartyEdit;

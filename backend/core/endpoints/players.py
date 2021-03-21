@@ -1,5 +1,5 @@
 import main
-from typing import Any
+from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -34,6 +34,20 @@ def get_is_superuser(
         "isSuperuser": is_superuser(current_user)
     }
     return schemas.IsSuperUser(**data)
+
+
+@router.get('/channels', response_model=List[schemas.Channel], tags=["channels"])
+def get_visible_channels(
+        *,
+        db: Session = Depends(deps.get_db),
+        current_user: models.Player = Depends(deps.get_current_user)
+) -> Any:
+    servers = current_user.servers
+    server_ids = []
+    for server in servers:
+        server_ids.append(server.id)
+    channels = crud.channel.get_multi_by_servers(db, server_ids=server_ids)
+    return channels
 
 
 @router.get('/{id}', response_model=schemas.Player, tags=["players"])

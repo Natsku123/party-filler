@@ -27,7 +27,7 @@ def get_testing_current_user(db: Session = Depends(get_testing_get_db)) -> model
 
     user = crud.player.get(db, id=1)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Player not found")
 
     return user
 

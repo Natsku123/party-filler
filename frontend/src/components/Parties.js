@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Table,
   TableHead,
@@ -9,25 +9,27 @@ import {
   TableRow,
   Button,
   Paper,
-} from '@material-ui/core'
+} from '@material-ui/core';
 
-import partyService from '../services/parties'
+import { partyService } from '../services/parties';
 
-const Parties = () => {
-  const [ parties, setParties ] = useState([])
+const Parties = (props) => {
+  const [ parties, setParties ] = useState([]);
 
   useEffect(() => {
     partyService
       .getAll()
       .then(data => {
-        setParties(data)
-      })
-  }, [])
+        setParties(data);
+      }, error => {
+        props.onError(error.response.data.detail);
+      });
+  }, [props]);
 
 
   const padding = {
     padding: 5
-  }
+  };
 
   return (
     <TableContainer component={Paper}>
@@ -44,8 +46,8 @@ const Parties = () => {
           {parties.map((party, i) =>
             <TableRow key={i}>
               <TableCell style={padding} >{party.title}</TableCell>
-              <TableCell style={padding} >{party.game}</TableCell>
-              <TableCell style={padding} >{`${party.members.length}`}</TableCell>
+              <TableCell style={padding} >{party.game.name}</TableCell>
+              <TableCell style={padding} >{`${party.members.length + 1}`}</TableCell>
               <TableCell style={padding} >
                 <Link to={`/parties/${party.id}`}>
                   <Button variant='contained' color='primary' type='button'>show</Button>
@@ -56,7 +58,7 @@ const Parties = () => {
         </TableBody>
       </Table>
     </TableContainer>
-  )
-}
+  );
+};
 
-export default Parties
+export default Parties;

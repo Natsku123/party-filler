@@ -1,24 +1,7 @@
-import axios from 'axios'
+import { BaseApiService } from './baseApiService';
 
-const baseUrl = ((window.REACT_APP_API_HOSTNAME) ? window.REACT_APP_API_HOSTNAME : 'http://localhost:8800');
 
-const instance = axios.create({
-    baseURL: baseUrl,
-    withCredentials: true
-})
-
-instance.interceptors.request.use(
-  (config) => {
-    config.headers.withCredentials = true
-    return config
-  }, (err) => Promise.reject(err)
-)
-
-const create = async (channelObj) => {
-  const response = await instance.post('', channelObj)
-  return response.data
+class ChannelService extends BaseApiService {
 }
 
-export default {
-  create,
-}
+export const channelService = new ChannelService('/channels');

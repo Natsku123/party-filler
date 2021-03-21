@@ -28,6 +28,6 @@ def get_current_user(request: Request, db: Session = Depends(get_db)) -> models.
 
     user = crud.player.get(db, id=player['id'])
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Player not found")
 
     return user

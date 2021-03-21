@@ -28,6 +28,13 @@ def create_channel(
         channel: schemas.ChannelCreate,
         current_user: models.Player = Depends(deps.get_current_user)
 ) -> Any:
+    db_channel = db.query(models.Channel).filter(
+        models.Channel.discord_id == str(channel.discord_id)
+    ).first()
+
+    if db_channel is not None:
+        raise HTTPException(status_code=400, detail="Channel already exists")
+
     if channel.server_id is None or channel.name is None:
         if settings.BOT_TOKEN == "NO TOKEN":
             raise HTTPException(status_code=400, detail="Data not available")
@@ -47,6 +54,9 @@ def create_channel(
         server = db.query(models.Server).filter(
             models.Server.discord_id == str(channel_data.get('guild_id'))
         ).first()
+
+        if server is None:
+            raise HTTPException(status_code=404, detail="Server not found")
         channel = schemas.ChannelCreate(
             **{
                 "discordId": channel.discord_id,

@@ -8,5 +8,6 @@ data/
 backend/migrations
 backend/test.py
 bot/files
+__pycache__
 backend/test/.pytest_cache
 backend/test/test.db
