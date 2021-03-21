@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+
 import { Link } from 'react-router-dom';
+
 import {
   Table,
   TableHead,
@@ -11,16 +13,16 @@ import {
   Paper,
 } from '@material-ui/core';
 
-import { partyService } from '../services/parties';
+import { gameService } from '../../services/games';
 
-const Parties = (props) => {
-  const [ parties, setParties ] = useState([]);
+const Games = (props) => {
+  const [ games, setGames ] = useState([]);
 
   useEffect(() => {
-    partyService
+    gameService
       .getAll()
       .then(data => {
-        setParties(data);
+        setGames(data);
       }, error => {
         props.onError(error.response.data.detail);
       });
@@ -43,14 +45,13 @@ const Parties = (props) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {parties.map((party, i) =>
+          {games.map((game, i) =>
             <TableRow key={i}>
-              <TableCell style={padding} >{party.title}</TableCell>
-              <TableCell style={padding} >{party.game.name}</TableCell>
-              <TableCell style={padding} >{`${party.members.length + 1}`}</TableCell>
+              <TableCell style={padding} >{game.name}</TableCell>
+              <TableCell style={padding} >{game.defaultMaxPlayers}</TableCell>
               <TableCell style={padding} >
-                <Link to={`/parties/${party.id}`}>
-                  <Button variant='contained' color='primary' type='button'>show</Button>
+                <Link to={'/'}>
+                  <Button variant='contained' color='secondary' type='button'>delete</Button>
                 </Link>
               </TableCell>
             </TableRow>
@@ -61,4 +62,4 @@ const Parties = (props) => {
   );
 };
 
-export default Parties;
+export default Games;

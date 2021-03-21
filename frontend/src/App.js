@@ -9,13 +9,15 @@ import {
   Toolbar,
   IconButton,
   Button,
+  Grid,
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 import ChannelForm from './components/ChannelForm';
 import PartyForm from './components/party/PartyForm';
-import Parties from './components/Parties';
+import Parties from './components/party/Parties';
 import Party from './components/party/Party';
+import Games from './components/games/Games';
 import Player from './components/Player';
 import NotifySnackbar, { useSnackbar } from './components/NotifySnackbar';
 
@@ -34,6 +36,9 @@ const getLogoutUrl = () => {
 const useStyles = makeStyles(() => ({
   link: {
     padding: 5,
+  },
+  grow: {
+    flex: '1 1 auto',
   },
 }));
 
@@ -74,6 +79,7 @@ const App = () => {
             <Button color='inherit' component={Link} to="/parties" className={classes.link}>Parties</Button>
             { user ?
               <div>
+                <Button color='inherit' component={Link} to={"/games"} className={classes.link}>Games</Button>
                 <Button color='inherit' component={Link} to={`/players/${user.id}`} className={classes.link}>{user.name}</Button>
                 <Button color='inherit' component='a' href={ getLogoutUrl() } className={classes.link}>Logout</Button>
               </div> :
@@ -97,6 +103,9 @@ const App = () => {
           </Route>
           <Route path="/players/:id">
             <Player onError={showError}/>
+          </Route>
+          <Route path="/games">
+            <Games />
           </Route>
           <Route path="/">
             <h1>Home Page</h1>
