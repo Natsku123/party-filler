@@ -8,5 +8,7 @@ WORKDIR /bot
 
 RUN pip3.9 install -r requirements.txt
 
+EXPOSE 9080
+
 ENTRYPOINT ["python3.9"]
 CMD ["main.py"]

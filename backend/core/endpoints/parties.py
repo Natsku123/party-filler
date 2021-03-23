@@ -38,11 +38,17 @@ def create_party(
             "party": party,
             "event": {
                 "name": "on_party_create",
-                "datetime": datetime_to_string(datetime.datetime.now())
+                "datetime": datetime.datetime.now()
             }
         }
         webhook = schemas.PartyCreateWebhook(**webhook_data)
-        send_webhook(webhook)
+        try:
+            send_webhook(webhook)
+        except ValueError as e:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Party was created but the notification failed: {e}"
+            )
 
     return party
 

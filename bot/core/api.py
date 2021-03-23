@@ -1,12 +1,13 @@
 import json
 import discord
 import logging
-import dateutil
 from aiohttp.web import RouteTableDef, json_response
+from pydantic import ValidationError
+
+from core.database.schemas import PartyCreateWebhook, MemberJoinWebhook
 
 from core.config import settings
 
-from sqlalchemy import select
 
 routes = RouteTableDef()
 
@@ -53,45 +54,69 @@ async def webhook(request):
                      icon_url=bot.user.avatar_url,
                      url=settings.SITE_HOSTNAME)
 
-    if received_hook.get('event').\
-            get('name') == "on_party_create":
-        channel_id = int(
-            received_hook['party']['channel']['discordId']
+    try:
+        if received_hook.get('event').\
+                get('name') == "on_party_create":
+            event = PartyCreateWebhook.parse_obj(received_hook)
+
+            channel_id = int(event.party.channel.discord_id)
+
+            if bot.get_channel(channel_id) is None:
+                raise ValueError("Bot cannot find channel!")
+
+            embed.title = event.party.title
+
+            # Cut description if too long
+            if len(event.party.description) > 1000:
+                event.party.description = \
+                    event.party.description[:1000] + "..."
+
+            # TODO add join link
+            embed.description = f"**{event.party.leader.name}** is looking for more player to play **{event.party.game.name}**.\n{event.party.description}"
+            embed.add_field(
+                name="Players",
+                value=f"{len(event.party.members)}/{event.party.max_players}"
+            )
+            if event.party.end_time and event.party.start_time:
+                duration = event.party.end_time - event.party.start_time
+                total_sec = duration.total_seconds()
+
+                # Duration to strings
+                dh = total_sec // (60*60)
+                dm = (total_sec % (60*60)) // 60
+                ds = (total_sec % (60*60)) % 60
+                str_duration = f"{dh}:{dm}:{ds}"
+                embed.add_field(name="Duration", value="{0}".format(
+                    str_duration
+                ))
+
+            await bot.get_channel(channel_id).send(embed=embed)
+        elif received_hook.get('event').get('name') == "on_member_join":
+
+            event = MemberJoinWebhook.parse_obj(received_hook)
+
+            channel_id = int(event.channel.discord_id)
+
+            if bot.get_channel(channel_id) is None:
+                raise ValueError("Bot cannot find channel!")
+
+            embed.title = f"**{event.member.player.name}** " \
+                          f"joined **{event.member.party.title}**!"
+
+            await bot.get_channel(channel_id).send(embed=embed)
+        else:
+            return json_response(
+                {"error": "Unknown webhook event!"}, status=400,
+                content_type='application/json'
+            )
+        return json_response(
+            {"success": "true"}, status=200, content_type='application/json'
         )
-
-        embed.title = received_hook['party']['title']
-
-        # Cut description if too long
-        if len(received_hook['party']['description']) > 1000:
-            received_hook['party']['description'] = \
-                received_hook['party']['description'][:1000]\
-                + "..."
-
-        # TODO add join link
-        embed.description = f"**{received_hook['party']['leader']['name']}** is looking for more player to play **{received_hook['party']['game']}**.\n{received_hook['party']['description']}"
-        embed.add_field(name="Players", value="{0}/{1}".format(
-            len(received_hook['party']['members']),
-            received_hook['party']['maxPlayers']
-        ))
-
-        # Parse time
-        if received_hook['party']['startTime'] and received_hook['party']['endTime']:
-            start_time = dateutil.parser.parse(received_hook['party']['startTime'])
-            end_time = dateutil.parser.parse(received_hook['party']['endTime'])
-            duration = end_time - start_time
-            str_duration = duration.hours + ":" + duration.minutes + ":" + duration.seconds
-            embed.add_field(name="Duration", value="{0}".format(
-                str_duration
-            ))
-
-        await bot.get_channel(channel_id).send(embed=embed)
-    elif received_hook.get('event').get('name') == "on_member_join":
-        channel_id = int(received_hook['channel']['discordId'])
-
-        embed.title = "**{0}** joined **{1}**!".format(
-            received_hook['member']['player']['name'],
-            received_hook['member']['party']['title']
+    except ValidationError as e:
+        return json_response(
+            json.loads(e.json()), status=422, content_type='application/json'
         )
-
-        await bot.get_channel(channel_id).send(embed=embed)
-    return json_response({"success": "true"}, status=200, content_type='application/json')
+    except ValueError as e:
+        return json_response(
+            {"error": e}, status=400, content_type='application/json'
+        )

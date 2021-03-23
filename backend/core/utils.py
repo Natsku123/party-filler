@@ -129,11 +129,12 @@ def get_channel_info(discord_id: str):
 
 
 def send_webhook(content: BaseModel):
-    if os.environ.get('WEBHOOK_ID') and content:
-        requests.post(
-            'http://bot:9080//webhook/' + os.environ.get('WEBHOOK_ID'),
-            data=content.dict()
-        )
+    response = requests.post(
+        'http://bot:9080/webhook',
+        data=content.dict()
+    )
+    if response.status_code != 200:
+        raise ValueError(response.text)
 
 
 def is_superuser(user: models.Player):

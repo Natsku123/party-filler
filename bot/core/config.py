@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     DB_PASS: str = os.environ.get("DB_PASS")
     DB_HOST: str = os.environ.get("DB_HOST", "db")
     SITE_HOSTNAME: AnyHttpUrl = os.environ.get(
-        "SITE_HOSTNAME", "http://party.hellshade.fi"
+        "SITE_HOSTNAME", "https://party.hellshade.fi"
     )
 
     class Config:
