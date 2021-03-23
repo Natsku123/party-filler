@@ -3,9 +3,9 @@ import discord
 from discord.ext import commands
 from aiohttp.web import AppRunner, Application, TCPSite
 
-from utils.api import routes
+from core.api import routes
 
-from cogs.webhooks import Webhooks
+from core.cogs import Webhooks
 
 from core.config import settings, logger
 
@@ -35,7 +35,7 @@ def main():
         app = Application()
         app.add_routes(routes)
 
-        # Pass bot and database to webserver
+        # Pass bot to webserver
         app['bot'] = bot
 
         runner = AppRunner(app)

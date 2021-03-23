@@ -7,7 +7,7 @@ from core.config import settings
 from core.database import Session, session_lock
 from core.database.models import Webhook
 
-from utils.tools import generate_identity
+from core.tools import generate_identity
 
 from sqlalchemy import select
 
