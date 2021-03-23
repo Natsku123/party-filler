@@ -5,15 +5,6 @@ from sqlalchemy.orm import relationship, backref
 from core import Base
 
 
-class Webhook(Base):
-    __tablename__ = "webhooks"
-    id = Column(Integer, primary_key=True)
-    identifier = Column(String, unique=True)
-    name = Column(String)
-    channel = Column(String)
-    server = Column(String)
-
-
 player_server_association = Table(
     'players_servers',
     Base.metadata,

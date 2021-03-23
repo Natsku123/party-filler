@@ -5,7 +5,6 @@ from aiohttp.web import AppRunner, Application, TCPSite
 
 from core.api import routes
 
-from core.cogs import Webhooks
 
 from core.config import settings, logger
 
