@@ -42,7 +42,7 @@ def create_member(
             "channel": member.party.channel,
             "event": {
                 "name": "on_member_join",
-                "datetime": datetime_to_string(datetime.datetime.now())
+                "timestamp": datetime_to_string(datetime.datetime.now())
             }
         }
         webhook = schemas.MemberJoinWebhook(**webhook_data)

@@ -25,8 +25,6 @@ def main():
         intents=intents
     )
 
-    bot.add_cog(Webhooks(bot))
-
     @bot.event
     async def on_ready():
         logger.info("\nLogged in as:\n{0} (ID: {0.id})".format(bot.user))

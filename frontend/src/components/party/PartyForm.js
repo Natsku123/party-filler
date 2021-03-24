@@ -81,7 +81,8 @@ const PartyForm = (props) => {
       leaderId: currentUser.id,
       ...values
     };
-    partyService.create(partyObject).then(r => {
+    // TODO replace notify=true with selection box thingy
+    partyService.create(partyObject, true).then(r => {
       props.onSuccess(`Party ${r.title} created.`);
     }, e => {
       props.onError(e.response.data.detail);

@@ -1,7 +1,7 @@
 import datetime
 from typing import Any, List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from core import deps
@@ -26,11 +26,19 @@ def create_party(
         db: Session = Depends(deps.get_db),
         party: schemas.PartyCreate,
         current_user: models.Player = Depends(deps.get_current_user),
-        notify: bool = False
+        notify: bool = Query(False)
 ) -> Any:
     if not current_user:
         raise HTTPException(status_code=401, detail="Not authorized")
     party = crud.party.create(db, obj_in=party)
+
+    # Create leader as member
+    leader_member = schemas.MemberCreate(**{
+        "party_id": party.id,
+        "player_id": party.leader_id,
+    })
+    crud.member.create(db, obj_in=leader_member)
+    db.refresh(party)
 
     # Send webhook to bot if notification wanted
     if notify and party.channel:
@@ -38,7 +46,7 @@ def create_party(
             "party": party,
             "event": {
                 "name": "on_party_create",
-                "datetime": datetime.datetime.now()
+                "timestamp": datetime.datetime.now()
             }
         }
         webhook = schemas.PartyCreateWebhook(**webhook_data)

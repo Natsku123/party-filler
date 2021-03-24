@@ -533,10 +533,13 @@ class WebhookEvent(BaseModel):
         ...,
         description="Name / identifier of event"
     ),
-    datetime: str = Field(
-        ...,
+    timestamp: Optional[datetime] = Field(
+        None,
         description="Timestamp"
     )
+
+    class Config:
+        allow_population_by_field_name = True
 
 
 class MemberJoinWebhook(BaseModel):

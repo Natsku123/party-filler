@@ -131,7 +131,7 @@ def get_channel_info(discord_id: str):
 def send_webhook(content: BaseModel):
     response = requests.post(
         'http://bot:9080/webhook',
-        data=content.dict()
+        data=content.json()
     )
     if response.status_code != 200:
         raise ValueError(response.text)
