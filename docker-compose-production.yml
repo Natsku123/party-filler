@@ -11,8 +11,6 @@ services:
       DB_PASS: ${DB_PASSWORD}
     volumes:
       - "/srv/docker/data/party-finder/bot/files:/files"
-    ports:
-      - "9080:9080"
   frontend:
     build:
       context: ./frontend
@@ -28,7 +26,7 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile.production
+      dockerfile: Dockerfile
     environment:
       SERVER_NAME: ${SERVER_NAME}
       DB_NAME: ${DATABASE}
@@ -44,7 +42,6 @@ services:
       SUPERUSERS: ${SUPERUSERS}
     ports:
       - "8080:80"
-      - "8443:443"
   db:
     image: mysql/mysql-server:latest
     restart: always

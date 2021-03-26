@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator, root_validator
 
 
 class OAuth2TokenBase(BaseModel):
@@ -142,6 +142,37 @@ class PartyBase(BaseModel):
         alias="endTime",
         description="Party search end time"
     )
+
+    @root_validator
+    def check_min_and_max_players(cls, values):
+        min_p, max_p = values.get('min_players'), values.get('max_players')
+        if min_p > max_p:
+            raise ValueError("Maximum number of players cannot "
+                             "be less than the minimum!")
+        return values
+
+    @root_validator
+    def check_times(cls, values):
+        start, end = values.get('start_time'), values.get('end_time')
+        if start > end:
+            raise ValueError("Start time cannot be greater than end time")
+
+        return values
+
+    @validator('start_time')
+    def check_start_time(cls, v):
+        delta = (datetime.now() - v)
+        if delta.minute > 30:
+            raise ValueError("Start time cannot be more than 30 "
+                             "minutes apart from current time")
+        return v
+
+    @validator('end_time')
+    def check_end_time(cls, v):
+        now = datetime.now()
+        if now > v:
+            raise ValueError("End time cannot be less than current time")
+        return v
 
     class Config:
         allow_population_by_field_name = True
