@@ -85,7 +85,11 @@ const PartyForm = (props) => {
     partyService.create(partyObject, true).then(r => {
       props.onSuccess(`Party ${r.title} created.`);
     }, e => {
-      props.onError(e.response.data.detail);
+      // TODO replace with better error checking
+      const eMsg = Array.isArray(e.response.data.detail) ? e.response.data.detail.reduce((msg, c) => {
+        return msg + '\n' + c.msg;
+      }, '') : e.response.data.detail;
+      props.onError(eMsg);
     }).finally(() => {
       setSubmitting(false);
     });
