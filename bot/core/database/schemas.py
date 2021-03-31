@@ -1,6 +1,9 @@
+# This file is a dublicate from the backend folder, until a better way of
+# importing the same code is found.
+
 from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel, Field, validator, root_validator
+from pydantic import BaseModel, Field
 
 
 class OAuth2TokenBase(BaseModel):
@@ -142,22 +145,6 @@ class PartyBase(BaseModel):
         alias="endTime",
         description="Party search end time"
     )
-
-    @root_validator
-    def check_min_and_max_players(cls, values):
-        min_p, max_p = values.get('min_players'), values.get('max_players')
-        if min_p is not None and max_p is not None and min_p > max_p:
-            raise ValueError("Maximum number of players cannot "
-                             "be less than the minimum!")
-        return values
-
-    @root_validator
-    def check_times(cls, values):
-        start, end = values.get('start_time'), values.get('end_time')
-        if start is not None and end is not None and start > end:
-            raise ValueError("Start time cannot be greater than end time")
-
-        return values
 
     class Config:
         allow_population_by_field_name = True

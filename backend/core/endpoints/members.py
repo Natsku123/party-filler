@@ -42,11 +42,18 @@ def create_member(
             "channel": member.party.channel,
             "event": {
                 "name": "on_member_join",
-                "datetime": datetime_to_string(datetime.datetime.now())
+                "timestamp": datetime_to_string(datetime.datetime.now())
             }
         }
         webhook = schemas.MemberJoinWebhook(**webhook_data)
-        send_webhook(webhook)
+        try:
+            send_webhook(webhook)
+        except ValueError as e:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Member has been added to the party, but there "
+                       f"was an error with the notification: {e}"
+            )
 
     return member
 

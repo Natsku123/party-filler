@@ -1,10 +1,10 @@
-import {BaseApiService} from "./baseApiService";
+import { BaseApiService } from './baseApiService';
 
 
 class PlayerService extends BaseApiService {
   getCurrent = () => {
     return new Promise((resolve, reject) => {
-      this.instance.get('').then(r => resolve(r.data)).catch(reject);
+      this.instance.get('/').then(r => resolve(r.data)).catch(reject);
     });
   };
 

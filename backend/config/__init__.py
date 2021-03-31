@@ -14,7 +14,6 @@ class Settings(BaseSettings):
     DISCORD_CLIENT_ID: str = os.environ.get("DISCORD_CLIENT_ID")
     DISCORD_CLIENT_SECRET: str = os.environ.get("DISCORD_CLIENT_SECRET")
     BOT_TOKEN: str = os.environ.get("BOT_TOKEN", "NO TOKEN")
-    WEBHOOK_ID: str = os.environ.get("WEBHOOK_ID")
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:

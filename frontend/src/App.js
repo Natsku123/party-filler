@@ -23,7 +23,7 @@ import NotifySnackbar, { useSnackbar } from './components/NotifySnackbar';
 
 import { playerService } from './services/players';
 
-const baseUrl = ((window.REACT_APP_API_HOSTNAME) ? window.REACT_APP_API_HOSTNAME : 'http://localhost:8800');
+const baseUrl = '/api';
 
 const getLoginUrl = () => {
   return `${baseUrl}/login`;
@@ -79,7 +79,7 @@ const App = () => {
             <Button color='inherit' component={Link} to="/parties" className={classes.link}>Parties</Button>
             { user ?
               <div>
-                <Button color='inherit' component={Link} to={"/games"} className={classes.link}>Games</Button>
+                <Button color='inherit' component={Link} to={'/games'} className={classes.link}>Games</Button>
                 <Button color='inherit' component={Link} to={`/players/${user.id}`} className={classes.link}>{user.name}</Button>
                 <Button color='inherit' component='a' href={ getLogoutUrl() } className={classes.link}>Logout</Button>
               </div> :
