@@ -42,8 +42,8 @@ const NewGameDialog = ({ newGameDialog, closeNewGameDialog, onError, onSuccess }
     };
     gameService.create(newObject).then(res => {
       onSuccess(`Game ${res.name} created.`);
-    }, e => {
-      onError(e.response.data.detail);
+    }).catch(error => {
+      onError(error.response.data.detail);
     });
     closeNewGameDialog();
   };

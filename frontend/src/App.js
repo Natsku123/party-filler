@@ -79,7 +79,7 @@ const App = () => {
             <Button color='inherit' component={Link} to="/parties" className={classes.link}>Parties</Button>
             { user ?
               <div>
-                <Button color='inherit' component={Link} to={"/games"} className={classes.link}>Games</Button>
+                <Button color='inherit' component={Link} to={'/games'} className={classes.link}>Games</Button>
                 <Button color='inherit' component={Link} to={`/players/${user.id}`} className={classes.link}>{user.name}</Button>
                 <Button color='inherit' component='a' href={ getLogoutUrl() } className={classes.link}>Logout</Button>
               </div> :

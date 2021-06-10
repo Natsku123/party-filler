@@ -29,19 +29,19 @@ const PartyForm = (props) => {
   useEffect(() => {
     playerService.getCurrent().then(res => {
       setCurrentUser(res);
-    }, e => {
+    }).catch(e => {
       props.onError(e.response.data.detail);
     });
 
     playerService.getVisibleChannels().then(res => {
       setChannels(res);
-    }, e => {
+    }).catch(e => {
       props.onError(e.response.data.detail);
     });
 
     gameService.getAll().then(res => {
       setGames(res);
-    }, e => {
+    }).catch(e => {
       props.onError(e.response.data.detail);
     });
   }, [props, newGameDialog]);
@@ -83,7 +83,7 @@ const PartyForm = (props) => {
     };
     partyService.create(partyObject).then(r => {
       props.onSuccess(`Party ${r.title} created.`);
-    }, e => {
+    }).catch(e => {
       props.onError(e.response.data.detail);
     }).finally(() => {
       setSubmitting(false);

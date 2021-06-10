@@ -31,9 +31,10 @@ const Player = (props) => {
   const classes = useStyles();
 
   useEffect(() => {
-    playerService
-      .getOne(id)
-      .then(res => setUser(res), error => props.onError(error.response.data.detail));
+    playerService.getOne(id).then(res => setUser(res))
+      .catch(error =>
+        props.onError(error.response.data.detail)
+      );
   }, [ props, id ]);
 
   if (!user) {

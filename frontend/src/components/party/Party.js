@@ -27,19 +27,22 @@ const Party = (props) => {
   useEffect(() => {
     partyService
       .getOne(id)
-      .then(res => setParty(res), error => props.onError(error.response.data.detail));
+      .then(res => setParty(res))
+      .catch(error => props.onError(error.response.data.detail));
   }, [props, id ]);
 
   useEffect(() => {
     partyService
       .getMembers(id)
-      .then(res => setMembers(res), error => props.onError(error.response.data.detail));
+      .then(res => setMembers(res))
+      .catch(error => props.onError(error.response.data.detail));
   }, [props, id ]);
 
   useEffect(() => {
     playerService
       .getCurrent()
-      .then(res => setUser(res), error => props.onError(error.response.data.detail));
+      .then(res => setUser(res))
+      .catch(error => props.onError(error.response.data.detail));
   }, [props]);
 
   if (!party) {

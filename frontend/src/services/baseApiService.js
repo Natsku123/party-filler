@@ -4,7 +4,7 @@ const baseUrl = ((window.REACT_APP_API_HOSTNAME) ? window.REACT_APP_API_HOSTNAME
 
 class BaseApiService {
 
-  constructor(prefix = "") {
+  constructor(prefix='') {
     this.instance = axios.create({
       baseURL: baseUrl + prefix,
       withCredentials: true
@@ -12,40 +12,30 @@ class BaseApiService {
 
     this.instance.interceptors.request.use(
       (config) => {
-        config.headers.withCredentials = true
-        return config
+        config.headers.withCredentials = true;
+        return config;
       }, (err) => Promise.reject(err)
     );
   }
 
-  getAll = async (skip = 0, limit = 100) => {
-    return new Promise(async (resolve, reject) => {
-      this.instance.get(`/?skip=${skip}&limit=${limit}`).then(r => resolve(r.data)).catch(reject);
-    });
+  getAll = (skip=0, limit=100) => {
+    return this.instance.get(`/?skip=${skip}&limit=${limit}`).then(r => r.data);
   };
 
-  getOne = async (id) => {
-    return new Promise(async (resolve, reject) => {
-      this.instance.get(`/${id}`).then(r => resolve(r.data)).catch(reject);
-    });
+  getOne = (id) => {
+    return this.instance.get(`/${id}`).then(r => r.data);
   };
 
-  create = async (newObject) => {
-    return new Promise(async (resolve, reject) => {
-      this.instance.post('/', newObject).then(r => resolve(r.data)).catch(reject);
-    });
+  create = (newObject) => {
+    return this.instance.post('/', newObject).then(r => r.data);
   };
 
-  update = async (id, newObject) => {
-    return new Promise(async (resolve, reject) => {
-      this.instance.put(`/${id}`, newObject).then(r => resolve(r.data)).catch(reject);
-    });
+  update = (id, newObject) => {
+    return this.instance.put(`/${id}`, newObject).then(r => r.data);
   };
 
-  remove = async(id) => {
-    return new Promise(async (resolve, reject) => {
-      this.instance.delete(`/${id}`).then(r => resolve(r.data)).catch(reject);
-    });
+  remove = (id) => {
+    return this.instance.delete(`/${id}`).then(r => r.data);
   };
 }
 

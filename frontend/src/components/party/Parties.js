@@ -21,7 +21,7 @@ const Parties = (props) => {
       .getAll()
       .then(data => {
         setParties(data);
-      }, error => {
+      }).catch(error => {
         props.onError(error.response.data.detail);
       });
   }, [props]);

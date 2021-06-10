@@ -2,9 +2,8 @@ import {BaseApiService} from "./baseApiService";
 
 
 class ServerService extends BaseApiService {
-  getChannels = async (id) => {
-    const response = await this.instance.get(`/${id}/channels`);
-    return response.data;
+  getChannels = (id) => {
+    return this.instance.get(`/${id}/channels`).then(r => r.data);
   };
 }
 

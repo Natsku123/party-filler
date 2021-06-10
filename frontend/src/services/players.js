@@ -1,23 +1,17 @@
-import {BaseApiService} from "./baseApiService";
+import { BaseApiService } from './baseApiService';
 
 
 class PlayerService extends BaseApiService {
   getCurrent = () => {
-    return new Promise((resolve, reject) => {
-      this.instance.get('').then(r => resolve(r.data)).catch(reject);
-    });
+    return this.instance.get('').then(r => r.data);
   };
 
   getIsSuperuser = () => {
-    return new Promise((resolve, reject) => {
-      this.instance.get('/superuser').then(r => resolve(r.data)).catch(reject);
-    });
+    return this.instance.get('/superuser').then(r => r.data);
   };
 
   getVisibleChannels = () => {
-    return new Promise((resolve, reject) => {
-      this.instance.get('/channels').then(r => resolve(r.data)).catch(reject);
-    });
+    return this.instance.get('/channels').then(r => r.data);
   };
 }
 

@@ -27,13 +27,13 @@ const PartyEdit = ({ party, setEdit, setParty, onError, onSuccess }) => {
   useEffect(() => {
     playerService.getVisibleChannels().then(res => {
       setChannels(res);
-    }, e => {
+    }).catch(e => {
       onError(e.response.data.detail);
     });
 
     gameService.getAll().then(res => {
       setGames(res);
-    }, e => {
+    }).catch(e => {
       onError(e.response.data.detail);
     });
   }, [onError, party.gameId]);
@@ -90,7 +90,7 @@ const PartyEdit = ({ party, setEdit, setParty, onError, onSuccess }) => {
     };
     partyService.create(partyObject).then(r => {
       onSuccess(`Party ${r.title} updated.`);
-    }, e => {
+    }).catch(e => {
       onError(e.response.data.detail);
     }).finally(() => {
       setSubmitting(false);

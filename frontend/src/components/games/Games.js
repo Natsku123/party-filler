@@ -23,7 +23,7 @@ const Games = (props) => {
       .getAll()
       .then(data => {
         setGames(data);
-      }, error => {
+      }).catch(error => {
         props.onError(error.response.data.detail);
       });
   }, [props]);

@@ -8,7 +8,6 @@ import {
 import { channelService } from '../services/channels';
 
 
-
 const ChannelForm = (props) => {
   const [ discordId, setDiscordId ] = useState('');
 
@@ -21,7 +20,7 @@ const ChannelForm = (props) => {
     channelService.create(channelObj).then((r) => {
       props.onSuccess('Channel \'' + r.name + '\' created.');
       setDiscordId('');
-    }, (e) => {
+    }).catch((e) => {
       props.onError(e.response.data.detail);
     });
   };
