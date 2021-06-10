@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { makeStyles } from '@material-ui/core/styles';
-import {
-  Avatar,
-} from '@material-ui/core';
 
+import { makeStyles  } from '@material-ui/core/styles';
 import { playerService } from '../services/players';
+import DiscordAvatar from '../components/DiscordAvatar';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -23,7 +21,6 @@ const useStyles = makeStyles((theme) => ({
     height: theme.spacing(7),
   },
 }));
-
 
 const Player = (props) => {
   const id = useParams().id;
@@ -43,7 +40,7 @@ const Player = (props) => {
 
   return (
     <div>
-      <Avatar alt={user.name} src={`https://cdn.discordapp.com/avatars/${user.discordId}/${user.icon}`} className={classes.large}/>
+      <DiscordAvatar user={user} size='large' />
       <br />
       {user.name}
     </div>

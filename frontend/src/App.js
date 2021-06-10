@@ -20,6 +20,7 @@ import Party from './components/party/Party';
 import Games from './components/games/Games';
 import Player from './components/Player';
 import NotifySnackbar, { useSnackbar } from './components/NotifySnackbar';
+import Layout from './components/Layout';
 
 import { playerService } from './services/players';
 
@@ -70,48 +71,33 @@ const App = () => {
   return (
     <Container>
       <Router basename="/#">
-        <AppBar position='static'>
-          <Toolbar>
-            <IconButton edge="start" color="inherit" aria-label="menu"/>
-            <Button color='inherit' component={Link} to="/" className={classes.link}>Home</Button>
-            <Button color='inherit' component={Link} to="/channels/create" className={classes.link}>New Channel</Button>
-            <Button color='inherit' component={Link} to="/parties/create" className={classes.link}>New Party</Button>
-            <Button color='inherit' component={Link} to="/parties" className={classes.link}>Parties</Button>
-            { user ?
-              <div>
-                <Button color='inherit' component={Link} to={'/games'} className={classes.link}>Games</Button>
-                <Button color='inherit' component={Link} to={`/players/${user.id}`} className={classes.link}>{user.name}</Button>
-                <Button color='inherit' component='a' href={ getLogoutUrl() } className={classes.link}>Logout</Button>
-              </div> :
-              <Button color='inherit' component='a' href={ getLoginUrl() } className={classes.link}>Login</Button>
-            }
-          </Toolbar>
-        </AppBar>
+        <Layout user={user}>
 
-        <Switch>
-          <Route path="/channels/create">
-            <ChannelForm onError={showError} onSuccess={showSuccess} />
-          </Route>
-          <Route path="/parties/create">
-            <PartyForm onError={showError} onSuccess={showSuccess}/>
-          </Route>
-          <Route path="/parties/:id">
-            <Party onError={showError} onSuccess={showSuccess}/>
-          </Route>
-          <Route path="/parties">
-            <Parties onError={showError}/>
-          </Route>
-          <Route path="/players/:id">
-            <Player onError={showError}/>
-          </Route>
-          <Route path="/games">
-            <Games />
-          </Route>
-          <Route path="/">
-            <h1>Home Page</h1>
-          </Route>
-        </Switch>
+          <Switch>
+            <Route path="/channels/create">
+              <ChannelForm onError={showError} onSuccess={showSuccess} />
+            </Route>
+            <Route path="/parties/create">
+              <PartyForm onError={showError} onSuccess={showSuccess}/>
+            </Route>
+            <Route path="/parties/:id">
+              <Party onError={showError} onSuccess={showSuccess}/>
+            </Route>
+            <Route path="/parties">
+              <Parties onError={showError}/>
+            </Route>
+            <Route path="/players/:id">
+              <Player onError={showError}/>
+            </Route>
+            <Route path="/games">
+              <Games />
+            </Route>
+            <Route path="/">
+              <h1>Home Page</h1>
+            </Route>
+          </Switch>
 
+        </Layout>
       </Router>
 
       <NotifySnackbar handleSnackbarClose={handleSnackbarClose} {...snackbarStatus} />

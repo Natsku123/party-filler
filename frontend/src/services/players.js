@@ -3,7 +3,7 @@ import { BaseApiService } from './baseApiService';
 
 class PlayerService extends BaseApiService {
   getCurrent = () => {
-    return this.instance.get('').then(r => r.data);
+    return this.instance.get('/').then(r => r.data);
   };
 
   getIsSuperuser = () => {

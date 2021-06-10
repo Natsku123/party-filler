@@ -6,10 +6,10 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
-  Avatar
 } from '@material-ui/core';
 
 import PartyEdit from './PartyEdit';
+import DiscordAvatar from '../DiscordAvatar';
 
 
 import { partyService } from '../../services/parties';
@@ -118,7 +118,7 @@ const Party = (props) => {
       <List>
         <ListItem key={0}>
           <ListItemAvatar>
-            <Avatar alt={party.leader.name} src={`https://cdn.discordapp.com/avatars/${party.leader.discordId}/${party.leader.icon}`} />
+            <DiscordAvatar user={party.leader} size='small' />
           </ListItemAvatar>
           <ListItemText primary={party.leader.name} secondary="Leader" />
         </ListItem>
@@ -126,7 +126,7 @@ const Party = (props) => {
           return (
             <ListItem key={member.id}>
               <ListItemAvatar>
-                <Avatar alt={member.player.name} src={`https://cdn.discordapp.com/avatars/${member.player.discordId}/${member.player.icon}`} />
+                <DiscordAvatar user={party.leader} size='small' />
               </ListItemAvatar>
               <ListItemText primary={member.player.name} secondary="Member" />
             </ListItem>
