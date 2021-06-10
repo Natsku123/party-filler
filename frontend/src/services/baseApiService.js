@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseUrl = ((window.REACT_APP_API_HOSTNAME) ? window.REACT_APP_API_HOSTNAME : 'http://localhost:8800');
+const baseUrl = '/api';
 
 class BaseApiService {
 

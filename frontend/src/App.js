@@ -23,7 +23,7 @@ import NotifySnackbar, { useSnackbar } from './components/NotifySnackbar';
 
 import { playerService } from './services/players';
 
-const baseUrl = ((window.REACT_APP_API_HOSTNAME) ? window.REACT_APP_API_HOSTNAME : 'http://localhost:8800');
+const baseUrl = '/api';
 
 const getLoginUrl = () => {
   return `${baseUrl}/login`;
