@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory, Link } from 'react-router-dom';
 import {
   Button,
   List,
   ListItem,
   ListItemAvatar,
   ListItemText,
+  Grid,
 } from '@material-ui/core';
 
 import PartyEdit from './PartyEdit';
@@ -18,6 +19,7 @@ import { playerService } from '../../services/players';
 
 const Party = (props) => {
   const id = useParams().id;
+  const history = useHistory();
   const [ party, setParty ] = useState(null);
   const [ members, setMembers ] = useState([]);
   const [ user, setUser ] = useState(null);
@@ -50,8 +52,7 @@ const Party = (props) => {
   }
 
   const isMember = user && members
-    .map((member) => member.player.id)
-    .includes(user.id);
+    .find((member) => member.player.id === user.id);
 
   const isLeader = user && user.id === party.leaderId;
 
@@ -63,16 +64,24 @@ const Party = (props) => {
         setMembers(members.concat(member));
         setMember(member);
         props.onSuccess('Successfully joined ' + party.title + '!');
-      }, error => props.onError(error.response.data.detail));
+      }).catch(error => props.onError(error.response.data.detail));
   };
 
   const leave = () => {
-
     leaveParty(member.id)
       .then(removedMember => {
         setMembers(members.filter(member => member.id !== removedMember.id));
         props.onSuccess('Successfully left ' + party.title + '!');
-      }, error => props.onError(error.response.data.detail));
+      }).catch(error => props.onError(error.response.data.detail));
+  };
+
+  const remove = () => {
+    partyService
+      .remove(id)
+      .then(removedParty => {
+        history.push('/parties');
+        props.onSuccess('Successfully deleted ' + party.title + '!');
+      }).catch(error => props.onError(error.response.data.detail));
   };
 
   if (isLeader && edit) {
@@ -87,33 +96,39 @@ const Party = (props) => {
 
   return (
     <div>
-      <h1>{party.title}</h1>
-      { !user ?
-        <p>Et ole kirjautunut</p> :
-        <div>
-          { isLeader ?
-            <div>
-              <p>Olet johtaja</p>
-              <Button variant='contained' color='primary' onClick={ () => setEdit(true) }>Edit</Button>
-            </div> :
-            <div>
-              { isMember ?
-                <Button variant='contained' color='secondary' onClick={leave}>Leave</Button> :
-                <Button variant='contained' color='primary' onClick={join}>Join</Button>
-              }
-            </div>
-          }
-
-        </div>
-      }
+      <h1>
+        {party.title}
+        { isLeader &&
+          <> - You are the leader
+            <Button variant='contained' color='secondary' onClick={ remove }>Delete</Button>
+          </>
+        }
+      </h1>
+      <div>
+        { isLeader &&
+        <Button variant='contained' color='primary' onClick={ () => setEdit(true) }>Edit</Button>
+        }
+        { !isLeader &&
+          <>
+            { isMember ?
+              <Button variant='contained' color='secondary' onClick={leave}>Leave</Button> :
+              <Button variant='contained' color='primary' onClick={join}>Join</Button>
+            }
+          </>
+        }
+      </div>
       <h2>Information</h2>
-      <p>Game: {party.game.name}</p>
-      <p>Max Players: {party.maxPlayers}</p>
-      <p>Min Players: {party.minPlayers}</p>
-      <p>Description: {party.description}</p>
-      <p>Start Time: {party.startTime}</p>
-      <p>End Time: {party.endTime}</p>
-      <p>Channel: {party.channel.name} @ {party.channel.server.name}</p>
+      <Grid container direction='column' spacing={4}>
+        <Grid item container spacing={2}>
+          <Grid item>Game: {party.game.name}</Grid>
+          <Grid item>Max Players: {party.maxPlayers}</Grid>
+          <Grid item>Min Players: {party.minPlayers}</Grid>
+        </Grid>
+        <Grid item>Description: {party.description}</Grid>
+        <Grid item>Start Time: {party.startTime}</Grid>
+        <Grid item>End Time: {party.endTime}</Grid>
+        <Grid item>Channel: {party.channel.name} @ {party.channel.server.name}</Grid>
+      </Grid>
       <h2>Members</h2>
       <List>
         <ListItem key={0}>

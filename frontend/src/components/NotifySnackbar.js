@@ -41,7 +41,7 @@ const NotifySnackbar = (props) => {
     snackbarOpen,
     handleSnackbarClose,
     snackbarStatus,
-    snackbarMessage
+    snackbarMessage,
   } = props;
 
   const Alert = (props) => {

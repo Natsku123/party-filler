@@ -13,7 +13,6 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
-import ChannelForm from './components/ChannelForm';
 import PartyForm from './components/party/PartyForm';
 import Parties from './components/party/Parties';
 import Party from './components/party/Party';
@@ -23,16 +22,6 @@ import NotifySnackbar, { useSnackbar } from './components/NotifySnackbar';
 import Layout from './components/Layout';
 
 import { playerService } from './services/players';
-
-const baseUrl = '/api';
-
-const getLoginUrl = () => {
-  return `${baseUrl}/login`;
-};
-
-const getLogoutUrl = () => {
-  return `${baseUrl}/logout`;
-};
 
 const useStyles = makeStyles(() => ({
   link: {
@@ -74,9 +63,6 @@ const App = () => {
         <Layout user={user}>
 
           <Switch>
-            <Route path="/channels/create">
-              <ChannelForm onError={showError} onSuccess={showSuccess} />
-            </Route>
             <Route path="/parties/create">
               <PartyForm onError={showError} onSuccess={showSuccess}/>
             </Route>

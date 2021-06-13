@@ -42,9 +42,8 @@ const Layout = ({ user, children }) => {
         <Toolbar>
           <IconButton edge="start" color="inherit" aria-label="menu"/>
           <Button color='inherit' component={Link} to="/" className={classes.link}>Home</Button>
-          <Button color='inherit' component={Link} to="/channels/create" className={classes.link}>New Channel</Button>
-          <Button color='inherit' component={Link} to="/parties/create" className={classes.link}>New Party</Button>
           <Button color='inherit' component={Link} to="/parties" className={classes.link}>Parties</Button>
+          <Button color='inherit' component={Link} to="/parties/create" className={classes.link}>New Party</Button>
           { user ?
             <div>
               <Button color='inherit' component={Link} to={'/games'} className={classes.link}>Games</Button>
