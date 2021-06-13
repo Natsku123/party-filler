@@ -19,7 +19,7 @@ import { gameService } from '../../services/games';
 
 import NewGameDialog from '../NewGameDialog';
 
-const PartyForm = (props) => {
+const PartyCreate = (props) => {
   const [ channels, setChannels ] = useState([]);
   const [ currentUser, setCurrentUser ] = useState(null);
   const [ games, setGames ] = useState([]);
@@ -156,4 +156,4 @@ const PartyForm = (props) => {
   );
 };
 
-export default PartyForm;
+export default PartyCreate;

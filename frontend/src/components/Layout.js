@@ -12,6 +12,7 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
+import { playerService } from '../services/players';
 
 const baseUrl = '/api';
 
@@ -33,8 +34,15 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const Layout = ({ user, children }) => {
+const Layout = ({ children }) => {
   const classes = useStyles();
+  const [ user, setUser ] = useState(null);
+
+  useEffect(() => {
+    playerService
+      .getCurrent()
+      .then(res => setUser(res));
+  }, []);
 
   return (
     <div>

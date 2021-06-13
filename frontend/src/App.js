@@ -13,7 +13,7 @@ import {
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
-import PartyForm from './components/party/PartyForm';
+import PartyCreate from './components/party/PartyCreate';
 import Parties from './components/party/Parties';
 import Party from './components/party/Party';
 import Games from './components/games/Games';
@@ -21,7 +21,6 @@ import Player from './components/Player';
 import NotifySnackbar, { useSnackbar } from './components/NotifySnackbar';
 import Layout from './components/Layout';
 
-import { playerService } from './services/players';
 
 const useStyles = makeStyles(() => ({
   link: {
@@ -33,7 +32,6 @@ const useStyles = makeStyles(() => ({
 }));
 
 const App = () => {
-  const [ user, setUser ] = useState(null);
   const classes = useStyles();
   const {
     handleSnackbarClose,
@@ -41,12 +39,6 @@ const App = () => {
     snackbarStatus,
   } = useSnackbar();
 
-
-  useEffect(() => {
-    playerService
-      .getCurrent()
-      .then(res => setUser(res));
-  }, []);
 
   const showSuccess = (message) => {
     showSnackbar(message, 'success');
@@ -60,11 +52,11 @@ const App = () => {
   return (
     <Container>
       <Router basename="/#">
-        <Layout user={user}>
+        <Layout>
 
           <Switch>
             <Route path="/parties/create">
-              <PartyForm onError={showError} onSuccess={showSuccess}/>
+              <PartyCreate onError={showError} onSuccess={showSuccess}/>
             </Route>
             <Route path="/parties/:id">
               <Party onError={showError} onSuccess={showSuccess}/>

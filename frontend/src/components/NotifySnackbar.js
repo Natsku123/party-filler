@@ -8,7 +8,7 @@ import MuiAlert from '@material-ui/lab/Alert';
 const useSnackbar = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarStatus, setSnackbarStatus] = useState('error');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('error');
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -18,9 +18,9 @@ const useSnackbar = () => {
     setSnackbarOpen(false);
   };
 
-  const showSnackbar = (message, status) => {
+  const showSnackbar = (message, severity) => {
     setSnackbarMessage(message);
-    setSnackbarStatus(status);
+    setSnackbarSeverity(severity);
     setSnackbarOpen(true);
   };
 
@@ -30,7 +30,7 @@ const useSnackbar = () => {
     snackbarStatus: {
       snackbarOpen,
       snackbarMessage,
-      snackbarStatus,
+      snackbarSeverity,
     },
   };
 };
@@ -40,7 +40,7 @@ const NotifySnackbar = (props) => {
   const {
     snackbarOpen,
     handleSnackbarClose,
-    snackbarStatus,
+    snackbarSeverity,
     snackbarMessage,
   } = props;
 
@@ -54,7 +54,7 @@ const NotifySnackbar = (props) => {
       autoHideDuration={6000}
       onClose={handleSnackbarClose}
     >
-      <Alert severity={snackbarStatus}>{snackbarMessage}</Alert>
+      <Alert severity={snackbarSeverity}>{snackbarMessage}</Alert>
     </Snackbar>
   );
 };
