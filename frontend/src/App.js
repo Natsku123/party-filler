@@ -50,7 +50,7 @@ const App = () => {
 
 
   return (
-    <Container>
+    <>
       <Router basename="/#">
         <Layout>
 
@@ -79,7 +79,7 @@ const App = () => {
       </Router>
 
       <NotifySnackbar handleSnackbarClose={handleSnackbarClose} {...snackbarStatus} />
-    </Container>
+    </>
   );
 };
 

@@ -1,0 +1,13 @@
+@font-face {
+    font-family: "Montserrat Subrayada";
+    src: local("Montserrat Subrayada"),
+        url("./fonts/Montserrat_Subrayada/MontserratSubrayada-Regular.ttf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "Montserrat";
+    src: local("Montserrat"),
+        url("./fonts/Montserrat/Montserrat-Regular.ttf") format("truetype");
+    font-weight: normal;
+}
