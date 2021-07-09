@@ -43,6 +43,9 @@ const useStyles = makeStyles(() => ({
   grow: {
     flex: '1 1 auto',
   },
+  content: {
+    padding: 20
+  }
 }));
 
 const Title = withStyles({
@@ -132,8 +135,9 @@ const Layout = ({ children }) => {
 
         </Toolbar>
       </AppBar>
-
-      {children}
+      <div className={classes.content}>
+        {children}
+      </div>
     </div>
   );
 };
