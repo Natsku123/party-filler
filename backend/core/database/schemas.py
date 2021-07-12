@@ -480,6 +480,9 @@ class MemberShort(MemberBase):
         description="ID of member"
     )
 
+    player: PlayerShort
+    role: 'RoleShort'
+
     class Config:
         orm_mode = True
 

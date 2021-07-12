@@ -183,7 +183,7 @@ const PartyCreate = (props) => {
                   { channelsReady && channels
                     ? <Field component={Select} fullWidth name="channelId" label="Channel">
                       { channels.map(channel => (
-                        <MenuItem value={channel.id} key={channel.id} >{channel.server.name} - {channel.name}</MenuItem>
+                        <MenuItem value={channel.id} key={channel.id} >{channel.name} @ {channel.server.name}</MenuItem>
                       ))}
                     </Field>
                     : <Skeleton variant={'rect'} />

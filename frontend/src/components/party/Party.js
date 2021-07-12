@@ -131,19 +131,15 @@ const Party = (props) => {
       </Grid>
       <h2>Members</h2>
       <List>
-        <ListItem key={0}>
-          <ListItemAvatar>
-            <DiscordAvatar user={party.leader} size='small' />
-          </ListItemAvatar>
-          <ListItemText primary={party.leader.name} secondary="Leader" />
-        </ListItem>
         {members.map(member => {
           return (
             <ListItem key={member.id}>
               <ListItemAvatar>
-                <DiscordAvatar user={party.leader} size='small' />
+                <DiscordAvatar user={member.player} size='small' />
               </ListItemAvatar>
-              <ListItemText primary={member.player.name} secondary="Member" />
+              <ListItemText primary={member.player.name} secondary={
+                member.roleId ? member.player.id === party.leader.id ? 'Leader - ' + member.role.name : 'Member - ' + member.role.name : member.player.id === party.leader.id ? 'Leader' : 'Member'
+              } />
             </ListItem>
           );
         })}
