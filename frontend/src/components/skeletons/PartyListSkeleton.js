@@ -1,8 +1,6 @@
 import React from 'react';
 import {
-  Button,
   makeStyles,
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -11,8 +9,6 @@ import {
   TableRow, Typography
 } from '@material-ui/core';
 
-import { Link } from 'react-router-dom';
-import { withStyles } from '@material-ui/core/styles';
 import { Skeleton } from '@material-ui/lab';
 
 const useStyles = makeStyles(() => ({
@@ -60,13 +56,13 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const ShowButtonSkeleton = () => {
+export const ShowButtonSkeleton = () => {
   return (
     <Skeleton variant='rect' height={40} width={90} />
   );
 };
 
-const TypographySkeleton = (props) => {
+export const TypographySkeleton = (props) => {
   const classes = useStyles();
 
   return (
@@ -83,7 +79,7 @@ export const PartyListSkeleton = ({ title }) => {
     padding: 5
   };
 
-  // Skeleton array ('empty')
+  // Skeleton array
   const parties = [1, 2, 3, 4, 5];
 
   return (
