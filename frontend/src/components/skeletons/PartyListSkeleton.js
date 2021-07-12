@@ -8,11 +8,12 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TableRow
+  TableRow, Typography
 } from '@material-ui/core';
 
 import { Link } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
+import { Skeleton } from '@material-ui/lab';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -59,35 +60,31 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const dateFormat = (date) => {
-  const parsed = new Date(date);
-  const a = parsed.toTimeString().split(':');
-  a.pop();
-  return `${a.join(':')} ${parsed.toLocaleDateString()}`;
+const ShowButtonSkeleton = () => {
+  return (
+    <Skeleton variant='rect' height={40} width={90} />
+  );
 };
 
-const ShowButton = withStyles({
-  root: {
-    backgroundColor: '#88B8D6',
-    borderRadius: '0px',
-    height: '20px',
-    fontFamily: 'Montserrat',
-    fontSize: '15px',
-    fontStyle: 'normal',
-    fontWeight: '400',
-    lineHeight: '30px',
-    letterSpacing: '0em',
-    textAlign: 'center',
-    padding: '20px'
-  }
-})(Button);
+const TypographySkeleton = (props) => {
+  const classes = useStyles();
 
-export const PartyListContainer = ({ parties, title }) => {
+  return (
+    <Typography className={classes.bodyText} {...props}>
+      <Skeleton />
+    </Typography>
+  );
+};
+
+export const PartyListSkeleton = ({ title }) => {
   const classes = useStyles();
 
   const padding = {
     padding: 5
   };
+
+  // Skeleton array ('empty')
+  const parties = [1, 2, 3, 4, 5];
 
   return (
     <div className={classes.root}>
@@ -106,12 +103,12 @@ export const PartyListContainer = ({ parties, title }) => {
           <TableBody>
             {parties.map((party, i) =>
               <TableRow key={i}>
-                <TableCell className={classes.bodyText} style={padding}>{party.title}</TableCell>
-                <TableCell className={classes.bodyText} style={padding}>{party.game.name}</TableCell>
-                <TableCell className={classes.bodyText} style={padding}>{`${party.members.length}`}</TableCell>
-                <TableCell className={classes.bodyText} style={padding}>{dateFormat(party.endTime)}</TableCell>
+                <TableCell className={classes.bodyText} style={padding}><TypographySkeleton /></TableCell>
+                <TableCell className={classes.bodyText} style={padding}><TypographySkeleton /></TableCell>
+                <TableCell className={classes.bodyText} style={padding}><TypographySkeleton /></TableCell>
+                <TableCell className={classes.bodyText} style={padding}><TypographySkeleton /></TableCell>
                 <TableCell className={classes.bodyText} style={padding}>
-                  <ShowButton component={Link} to={`/parties/${party.id}`} variant='contained' type='button'>show</ShowButton>
+                  <ShowButtonSkeleton />
                 </TableCell>
               </TableRow>
             )}
