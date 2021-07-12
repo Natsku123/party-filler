@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 import { NavLink } from 'react-router-dom';
 
@@ -8,12 +8,14 @@ import {
   Toolbar,
   IconButton,
   Button,
-  Grid, Typography,
+  Grid, Typography, Menu, MenuItem,
 } from '@material-ui/core';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 import { playerService } from '../services/players';
 import DiscordAvatar from '../components/DiscordAvatar';
+import ProfileMenu from './ProfileMenu';
+import MenuButton from './MenuButton';
 
 const baseUrl = '/api';
 
@@ -64,21 +66,6 @@ const Title = withStyles({
 })(Typography);
 
 
-const MenuButton = withStyles({
-  root: {
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    borderRadius: '0px',
-    height: '58px',
-    fontFamily: 'Montserrat',
-    fontSize: '20px',
-    fontStyle: 'normal',
-    fontWeight: '400',
-    lineHeight: '30px',
-    letterSpacing: '0em',
-    textAlign: 'center',
-    padding: '20px'
-  }
-})(Button);
 
 const Layout = ({ children }) => {
   const classes = useStyles();
@@ -113,16 +100,7 @@ const Layout = ({ children }) => {
                 { user ?
                   <>
                     <Grid item>
-                      <MenuButton component={NavLink} to={`/players/${user.id}`} activeClassName={classes.activeLink} className={classes.link}>
-                        <Grid container spacing={1} alignItems="center">
-                          <Grid item>
-                            <DiscordAvatar user={user} size='medium' className={classes.avatar} />
-                          </Grid>
-                          <Grid item>
-                            {user.name}
-                          </Grid>
-                        </Grid>
-                      </MenuButton>
+                      <ProfileMenu user={user} />
                     </Grid>
                   </>:
                   <Grid item>
