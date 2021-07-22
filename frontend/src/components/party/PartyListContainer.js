@@ -66,23 +66,23 @@ const dateFormat = (date) => {
   return `${a.join(':')} ${parsed.toLocaleDateString()}`;
 };
 
-const ShowButton = withStyles({
-  root: {
-    backgroundColor: '#88B8D6',
-    borderRadius: '0px',
-    height: '20px',
-    fontFamily: 'Montserrat',
-    fontSize: '15px',
-    fontStyle: 'normal',
-    fontWeight: '400',
-    lineHeight: '30px',
-    letterSpacing: '0em',
-    textAlign: 'center',
-    padding: '20px'
-  }
-})(Button);
+export const PartyListContainer = ({ parties, title, buttonColor = '#88B8D6' }) => {
+  const ShowButton = withStyles({
+    root: {
+      backgroundColor: buttonColor,
+      borderRadius: '0px',
+      height: '20px',
+      fontFamily: 'Montserrat',
+      fontSize: '15px',
+      fontStyle: 'normal',
+      fontWeight: '400',
+      lineHeight: '30px',
+      letterSpacing: '0em',
+      textAlign: 'center',
+      padding: '20px'
+    }
+  })(Button);
 
-export const PartyListContainer = ({ parties, title }) => {
   const classes = useStyles();
 
   const padding = {
