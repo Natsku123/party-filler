@@ -571,6 +571,28 @@ class PartyCreateWebhook(BaseModel):
     )
 
 
+class PartyFullWebhook(BaseModel):
+    party: 'Party' = Field(
+        ...,
+        description="Party filled"
+    ),
+    event: 'WebhookEvent' = Field(
+        ...,
+        description="Event info"
+    )
+
+
+class PartyReadyWebhook(BaseModel):
+    party: 'Party' = Field(
+        ...,
+        description="Party that is ready"
+    ),
+    event: 'WebhookEvent' = Field(
+        ...,
+        description="Event info"
+    )
+
+
 class IsSuperUser(BaseModel):
     is_superuser: bool = Field(
         ...,
