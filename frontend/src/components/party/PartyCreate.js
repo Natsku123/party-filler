@@ -24,6 +24,7 @@ import { makeStyles, withStyles } from '@material-ui/core/styles';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import PartySuggestedGames from './PartySuggestedGames';
 import { useHistory } from 'react-router-dom';
+import PartySuggestedChannels from './PartySuggestedChannels';
 
 const useStyles = makeStyles(() => ({
   form: {
@@ -53,6 +54,7 @@ const PartyCreate = (props) => {
   const [ games, setGames ] = useState([]);
 
   const [ newGameDialog, setNewGameDialog ] = useState(false);
+  const [ newChannelDialog, setNewChannelDialog ] = useState(false);
 
   const [ playerReady, setPlayerReady ] = useState(false);
   const [ channelsReady, setChannelsReady ] = useState(false);
@@ -89,6 +91,14 @@ const PartyCreate = (props) => {
 
   const closeNewGameDialog = () => {
     setNewGameDialog(false);
+  };
+
+  const openNewChannelDialog = () => {
+    setNewChannelDialog(true);
+  };
+
+  const closeNewChannelDialog = () => {
+    setNewChannelDialog(false);
   };
 
 
@@ -174,24 +184,16 @@ const PartyCreate = (props) => {
                     </Grid>
                   </Grid>
                 </Grid>
-                <Grid item xs={2}>
-
-                </Grid>
-                <Grid item xs={5}>
-                  TODO add channel button select thingy here
-                </Grid>
-                <Grid item xs={2}>
-                  { channelsReady && channels
-                    ? <Field component={Select} fullWidth name="channelId" label="Channel">
-                      { channels.map(channel => (
-                        <MenuItem value={channel.id} key={channel.id} >{channel.name} @ {channel.server.name}</MenuItem>
-                      ))}
-                    </Field>
-                    : <Skeleton variant={'rect'} />
-                  }
-                </Grid>
-                <Grid item xs={2}>
-                  TODO add channel button here
+                <Grid item xs={2}/>
+                <Grid item xs={9}>
+                  <Grid container spacing={2} alignItems={'center'}>
+                    <Grid item xs>
+                      { playerReady ? <PartySuggestedChannels player={currentUser} name="channelId"/> : <Skeleton variant={'rect'} /> }
+                    </Grid>
+                    <Grid item xs>
+                      <Button variant="outlined" color="primary" onClick={openNewChannelDialog}>New Channel</Button>
+                    </Grid>
+                  </Grid>
                 </Grid>
                 <Grid item xs={3} />
                 <Grid item xs={3}>
