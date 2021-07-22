@@ -481,7 +481,7 @@ class MemberShort(MemberBase):
     )
 
     player: PlayerShort
-    role: 'RoleShort'
+    role: Optional['RoleShort'] = None
 
     class Config:
         orm_mode = True
@@ -545,6 +545,12 @@ Channel.update_forward_refs()
 Server.update_forward_refs()
 Role.update_forward_refs()
 Game.update_forward_refs()
+PlayerShort.update_forward_refs()
+MemberShort.update_forward_refs()
+PartyShort.update_forward_refs()
+ChannelShort.update_forward_refs()
+RoleShort.update_forward_refs()
+GameShort.update_forward_refs()
 
 
 class WebhookEvent(BaseModel):

@@ -22,6 +22,8 @@ import { Skeleton } from '@material-ui/lab';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import PartySuggestedGames from './PartySuggestedGames';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles(() => ({
   form: {
@@ -55,6 +57,8 @@ const PartyCreate = (props) => {
   const [ playerReady, setPlayerReady ] = useState(false);
   const [ channelsReady, setChannelsReady ] = useState(false);
   const [ gamesReady, setGameReady ] = useState(false);
+
+  const history = useHistory();
 
   useEffect(() => {
     playerService.getCurrent().then(res => {
@@ -128,7 +132,7 @@ const PartyCreate = (props) => {
   };
 
   const cancelForm = () => {
-    console.log('TODO cancel form');
+    history.goBack();
   };
 
   return (
@@ -160,21 +164,18 @@ const PartyCreate = (props) => {
                   <Field component={TextField} fullWidth name="title" label="Title" validate={validateString} />
                 </Grid>
                 <Grid item xs={7} />
-                <Grid item xs={5}>
-                  TODO add game button select thingy here
+                <Grid item xs={9}>
+                  <Grid container spacing={2} alignItems={'center'}>
+                    <Grid item xs>
+                      { playerReady ? <PartySuggestedGames player={currentUser} name="gameId"/> : <Skeleton variant={'rect'} /> }
+                    </Grid>
+                    <Grid item xs>
+                      <Button variant="outlined" color="primary" onClick={openNewGameDialog}>New Game</Button>
+                    </Grid>
+                  </Grid>
                 </Grid>
                 <Grid item xs={2}>
-                  { gamesReady && games
-                    ? <Field component={Select} fullWidth name="gameId" label="Game">
-                      { games.map(game => (
-                        <MenuItem value={game.id} key={game.id}>{game.name}</MenuItem>
-                      ))}
-                    </Field>
-                    : <Skeleton variant={'rect'} />
-                  }
-                </Grid>
-                <Grid item xs={2}>
-                  <Button variant="outlined" color="primary" onClick={openNewGameDialog}>New Game</Button>
+
                 </Grid>
                 <Grid item xs={5}>
                   TODO add channel button select thingy here

@@ -80,9 +80,9 @@ class Member(Base):
     player_req = Column(Integer)
     party_id = Column(Integer, ForeignKey('parties.id'), nullable=False)
     player_id = Column(Integer, ForeignKey('players.id'), nullable=False)
-    role_id = Column(Integer, ForeignKey('roles.id'))
+    role_id = Column(Integer, ForeignKey('roles.id'), nullable=True)
 
-    party = relationship('Party', lazy="joined")
+    party = relationship('Party', lazy="joined", back_populates="members")
     player = relationship('Player', lazy="joined")
     role = relationship('Role', lazy="joined")
 
