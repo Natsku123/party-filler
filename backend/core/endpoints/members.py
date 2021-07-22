@@ -55,6 +55,35 @@ def create_member(
                        f"was an error with the notification: {e}"
             )
 
+    if member.party.channel and \
+            len(member.party.members) == member.party.max_players:
+        webhook_data = {
+            "party": member.party,
+            "event": {
+                "name": "on_party_full"
+            }
+        }
+        webhook = schemas.PartyFullWebhook(**webhook_data)
+        try:
+            send_webhook(webhook)
+        except ValueError:
+            pass
+
+    if member.party.channel and \
+            len(member.party.members) == member.party.min_players and \
+            member.party.min_players != member.party.max_players:
+        webhook_data = {
+            "party": member.party,
+            "event": {
+                "name": "on_party_ready"
+            }
+        }
+        webhook = schemas.PartyReadyWebhook(**webhook_data)
+        try:
+            send_webhook(webhook)
+        except ValueError:
+            pass
+
     return member
 
 
