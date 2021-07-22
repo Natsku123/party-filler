@@ -90,7 +90,7 @@ TEST_MEMBER_2 = {
 TEST_MEMBER_3 = {
     "partyId": 1,
     "playerId": 1,
-    "roleId": 10
+    "roleId": 1
 }
 
 TEST_MEMBER_NO_PARTY = {

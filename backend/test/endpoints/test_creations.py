@@ -416,11 +416,11 @@ def test_create_member_1():
     assert "id" in data
     assert data["party"] != "null" and data["party"] is not None
     assert data["player"] != "null" and data["player"] is not None
-    assert data["role"] != "null" and data["role"] is not None
+    assert data["role"] != "null" and data["role"] is None
 
     assert data["id"] == member_id
 
-    response = client.get(f"/parties/{TEST_MEMBER_1['party_id']}")
+    response = client.get(f"/parties/{TEST_MEMBER_1['partyId']}")
     data = response.json()
 
     assert "members" in data
@@ -461,11 +461,11 @@ def test_create_member_2():
     assert "id" in data
     assert data["party"] != "null" and data["party"] is not None
     assert data["player"] != "null" and data["player"] is not None
-    assert data["role"] != "null" and data["role"] is not None
+    assert data["role"] == "null" or data["role"] is None
 
     assert data["id"] == member_id
 
-    response = client.get(f"/parties/{TEST_MEMBER_2['party_id']}")
+    response = client.get(f"/parties/{TEST_MEMBER_2['partyId']}")
     data = response.json()
 
     assert "members" in data
@@ -512,7 +512,7 @@ def test_create_member_3():
 
     assert data["id"] == member_id
 
-    response = client.get(f"/parties/{TEST_MEMBER_3['party_id']}")
+    response = client.get(f"/parties/{TEST_MEMBER_3['partyId']}")
     data = response.json()
 
     assert "members" in data
