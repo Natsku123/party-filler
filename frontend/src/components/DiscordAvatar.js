@@ -14,6 +14,10 @@ const useStyles = makeStyles((theme) => ({
     width: theme.spacing(7),
     height: theme.spacing(7),
   },
+  xxl: {
+    width: theme.spacing(9),
+    height: theme.spacing(9)
+  }
 }));
 
 const DiscordAvatar = ({ user, size }) => {

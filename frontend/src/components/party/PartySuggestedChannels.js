@@ -25,7 +25,7 @@ const PartySuggestedChannels = ({ player, name }) => {
     partyService.getAll().then(res => {
       let gs = [];
 
-      const promises = res.filter(p => p.members.some(m => m.playerId === player.id)).map(p => p.gameId).map(g => {
+      const promises = res.filter(p => p.members.some(m => m.playerId === player.id)).filter(p => p.channelId !== null).map(p => p.channelId).map(g => {
         return channelService.getOne(g).then(channel => {
           if (gs.findIndex(c => c.id === channel.id) === -1) gs.push(channel);
         });

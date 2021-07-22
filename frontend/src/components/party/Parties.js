@@ -7,22 +7,12 @@ import { PartyListSkeleton } from '../skeletons/PartyListSkeleton';
 import { partyService } from '../../services/parties';
 import { playerService } from '../../services/players';
 import { Grid } from '@material-ui/core';
+import { toDate } from '../DatetimeTools';
 
 const Parties = (props) => {
   const [ parties, setParties ] = useState([]);
   const [ loading, setLoading ] = useState(true);
   const [ player, setPlayer ] = useState(null);
-
-  useEffect(() => {
-    partyService
-      .getAll()
-      .then(data => {
-        setParties(data);
-        setLoading(false);
-      }).catch(error => {
-        props.onError(error.response.data.detail);
-      });
-  }, [props]);
 
   useEffect(() => {
     playerService.getCurrent().then(data => {
@@ -32,6 +22,18 @@ const Parties = (props) => {
     });
   }, [props]);
 
+  useEffect(() => {
+    if (player && player.servers) {
+      partyService
+        .getAll()
+        .then(data => {
+          setParties(data.filter(p => player.servers.findIndex(s => p.serverId === s.id) !== -1));
+          setLoading(false);
+        }).catch(error => {
+          props.onError(error.response.data.detail);
+        });
+    }
+  }, [props, player]);
 
   return (
     <Grid container spacing={4}>
@@ -45,12 +47,12 @@ const Parties = (props) => {
       <Grid item xs={12}>
         { loading
           ? <PartyListSkeleton title={'New parties:'} />
-          : <PartyListContainer parties={parties.filter(p => new Date(p.endTime) > new Date())} title={'New parties:'} buttonColor={'#A4D555'} />}
+          : <PartyListContainer parties={parties.filter(p => toDate(p.endTime) > new Date())} title={'New parties:'} buttonColor={'#A4D555'} />}
       </Grid>
       <Grid item xs={12}>
         { loading
           ? <PartyListSkeleton title={'Old parties:'} />
-          : <PartyListContainer parties={parties.filter(p => new Date(p.endTime) <= new Date())} title={'Old parties:'} />}
+          : <PartyListContainer parties={parties.filter(p => toDate(p.endTime) <= new Date())} title={'Old parties:'} />}
       </Grid>
     </Grid>
   );
