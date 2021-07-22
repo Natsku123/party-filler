@@ -4,7 +4,8 @@ import logging
 from aiohttp.web import RouteTableDef, json_response
 from pydantic import ValidationError
 
-from core.database.schemas import PartyCreateWebhook, MemberJoinWebhook
+from core.database.schemas import PartyCreateWebhook, MemberJoinWebhook, \
+    PartyFullWebhook, PartyReadyWebhook
 
 from core.config import settings
 
@@ -103,6 +104,59 @@ async def webhook(request):
 
             embed.title = f"**{event.member.player.name}** " \
                           f"joined **{event.member.party.title}**!"
+
+            embed.add_field(
+                name="Players",
+                value=f"{len(event.member.party.members)}/"
+                      f"{event.member.party.max_players}"
+            )
+
+            await bot.get_channel(channel_id).send(embed=embed)
+
+        elif received_hook.get('event').get('name') == "on_party_full":
+
+            event = PartyFullWebhook.parse_obj(received_hook)
+
+            channel_id = int(event.party.channel.discord_id)
+
+            if bot.get_channel(channel_id) is None:
+                raise ValueError("Bot cannot find channel!")
+
+            embed.title = f"**{event.party.name}** " \
+                          f"is full!"
+
+            embed.description = f"**Players**:"
+
+            for member in event.party.members:
+                embed.add_field(
+                    name=member.player.name,
+                    value=member.role.name if member.role else "",
+                    inline=False
+                )
+
+            await bot.get_channel(channel_id).send(embed=embed)
+
+        elif received_hook.get('event').get('name') == "on_party_ready":
+
+            event = PartyReadyWebhook.parse_obj(received_hook)
+
+            channel_id = int(event.party.channel.discord_id)
+
+            if bot.get_channel(channel_id) is None:
+                raise ValueError("Bot cannot find channel!")
+
+            embed.title = f"**{event.party.name}** " \
+                          f"is ready!"
+
+            embed.description = f"Party minimum required players reached!" \
+                                f"\n\n**Players**:"
+
+            for member in event.party.members:
+                embed.add_field(
+                    name=member.player.name,
+                    value=member.role.name if member.role else "",
+                    inline=False
+                )
 
             await bot.get_channel(channel_id).send(embed=embed)
         else:
