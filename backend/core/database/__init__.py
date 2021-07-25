@@ -9,7 +9,7 @@ SQLALCHEMY_DATABASE_URL = "mysql+pymysql://{username}:{password}@{server}/{db}".
     username=settings.DATABASE_USER,
     password=settings.DATABASE_PASSWORD,
     server=settings.DATABASE_SERVER,
-    db=settings.DATABASE_NAME
+    db=settings.DATABASE_NAME,
 )
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
@@ -20,5 +20,3 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 class Base:
     id: Any
     __name__: str
-
-

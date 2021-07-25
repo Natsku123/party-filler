@@ -1,25 +1,33 @@
-from sqlalchemy import Boolean, \
-    Column, ForeignKey, Integer, String, Table, DateTime, Text
+from sqlalchemy import (
+    Boolean,
+    Column,
+    ForeignKey,
+    Integer,
+    String,
+    Table,
+    DateTime,
+    Text,
+)
 from sqlalchemy.orm import relationship, backref
 
 from core import Base
 
 
 player_server_association = Table(
-    'players_servers',
+    "players_servers",
     Base.metadata,
-    Column('player_id', Integer, ForeignKey('players.id')),
-    Column('server_id', Integer, ForeignKey('servers.id'))
+    Column("player_id", Integer, ForeignKey("players.id")),
+    Column("server_id", Integer, ForeignKey("servers.id")),
 )
 
 
 class OAuth2Token(Base):
-    __tablename__ = 'o_auth2_token'
+    __tablename__ = "o_auth2_token"
     token_id = Column(Integer, primary_key=True, nullable=False)
-    player_id = Column(Integer, ForeignKey('players.id'), nullable=False)
+    player_id = Column(Integer, ForeignKey("players.id"), nullable=False)
     name = Column(String(20), nullable=False)
 
-    player = relationship('Player')
+    player = relationship("Player")
 
     token_type = Column(String(20))
     access_token = Column(String(48), nullable=False)
@@ -36,33 +44,37 @@ class OAuth2Token(Base):
 
 
 class Server(Base):
-    __tablename__ = 'servers'
+    __tablename__ = "servers"
     id = Column(Integer, primary_key=True, unique=True)
     name = Column(String(255), nullable=False)
     icon = Column(String(64))
     discord_id = Column(String(64), nullable=False, unique=True)
 
-    channels = relationship('Channel', backref=backref('server', lazy=True))
-    players = relationship('Player', secondary=player_server_association, back_populates="servers")
+    channels = relationship("Channel", backref=backref("server", lazy=True))
+    players = relationship(
+        "Player", secondary=player_server_association, back_populates="servers"
+    )
 
 
 class Channel(Base):
-    __tablename__ = 'channels'
+    __tablename__ = "channels"
     id = Column(Integer, primary_key=True, unique=True)
     name = Column(String(255), nullable=False)
     discord_id = Column(String(64), nullable=False, unique=True)
-    server_id = Column(Integer, ForeignKey('servers.id'), nullable=False)
+    server_id = Column(Integer, ForeignKey("servers.id"), nullable=False)
 
 
 class Player(Base):
-    __tablename__ = 'players'
+    __tablename__ = "players"
     id = Column(Integer, primary_key=True, unique=True)
     discord_id = Column(String(64), nullable=False, unique=True)
     name = Column(String(64), nullable=False)
     discriminator = Column(String(4), nullable=False)
     icon = Column(String(64))
 
-    servers = relationship('Server', secondary=player_server_association, back_populates="players")
+    servers = relationship(
+        "Server", secondary=player_server_association, back_populates="players"
+    )
 
     def dict(self):
         return {
@@ -70,54 +82,54 @@ class Player(Base):
             "discord_id": self.discord_id,
             "name": self.name,
             "discriminator": self.discriminator,
-            "icon": self.icon
+            "icon": self.icon,
         }
 
 
 class Member(Base):
-    __tablename__ = 'members'
+    __tablename__ = "members"
     id = Column(Integer, primary_key=True, unique=True)
     player_req = Column(Integer)
-    party_id = Column(Integer, ForeignKey('parties.id'), nullable=False)
-    player_id = Column(Integer, ForeignKey('players.id'), nullable=False)
-    role_id = Column(Integer, ForeignKey('roles.id'), nullable=True)
+    party_id = Column(Integer, ForeignKey("parties.id"), nullable=False)
+    player_id = Column(Integer, ForeignKey("players.id"), nullable=False)
+    role_id = Column(Integer, ForeignKey("roles.id"), nullable=True)
 
-    party = relationship('Party', lazy="joined", back_populates="members")
-    player = relationship('Player', lazy="joined")
-    role = relationship('Role', lazy="joined")
+    party = relationship("Party", lazy="joined", back_populates="members")
+    player = relationship("Player", lazy="joined")
+    role = relationship("Role", lazy="joined")
 
 
 class Party(Base):
-    __tablename__ = 'parties'
+    __tablename__ = "parties"
     id = Column(Integer, primary_key=True, unique=True)
     title = Column(String(255), nullable=False)
-    leader_id = Column(Integer, ForeignKey('players.id'))
-    game_id = Column(Integer, ForeignKey('games.id'))
+    leader_id = Column(Integer, ForeignKey("players.id"))
+    game_id = Column(Integer, ForeignKey("games.id"))
     max_players = Column(Integer)
     min_players = Column(Integer)
     description = Column(Text())
-    channel_id = Column(Integer, ForeignKey('channels.id'))
+    channel_id = Column(Integer, ForeignKey("channels.id"))
     start_time = Column(DateTime)
     end_time = Column(DateTime)
 
-    channel = relationship('Channel', lazy="joined")
-    leader = relationship('Player', lazy="joined")
-    members = relationship('Member')
-    game = relationship('Game', lazy="joined")
+    channel = relationship("Channel", lazy="joined")
+    leader = relationship("Player", lazy="joined")
+    members = relationship("Member")
+    game = relationship("Game", lazy="joined")
 
 
 class Role(Base):
-    __tablename__ = 'roles'
+    __tablename__ = "roles"
     id = Column(Integer, primary_key=True, unique=True)
-    party_id = Column(Integer, ForeignKey('parties.id'))
+    party_id = Column(Integer, ForeignKey("parties.id"))
     name = Column(String(64))
     max_players = Column(Integer)
 
-    party = relationship('Party', backref=backref('roles', lazy=True))
+    party = relationship("Party", backref=backref("roles", lazy=True))
 
 
 class Game(Base):
-    __tablename__ = 'games'
+    __tablename__ = "games"
     id = Column(Integer, primary_key=True, unique=True)
     name = Column(String(255), nullable=False)
     default_max_players = Column(Integer)

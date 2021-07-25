@@ -33,16 +33,13 @@ class Settings(BaseSettings):
         os.environ.get("SITE_HOSTNAME", "http://localhost:3001"),
         "http://localhost",
         "http://localhost:8800",
-        "http://localhost:3001"
+        "http://localhost:3001",
     ]
 
-    SUPERUSERS: List[str] = os.environ.get(
-        "SUPERUSERS", "1234567890"
-    )
+    SUPERUSERS: List[str] = os.environ.get("SUPERUSERS", "1234567890")
 
     @validator("SUPERUSERS", pre=True)
-    def assemble_superusers(cls, v: Union[str, List[str]]) -> Union[
-        List[str], str]:
+    def assemble_superusers(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
         if isinstance(v, str) and not v.startswith("["):
             return [i.strip() for i in v.split(" ")]
         elif isinstance(v, (list, str)):

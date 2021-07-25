@@ -11,26 +11,24 @@ from core.utils import send_webhook, datetime_to_string, is_superuser
 router = APIRouter()
 
 
-@router.get('/', response_model=List[schemas.Member], tags=["members"])
+@router.get("/", response_model=List[schemas.Member], tags=["members"])
 def get_members(
-        db: Session = Depends(deps.get_db),
-        skip: int = 0,
-        limit: int = 100
+    db: Session = Depends(deps.get_db), skip: int = 0, limit: int = 100
 ) -> Any:
     return crud.member.get_multi(db, skip=skip, limit=limit)
 
 
-@router.post('/', response_model=schemas.Member, tags=["members"])
+@router.post("/", response_model=schemas.Member, tags=["members"])
 def create_member(
-        *,
-        db: Session = Depends(deps.get_db),
-        member: schemas.MemberCreate,
-        current_user: models.Player = Depends(deps.get_current_user),
-        notify: bool = False
+    *,
+    db: Session = Depends(deps.get_db),
+    member: schemas.MemberCreate,
+    current_user: models.Player = Depends(deps.get_current_user),
+    notify: bool = False,
 ) -> Any:
-    if not current_user or \
-            (current_user.id != member.player_id and
-             not is_superuser(current_user)):
+    if not current_user or (
+        current_user.id != member.player_id and not is_superuser(current_user)
+    ):
         raise HTTPException(status_code=401, detail="Not authorized")
 
     member = crud.member.create(db, obj_in=member)
@@ -42,8 +40,8 @@ def create_member(
             "channel": member.party.channel,
             "event": {
                 "name": "on_member_join",
-                "timestamp": datetime_to_string(datetime.datetime.now())
-            }
+                "timestamp": datetime_to_string(datetime.datetime.now()),
+            },
         }
         webhook = schemas.MemberJoinWebhook(**webhook_data)
         try:
@@ -52,32 +50,23 @@ def create_member(
             raise HTTPException(
                 status_code=400,
                 detail=f"Member has been added to the party, but there "
-                       f"was an error with the notification: {e}"
+                f"was an error with the notification: {e}",
             )
 
-    if member.party.channel and \
-            len(member.party.members) == member.party.max_players:
-        webhook_data = {
-            "party": member.party,
-            "event": {
-                "name": "on_party_full"
-            }
-        }
+    if member.party.channel and len(member.party.members) == member.party.max_players:
+        webhook_data = {"party": member.party, "event": {"name": "on_party_full"}}
         webhook = schemas.PartyFullWebhook(**webhook_data)
         try:
             send_webhook(webhook)
         except ValueError:
             pass
 
-    if member.party.channel and \
-            len(member.party.members) == member.party.min_players and \
-            member.party.min_players != member.party.max_players:
-        webhook_data = {
-            "party": member.party,
-            "event": {
-                "name": "on_party_ready"
-            }
-        }
+    if (
+        member.party.channel
+        and len(member.party.members) == member.party.min_players
+        and member.party.min_players != member.party.max_players
+    ):
+        webhook_data = {"party": member.party, "event": {"name": "on_party_ready"}}
         webhook = schemas.PartyReadyWebhook(**webhook_data)
         try:
             send_webhook(webhook)
@@ -87,13 +76,13 @@ def create_member(
     return member
 
 
-@router.put('/{id}', response_model=schemas.Member, tags=["members"])
+@router.put("/{id}", response_model=schemas.Member, tags=["members"])
 def update_member(
-        *,
-        db: Session = Depends(deps.get_db),
-        id: int,
-        member: schemas.MemberUpdate,
-        current_user: models.Player = Depends(deps.get_current_user)
+    *,
+    db: Session = Depends(deps.get_db),
+    id: int,
+    member: schemas.MemberUpdate,
+    current_user: models.Player = Depends(deps.get_current_user),
 ) -> Any:
     db_member = crud.member.get(db=db, id=id)
 
@@ -107,12 +96,8 @@ def update_member(
     return db_member
 
 
-@router.get('/{id}', response_model=schemas.Member, tags=["members"])
-def get_member(
-        *,
-        db: Session = Depends(deps.get_db),
-        id: int
-) -> Any:
+@router.get("/{id}", response_model=schemas.Member, tags=["members"])
+def get_member(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     member = crud.member.get(db=db, id=id)
 
     if not member:
@@ -121,12 +106,12 @@ def get_member(
     return member
 
 
-@router.delete('/{id}', response_model=schemas.Member, tags=["members"])
+@router.delete("/{id}", response_model=schemas.Member, tags=["members"])
 def delete_member(
-        *,
-        db: Session = Depends(deps.get_db),
-        id: int,
-        current_user: models.Player = Depends(deps.get_current_user)
+    *,
+    db: Session = Depends(deps.get_db),
+    id: int,
+    current_user: models.Player = Depends(deps.get_current_user),
 ) -> Any:
     member = crud.member.get(db=db, id=id)
 
