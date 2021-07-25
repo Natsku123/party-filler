@@ -21,50 +21,6 @@ env:
 
 
 jobs:
-  black-bot:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.8]
-    defaults:
-      run:
-        working-directory: ./bot
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install black
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Run code formatter Black
-        run: black .
-      
-  black-backend:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.8]
-    defaults:
-      run:
-        working-directory: ./backend
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install black
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Run code formatter Black
-        run: black .
-    
   eslint:
     runs-on: ubuntu-latest
     name: Frontend Eslint
@@ -78,7 +34,6 @@ jobs:
       - name: Run ESLint
         run: npm run lint "src/**/*.js"
   pylint-bot:
-    needs: [black-bot]
     runs-on: ubuntu-latest
     name: Bot Pylint
     strategy:
@@ -106,7 +61,6 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
           
   pylint-backend:
-    needs: [black-backend]
     runs-on: ubuntu-latest
     name: Backend Pylint
     strategy:
