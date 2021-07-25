@@ -78,6 +78,7 @@ jobs:
       - name: Run ESLint
         run: npm run lint "src/**/*.js"
   pylint-bot:
+    needs: [black-bot]
     runs-on: ubuntu-latest
     name: Bot Pylint
     strategy:
@@ -105,6 +106,7 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
           
   pylint-backend:
+    needs: [black-backend]
     runs-on: ubuntu-latest
     name: Backend Pylint
     strategy:
