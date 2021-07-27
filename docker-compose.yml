@@ -13,6 +13,7 @@ services:
       - "./bot/files:/files"
     ports:
       - "9080:9080"
+
   backend:
     build:
       context: ./backend
@@ -35,6 +36,22 @@ services:
       - "./backend:/app"
     ports:
       - "8800:80"
+    depends_on:
+      - redis
+      - db
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile-worker
+    volumes:
+      - "./backend:/app"
+    depends_on:
+      - redis
+      - backend
+
+  redis:
+    image: redis:alpine
+
   db:
     image: mysql/mysql-server:latest
     restart: always
