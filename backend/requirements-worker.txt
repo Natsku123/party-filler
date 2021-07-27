@@ -1,0 +1,16 @@
+redis
+fastapi
+uvicorn
+sqlalchemy
+alembic
+pytz
+requests
+pymysql
+cryptography
+authlib
+itsdangerous
+httpx
+celery
+python-dateutil
+pydantic
+starlette

@@ -4,8 +4,8 @@ WORKDIR /app
 
 RUN pip install --upgrade pip
 COPY ./requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install -r requirements-worker.txt
 
 COPY . .
 
-CMD ["celery", "worker", "--app=worker.app", "--loglevel=info"]
+CMD ["celery", "--app=worker.app", "worker", "--loglevel=info"]
