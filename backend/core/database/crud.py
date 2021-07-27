@@ -193,6 +193,20 @@ class CRUDParty(CRUDBase[models.Party, schemas.PartyCreate, schemas.PartyUpdate]
         db.refresh(db_obj)
         return db_obj
 
+    def lock(self, db: Session, *, db_obj: ModelType) -> ModelType:
+        """
+        Lock Party
+
+        :param db: Database Session
+        :param db_obj: Party instance
+        """
+        db_obj.locked = True
+
+        db.add(db_obj)
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
+
 
 class CRUDServer(CRUDBase[models.Server, schemas.ServerCreate, schemas.ServerUpdate]):
     def get_by_discord_id(self, db: Session, *, discord_id: str) -> models.Server:
