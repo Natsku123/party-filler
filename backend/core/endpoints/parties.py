@@ -6,37 +6,39 @@ from sqlalchemy.orm import Session
 
 from core import deps
 from core.database import crud, models, schemas
-from core.utils import send_webhook, datetime_to_string, is_superuser
+from core.utils import datetime_to_string, is_superuser
+
+from worker import send_webhook
 
 router = APIRouter()
 
 
-@router.get('/', response_model=List[schemas.Party], tags=["parties"])
+@router.get("/", response_model=List[schemas.Party], tags=["parties"])
 def get_parties(
-        db: Session = Depends(deps.get_db),
-        skip: int = 0,
-        limit: int = 100
+    db: Session = Depends(deps.get_db), skip: int = 0, limit: int = 100
 ) -> Any:
     return crud.party.get_multi(db, skip=skip, limit=limit)
 
 
-@router.post('/', response_model=schemas.Party, tags=["parties"])
+@router.post("/", response_model=schemas.Party, tags=["parties"])
 def create_party(
-        *,
-        db: Session = Depends(deps.get_db),
-        party: schemas.PartyCreate,
-        current_user: models.Player = Depends(deps.get_current_user),
-        notify: bool = Query(False)
+    *,
+    db: Session = Depends(deps.get_db),
+    party: schemas.PartyCreate,
+    current_user: models.Player = Depends(deps.get_current_user),
+    notify: bool = Query(False),
 ) -> Any:
     if not current_user:
         raise HTTPException(status_code=401, detail="Not authorized")
     party = crud.party.create(db, obj_in=party)
 
     # Create leader as member
-    leader_member = schemas.MemberCreate(**{
-        "party_id": party.id,
-        "player_id": party.leader_id,
-    })
+    leader_member = schemas.MemberCreate(
+        **{
+            "party_id": party.id,
+            "player_id": party.leader_id,
+        }
+    )
     crud.member.create(db, obj_in=leader_member)
     db.refresh(party)
 
@@ -46,28 +48,23 @@ def create_party(
             "party": party,
             "event": {
                 "name": "on_party_create",
-                "timestamp": datetime.datetime.now()
-            }
+                "timestamp": datetime_to_string(datetime.datetime.now()),
+            },
         }
         webhook = schemas.PartyCreateWebhook(**webhook_data)
-        try:
-            send_webhook(webhook)
-        except ValueError as e:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Party was created but the notification failed: {e}"
-            )
+
+        send_webhook.delay("http://bot:9080/webhook", webhook)
 
     return party
 
 
-@router.put('/{id}', response_model=schemas.Party, tags=["parties"])
+@router.put("/{id}", response_model=schemas.Party, tags=["parties"])
 def update_party(
-        *,
-        db: Session = Depends(deps.get_db),
-        id: int,
-        party: schemas.PlayerUpdate,
-        current_user: models.Player = Depends(deps.get_current_user)
+    *,
+    db: Session = Depends(deps.get_db),
+    id: int,
+    party: schemas.PlayerUpdate,
+    current_user: models.Player = Depends(deps.get_current_user),
 ) -> Any:
     db_party = crud.party.get(db=db, id=id)
 
@@ -81,11 +78,11 @@ def update_party(
     return db_party
 
 
-@router.get('/{id}', response_model=schemas.Party, tags=["parties"])
+@router.get("/{id}", response_model=schemas.Party, tags=["parties"])
 def get_party(
-        *,
-        db: Session = Depends(deps.get_db),
-        id: int,
+    *,
+    db: Session = Depends(deps.get_db),
+    id: int,
 ) -> Any:
     party = crud.party.get(db=db, id=id)
 
@@ -95,12 +92,12 @@ def get_party(
     return party
 
 
-@router.delete('/{id}', response_model=schemas.Party, tags=["parties"])
+@router.delete("/{id}", response_model=schemas.Party, tags=["parties"])
 def delete_party(
-        *,
-        db: Session = Depends(deps.get_db),
-        id: int,
-        current_user: models.Player = Depends(deps.get_current_user)
+    *,
+    db: Session = Depends(deps.get_db),
+    id: int,
+    current_user: models.Player = Depends(deps.get_current_user),
 ) -> Any:
     party = crud.party.get(db=db, id=id)
 
@@ -116,22 +113,14 @@ def delete_party(
 
 
 @router.get(
-    '/{id}/players',
-    response_model=List[schemas.Member],
-    tags=["parties", "members"]
+    "/{id}/players", response_model=List[schemas.Member], tags=["parties", "members"]
 )
 def get_members(
-        *,
-        db: Session = Depends(deps.get_db),
-        id: int,
-        skip: int = 0,
-        limit: int = 100
+    *, db: Session = Depends(deps.get_db), id: int, skip: int = 0, limit: int = 100
 ) -> Any:
     party = crud.party.get(db=db, id=id)
 
     if not party:
         raise HTTPException(status_code=404, detail="Party not found")
 
-    return crud.member.get_multi_by_party(
-        db, party_id=id, skip=skip, limit=limit
-    )
+    return crud.member.get_multi_by_party(db, party_id=id, skip=skip, limit=limit)

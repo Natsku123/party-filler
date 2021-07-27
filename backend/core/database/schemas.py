@@ -389,6 +389,11 @@ class PartyReadyWebhook(BaseModel):
     event: "WebhookEvent" = Field(..., description="Event info")
 
 
+class PartyTimedoutWebhook(BaseModel):
+    party: "Party" = (Field(..., description="Party that timed out"),)
+    event: "WebhookEvent" = Field(..., description="Event info")
+
+
 class IsSuperUser(BaseModel):
     is_superuser: bool = Field(
         ..., alias="isSuperuser", description="Is current user superuser"
