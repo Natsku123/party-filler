@@ -15,10 +15,8 @@ from core.database.crud import party as crud_party
 from core.database import schemas
 
 app = Celery(__name__)
-app.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379")
-app.conf.result_backend = os.environ.get(
-    "CELERY_RESULT_BACKEND", "redis://localhost:6379"
-)
+app.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://redis:6379")
+app.conf.result_backend = os.environ.get("CELERY_RESULT_BACKEND", "redis://redis:6379")
 
 db_session = scoped_session(SessionLocal)
 
@@ -55,22 +53,22 @@ def check_party_timeout():
         webhook = schemas.PartyTimedoutWebhook(**webhook_data)
 
         # Send timeout webhook
-        send_webhook.delay("http://bot:9080/webhook", webhook)
+        send_webhook.delay("http://bot:9080/webhook", webhook.json())
 
         # Lock party
         crud_party.lock(db_session, db_obj=party)
 
 
 @app.task
-def send_webhook(url: str, data: Union[dict, str, BaseModel]):
+def send_webhook(url: str, data: Union[dict, str]):
     """ """
     if isinstance(data, dict):
         content = json.dumps(data)
     elif isinstance(data, str):
         content = data
-    elif isinstance(data, BaseModel):
-        content = data.json()
     else:
         raise ValueError("Cannot parse data")
 
-    return requests.post(url, data=content)
+    res = requests.post(url, data=content)
+
+    return {"status": res.status_code, "data": res.json()}

@@ -47,13 +47,13 @@ def create_member(
         }
         webhook = schemas.MemberJoinWebhook(**webhook_data)
 
-        send_webhook.delay("http://bot:9080/webhook", webhook)
+        send_webhook.delay("http://bot:9080/webhook", webhook.json())
 
     if member.party.channel and len(member.party.members) == member.party.max_players:
         webhook_data = {"party": member.party, "event": {"name": "on_party_full"}}
         webhook = schemas.PartyFullWebhook(**webhook_data)
 
-        send_webhook.delay("http://bot:9080/webhook", webhook)
+        send_webhook.delay("http://bot:9080/webhook", webhook.json())
 
     if (
         member.party.channel
@@ -63,7 +63,7 @@ def create_member(
         webhook_data = {"party": member.party, "event": {"name": "on_party_ready"}}
         webhook = schemas.PartyReadyWebhook(**webhook_data)
 
-        send_webhook.delay("http://bot:9080/webhook", webhook)
+        send_webhook.delay("http://bot:9080/webhook", webhook.json())
 
     return member
 

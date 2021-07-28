@@ -1,8 +1,9 @@
 # Development dockerfile
 
-FROM natsku/uvicorn-gunicorn:python3.8-alpine3.12
+#FROM natsku/uvicorn-gunicorn:python3.8-alpine3.12
+FROM tiangolo/uvicorn-gunicorn:python3.8-slim
 
-RUN apk --update add build-base bash nano gcc musl-dev python3-dev libffi-dev openssl-dev mysql-client curl cargo && rm -rf /var/cache/apk/*
+#RUN apk --update add build-base bash nano gcc musl-dev python3-dev libffi-dev openssl-dev mysql-client curl cargo && rm -rf /var/cache/apk/*
 
 COPY . /app
 

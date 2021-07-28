@@ -53,7 +53,7 @@ def create_party(
         }
         webhook = schemas.PartyCreateWebhook(**webhook_data)
 
-        send_webhook.delay("http://bot:9080/webhook", webhook)
+        send_webhook.delay("http://bot:9080/webhook", webhook.json())
 
     return party
 

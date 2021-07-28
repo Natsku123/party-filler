@@ -13,3 +13,4 @@ celery
 python-dateutil
 pydantic
 starlette
+redis

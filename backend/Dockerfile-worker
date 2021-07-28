@@ -4,8 +4,10 @@ WORKDIR /app
 
 RUN pip install --upgrade pip
 COPY ./requirements.txt .
-RUN pip install -r requirements-worker.txt
+RUN pip install -r requirements.txt
 
 COPY . .
+
+ENV C_FORCE_ROOT=1
 
 CMD ["celery", "--app=worker.app", "worker", "--loglevel=info"]
