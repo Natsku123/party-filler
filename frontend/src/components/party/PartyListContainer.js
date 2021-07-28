@@ -13,6 +13,8 @@ import {
 
 import { Link } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
+import { toDate } from '../DatetimeTools';
+import Moment from 'react-moment';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -59,13 +61,6 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const dateFormat = (date) => {
-  const parsed = new Date(date);
-  const a = parsed.toTimeString().split(':');
-  a.pop();
-  return `${a.join(':')} ${parsed.toLocaleDateString()}`;
-};
-
 export const PartyListContainer = ({ parties, title, buttonColor = '#88B8D6' }) => {
   const ShowButton = withStyles({
     root: {
@@ -109,7 +104,7 @@ export const PartyListContainer = ({ parties, title, buttonColor = '#88B8D6' }) 
                 <TableCell className={classes.bodyText} style={padding}>{party.title}</TableCell>
                 <TableCell className={classes.bodyText} style={padding}>{party.game.name}</TableCell>
                 <TableCell className={classes.bodyText} style={padding}>{`${party.members.length}`}</TableCell>
-                <TableCell className={classes.bodyText} style={padding}>{dateFormat(party.endTime)}</TableCell>
+                <TableCell className={classes.bodyText} style={padding}><Moment local calendar>{toDate(party.endTime)}</Moment></TableCell>
                 <TableCell className={classes.bodyText} style={padding}>
                   <ShowButton component={Link} to={`/parties/${party.id}`} variant='contained' type='button'>show</ShowButton>
                 </TableCell>

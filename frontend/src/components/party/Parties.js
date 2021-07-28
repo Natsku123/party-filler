@@ -27,7 +27,7 @@ const Parties = (props) => {
       partyService
         .getAll()
         .then(data => {
-          setParties(data.filter(p => player.servers.findIndex(s => p.serverId === s.id) !== -1));
+          setParties(data.filter(p => player.servers.findIndex(s => !p.channel || p.channel.server.id === s.id) !== -1));
           setLoading(false);
         }).catch(error => {
           props.onError(error.response.data.detail);
@@ -41,7 +41,7 @@ const Parties = (props) => {
         { player && <>
           { loading
             ? <PartyListSkeleton title={'Your active parties:'} />
-            : <PartyListContainer parties={parties.filter(p => p.members.findIndex(m => m.playerId === player.id) !== -1).filter(p => new Date(p.endTime) > new Date())} title={'Your active parties:'} />}
+            : <PartyListContainer parties={parties.filter(p => p.members.findIndex(m => m.playerId === player.id) !== -1).filter(p => toDate(p.endTime) > new Date())} title={'Your active parties:'} />}
         </>}
       </Grid>
       <Grid item xs={12}>
