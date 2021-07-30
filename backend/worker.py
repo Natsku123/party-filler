@@ -5,6 +5,8 @@ from abc import ABC
 
 import requests
 from celery import Celery, Task
+from celery.schedules import crontab
+
 from pydantic import BaseModel
 from typing import Union
 
@@ -35,7 +37,7 @@ class SqlAlchemyTask(Task, ABC):
 def setup_periodic_tasks(sender, **kwargs):
 
     # Check party status and send webhooks
-    sender.add_periodic_task(60.0, check_party_timeout.s())
+    sender.add_periodic_task(crontab(), check_party_timeout.s())
 
 
 @app.task(base=SqlAlchemyTask)
@@ -44,7 +46,7 @@ def check_party_timeout():
     # Get parties that are not locked and have timed out
     parties = crud_party.get_multi(
         db_session,
-        limit=crud_party.count(),
+        limit=crud_party.get_count(db_session),
         filters={"end_time__le": datetime.datetime.now(), "locked": False},
     )
 

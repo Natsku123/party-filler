@@ -23,6 +23,7 @@ services:
       DB_NAME: ${DATABASE}
       DB_USER: ${DB_USER}
       DB_PASS: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST:-db}
       DISCORD_CLIENT_ID: ${CLIENT_ID}
       DISCORD_CLIENT_SECRET: ${CLIENT_SECRET}
       BOT_TOKEN: ${BOT_TOKEN}
@@ -41,6 +42,11 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile-worker
+    environment:
+      DB_NAME: ${DATABASE}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST:-db}
     volumes:
       - "./backend:/app"
     depends_on:
