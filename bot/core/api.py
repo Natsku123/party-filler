@@ -13,6 +13,7 @@ from core.database.schemas import (
 )
 
 from core.config import settings
+from core.utils import discord_avatar_url
 
 
 routes = RouteTableDef()
@@ -71,13 +72,20 @@ async def webhook(request):
             if bot.get_channel(channel_id) is None:
                 raise ValueError("Bot cannot find channel!")
 
+            embed.set_author(
+                name=event.party.leader.name,
+                icon_url=discord_avatar_url(
+                    event.party.leader, support_gifs=True, size=4096
+                ),
+                url=settings.SITE_HOSTNAME,
+            )
+
             embed.title = f"***{event.party.leader.name}*** is looking for more players to play ***{event.party.game.name}***!"
 
             # Cut description if too long
             if len(event.party.description) > 1000:
                 event.party.description = event.party.description[:1000] + "..."
 
-            # TODO add join link
             embed.description = (
                 f"**{event.party.title}**\n"
                 f"{event.party.description}\n"
@@ -108,6 +116,14 @@ async def webhook(request):
             if bot.get_channel(channel_id) is None:
                 raise ValueError("Bot cannot find channel!")
 
+            embed.set_author(
+                name=event.member.player.name,
+                icon_url=discord_avatar_url(
+                    event.member.player, support_gifs=True, size=4096
+                ),
+                url=settings.SITE_HOSTNAME,
+            )
+
             embed.title = (
                 f"**{event.member.player.name}** "
                 f"joined **{event.member.party.title}**!"
@@ -130,6 +146,14 @@ async def webhook(request):
             if bot.get_channel(channel_id) is None:
                 raise ValueError("Bot cannot find channel!")
 
+            embed.set_author(
+                name=event.party.leader.name,
+                icon_url=discord_avatar_url(
+                    event.party.leader, support_gifs=True, size=4096
+                ),
+                url=settings.SITE_HOSTNAME,
+            )
+
             embed.title = f"**{event.party.title}** is full!"
 
             embed.description = f"**Players**:"
@@ -151,6 +175,14 @@ async def webhook(request):
 
             if bot.get_channel(channel_id) is None:
                 raise ValueError("Bot cannot find channel!")
+
+            embed.set_author(
+                name=event.party.leader.name,
+                icon_url=discord_avatar_url(
+                    event.party.leader, support_gifs=True, size=4096
+                ),
+                url=settings.SITE_HOSTNAME,
+            )
 
             embed.title = f"**{event.party.title}** is ready!"
 
@@ -175,6 +207,14 @@ async def webhook(request):
 
             if bot.get_channel(channel_id) is None:
                 raise ValueError("Bot cannot find channel!")
+
+            embed.set_author(
+                name=event.party.leader.name,
+                icon_url=discord_avatar_url(
+                    event.party.leader, support_gifs=True, size=4096
+                ),
+                url=settings.SITE_HOSTNAME,
+            )
 
             embed.title = f"**{event.party.title}** timed out! :/"
 
