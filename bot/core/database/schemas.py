@@ -229,7 +229,7 @@ class Party(PartyBase):
     id: int = Field(..., description="ID of party")
     channel: Optional["Channel"] = Field(None, description="Channel object")
     leader: "PlayerShort" = Field(..., description="Player object of leader")
-    members: List["MemberShort"] = Field([], description="Member objects of party")
+    members: List["Member"] = Field([], description="Member objects of party")
     game: "GameShort" = Field(None, description="Game object")
 
     class Config:

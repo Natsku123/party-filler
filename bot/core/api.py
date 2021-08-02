@@ -130,7 +130,7 @@ async def webhook(request):
             if bot.get_channel(channel_id) is None:
                 raise ValueError("Bot cannot find channel!")
 
-            embed.title = f"**{event.party.name}** " f"is full!"
+            embed.title = f"**{event.party.title}** is full!"
 
             embed.description = f"**Players**:"
 
@@ -152,7 +152,7 @@ async def webhook(request):
             if bot.get_channel(channel_id) is None:
                 raise ValueError("Bot cannot find channel!")
 
-            embed.title = f"**{event.party.name}** " f"is ready!"
+            embed.title = f"**{event.party.title}** is ready!"
 
             embed.description = (
                 f"Party minimum required players reached!" f"\n\n**Players**:"
@@ -176,14 +176,23 @@ async def webhook(request):
             if bot.get_channel(channel_id) is None:
                 raise ValueError("Bot cannot find channel!")
 
-            embed.title = f"**{event.party.name}** " f"timed out! :/"
+            embed.title = f"**{event.party.title}** timed out! :/"
 
             embed.description = f"\n\n**Players**:"
 
             for member in event.party.members:
+                if member.role and event.party.leader_id == member.player_id:
+                    member_value = f"Leader - {member.role.name}"
+                elif event.party.leader_id == member.player_id:
+                    member_value = "Leader"
+                elif member.role:
+                    member_value = f"Member - {member.role.name}"
+                else:
+                    member_value = "Member"
+
                 embed.add_field(
                     name=member.player.name,
-                    value=member.role.name if member.role else "",
+                    value=member_value,
                     inline=False,
                 )
 

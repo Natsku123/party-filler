@@ -73,4 +73,4 @@ def send_webhook(url: str, data: Union[dict, str]):
 
     res = requests.post(url, data=content)
 
-    return {"status": res.status_code, "data": res.json()}
+    return {"status": res.status_code, "data": res.text}
