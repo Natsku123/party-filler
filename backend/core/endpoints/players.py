@@ -11,10 +11,9 @@ from core.utils import is_superuser
 router = APIRouter()
 
 
-@router.get('/', response_model=schemas.Player, tags=["players"])
+@router.get("/", response_model=schemas.Player, tags=["players"])
 def get_current_player(
-        *,
-        current_user: models.Player = Depends(deps.get_current_user)
+    *, current_user: models.Player = Depends(deps.get_current_user)
 ) -> Any:
     if not current_user:
         raise HTTPException(status_code=401, detail="Not authorized")
@@ -22,25 +21,22 @@ def get_current_player(
     return current_user
 
 
-@router.get('/superuser', response_model=schemas.IsSuperUser, tags=["players"])
+@router.get("/superuser", response_model=schemas.IsSuperUser, tags=["players"])
 def get_is_superuser(
-        *,
-        current_user: models.Player = Depends(deps.get_current_user)
+    *, current_user: models.Player = Depends(deps.get_current_user)
 ) -> Any:
     if not current_user:
         raise HTTPException(status_code=401, detail="Not authorized")
 
-    data = {
-        "isSuperuser": is_superuser(current_user)
-    }
+    data = {"isSuperuser": is_superuser(current_user)}
     return schemas.IsSuperUser(**data)
 
 
-@router.get('/channels', response_model=List[schemas.Channel], tags=["channels"])
+@router.get("/channels", response_model=List[schemas.Channel], tags=["channels"])
 def get_visible_channels(
-        *,
-        db: Session = Depends(deps.get_db),
-        current_user: models.Player = Depends(deps.get_current_user)
+    *,
+    db: Session = Depends(deps.get_db),
+    current_user: models.Player = Depends(deps.get_current_user)
 ) -> Any:
     servers = current_user.servers
     server_ids = []
@@ -50,12 +46,8 @@ def get_visible_channels(
     return channels
 
 
-@router.get('/{id}', response_model=schemas.Player, tags=["players"])
-def get_player(
-        *,
-        db: Session = Depends(deps.get_db),
-        id: int
-) -> Any:
+@router.get("/{id}", response_model=schemas.Player, tags=["players"])
+def get_player(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     player = crud.player.get(db=db, id=id)
 
     if not player:
@@ -64,13 +56,13 @@ def get_player(
     return player
 
 
-@router.put('/{id}', response_model=schemas.Player, tags=["players"])
+@router.put("/{id}", response_model=schemas.Player, tags=["players"])
 def update_player(
-        *,
-        db: Session = Depends(deps.get_db),
-        id: int,
-        player: schemas.PlayerUpdate,
-        current_user: models.Player = Depends(deps.get_current_user)
+    *,
+    db: Session = Depends(deps.get_db),
+    id: int,
+    player: schemas.PlayerUpdate,
+    current_user: models.Player = Depends(deps.get_current_user)
 ) -> Any:
     db_player = crud.player.get(db=db, id=id)
 
@@ -84,12 +76,12 @@ def update_player(
     return db_player
 
 
-@router.put('/{id}', response_model=schemas.Player, tags=["players"])
+@router.put("/{id}", response_model=schemas.Player, tags=["players"])
 def update_player(
-        *,
-        db: Session = Depends(deps.get_db),
-        id: int,
-        current_user: models.Player = Depends(deps.get_current_user)
+    *,
+    db: Session = Depends(deps.get_db),
+    id: int,
+    current_user: models.Player = Depends(deps.get_current_user)
 ) -> Any:
     db_player = crud.player.get(db=db, id=id)
 
@@ -99,46 +91,50 @@ def update_player(
     if db_player.id != current_user.id and not is_superuser(current_user):
         raise HTTPException(status_code=401, detail="Not authorized")
 
-    resp = main.oauth.discord.get('users/@me')
+    resp = main.oauth.discord.get("users/@me")
     profile = resp.json()
 
-    if 'code' not in profile:
+    if "code" not in profile:
         # Update player info
         player = schemas.PlayerUpdate(
             **{
-                "name": profile.get('username'),
-                "discriminator": profile.get('discriminator'),
-                "icon": profile.get('avatar')
+                "name": profile.get("username"),
+                "discriminator": profile.get("discriminator"),
+                "icon": profile.get("avatar"),
             }
         )
 
         db_player = crud.player.update(db, db_obj=db_player, obj_in=player)
 
         # Get servers that Player uses
-        guilds = main.oauth.discord.get('users/@me/guilds')
+        guilds = main.oauth.discord.get("users/@me/guilds")
 
         # Create new servers if doesn't already exist or update existing
         for guild in guilds.json():
-            server = crud.server.get_by_discord_id(
-                db, discord_id=guild.get('id')
-            )
+            server = crud.server.get_by_discord_id(db, discord_id=guild.get("id"))
 
             if server is None:
-                server_obj = schemas.ServerCreate(**{
-                    "name": guild.get('name'),
-                    "icon": guild.get('icon'),
-                    "discordId": guild.get('id')
-                })
+                server_obj = schemas.ServerCreate(
+                    **{
+                        "name": guild.get("name"),
+                        "icon": guild.get("icon"),
+                        "discordId": guild.get("id"),
+                    }
+                )
 
                 server = crud.server.create(db, obj_in=server_obj)
                 db_player.servers.append(server)
 
-            elif server.name != guild.get('name', server.name) or server.icon != guild.get('icon', server.icon):
-                server_obj = schemas.ServerUpdate(**{
-                    "name": guild.get('name'),
-                    "icon": guild.get('icon'),
-                    "discordId": guild.get('id')
-                })
+            elif server.name != guild.get(
+                "name", server.name
+            ) or server.icon != guild.get("icon", server.icon):
+                server_obj = schemas.ServerUpdate(
+                    **{
+                        "name": guild.get("name"),
+                        "icon": guild.get("icon"),
+                        "discordId": guild.get("id"),
+                    }
+                )
 
                 server = crud.server.update(db, db_obj=server, obj_in=server_obj)
 
@@ -146,12 +142,12 @@ def update_player(
         db.refresh(db_player)
 
 
-@router.delete('/{id}', response_model=schemas.Player, tags=["players"])
+@router.delete("/{id}", response_model=schemas.Player, tags=["players"])
 def delete_player(
-        *,
-        db: Session = Depends(deps.get_db),
-        id: int,
-        current_user: models.Player = Depends(deps.get_current_user)
+    *,
+    db: Session = Depends(deps.get_db),
+    id: int,
+    current_user: models.Player = Depends(deps.get_current_user)
 ) -> Any:
     player = crud.player.get(db=db, id=id)
 

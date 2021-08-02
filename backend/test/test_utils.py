@@ -17,22 +17,12 @@ def test_camel_to_snake():
 def test_snake_dict_to_camel():
     snake_dict = {
         "very_nice": {
-            "much_deep": {
-                "whoah": "asd",
-                "very_nicu": "hei",
-                "kappa_mui": "hui"
-            }
+            "much_deep": {"whoah": "asd", "very_nicu": "hei", "kappa_mui": "hui"}
         }
     }
 
     right_camel = {
-        "veryNice": {
-            "muchDeep": {
-                "whoah": "asd",
-                "veryNicu": "hei",
-                "kappaMui": "hui"
-            }
-        }
+        "veryNice": {"muchDeep": {"whoah": "asd", "veryNicu": "hei", "kappaMui": "hui"}}
     }
 
     camel_dict = snake_dict_to_camel(snake_dict)
@@ -42,22 +32,12 @@ def test_snake_dict_to_camel():
 def test_camel_dict_to_snake():
     right_snake = {
         "very_nice": {
-            "much_deep": {
-                "whoah": "asd",
-                "very_nicu": "hei",
-                "kappa_mui": "hui"
-            }
+            "much_deep": {"whoah": "asd", "very_nicu": "hei", "kappa_mui": "hui"}
         }
     }
 
     camel_dict = {
-        "veryNice": {
-            "muchDeep": {
-                "whoah": "asd",
-                "veryNicu": "hei",
-                "kappaMui": "hui"
-            }
-        }
+        "veryNice": {"muchDeep": {"whoah": "asd", "veryNicu": "hei", "kappaMui": "hui"}}
     }
 
     snake_dict = camel_dict_to_snake(camel_dict)
@@ -79,11 +59,7 @@ def test_camel_to_camel():
 def test_snake_dict_to_snake():
     snake_dict = {
         "very_nice": {
-            "much_deep": {
-                "whoah": "asd",
-                "very_nicu": "hei",
-                "kappa_mui": "hui"
-            }
+            "much_deep": {"whoah": "asd", "very_nicu": "hei", "kappa_mui": "hui"}
         }
     }
 
@@ -93,13 +69,7 @@ def test_snake_dict_to_snake():
 
 def test_camel_dict_to_camel():
     camel_dict = {
-        "veryNice": {
-            "muchDeep": {
-                "whoah": "asd",
-                "veryNicu": "hei",
-                "kappaMui": "hui"
-            }
-        }
+        "veryNice": {"muchDeep": {"whoah": "asd", "veryNicu": "hei", "kappaMui": "hui"}}
     }
 
     new_camel_dict = snake_dict_to_camel(camel_dict_to_snake(camel_dict))
@@ -117,33 +87,23 @@ def test_no_change():
 
     snake_dict = {
         "very_nice": {
-            "much_deep": {
-                "whoah": "asd",
-                "very_nicu": "hei",
-                "kappa_mui": "hui"
-            }
+            "much_deep": {"whoah": "asd", "very_nicu": "hei", "kappa_mui": "hui"}
         }
     }
     new_snake_dict = camel_dict_to_snake(snake_dict)
     assert snake_dict == new_snake_dict
 
     camel_dict = {
-        "veryNice": {
-            "muchDeep": {
-                "whoah": "asd",
-                "veryNicu": "hei",
-                "kappaMui": "hui"
-            }
-        }
+        "veryNice": {"muchDeep": {"whoah": "asd", "veryNicu": "hei", "kappaMui": "hui"}}
     }
     new_camel_dict = snake_dict_to_camel(camel_dict)
     assert camel_dict == new_camel_dict
 
 
 def test_is_superuser():
-    response = client.get('/players/superuser')
+    response = client.get("/players/superuser")
     assert response.status_code == 200, response.text
 
     data = response.json()
 
-    assert data['isSuperuser']
+    assert data["isSuperuser"]

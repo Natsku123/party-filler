@@ -10,34 +10,32 @@ from core.utils import is_superuser
 router = APIRouter()
 
 
-@router.get('/', response_model=List[schemas.Game], tags=["games"])
+@router.get("/", response_model=List[schemas.Game], tags=["games"])
 def get_games(
-        db: Session = Depends(deps.get_db),
-        skip: int = 0,
-        limit: int = 100
+    db: Session = Depends(deps.get_db), skip: int = 0, limit: int = 100
 ) -> Any:
     return crud.game.get_multi(db, skip=skip, limit=limit)
 
 
-@router.post('/', response_model=schemas.Game, tags=['games'])
+@router.post("/", response_model=schemas.Game, tags=["games"])
 def create_game(
-        *,
-        db: Session = Depends(deps.get_db),
-        game: schemas.GameCreate,
-        current_user: models.Player = Depends(deps.get_current_user)
+    *,
+    db: Session = Depends(deps.get_db),
+    game: schemas.GameCreate,
+    current_user: models.Player = Depends(deps.get_current_user)
 ) -> Any:
     if not current_user:
         raise HTTPException(status_code=401, detail="Not authorized")
     return crud.game.create(db, obj_in=game)
 
 
-@router.put('/{id}', response_model=schemas.Game, tags=["games"])
+@router.put("/{id}", response_model=schemas.Game, tags=["games"])
 def update_game(
-        *,
-        db: Session = Depends(deps.get_db),
-        id: int,
-        game: schemas.GameUpdate,
-        current_user: models.Player = Depends(deps.get_current_user)
+    *,
+    db: Session = Depends(deps.get_db),
+    id: int,
+    game: schemas.GameUpdate,
+    current_user: models.Player = Depends(deps.get_current_user)
 ) -> Any:
     db_game = crud.game.get(db=db, id=id)
 
@@ -51,12 +49,8 @@ def update_game(
     return db_game
 
 
-@router.get('/{id}', response_model=schemas.Game, tags=["games"])
-def get_game(
-        *,
-        db: Session = Depends(deps.get_db),
-        id: int
-) -> Any:
+@router.get("/{id}", response_model=schemas.Game, tags=["games"])
+def get_game(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     game = crud.game.get(db=db, id=id)
 
     if not game:
@@ -65,12 +59,12 @@ def get_game(
     return game
 
 
-@router.delete('/{id}', response_model=schemas.Game, tags=["games"])
+@router.delete("/{id}", response_model=schemas.Game, tags=["games"])
 def delete_game(
-        *,
-        db: Session = Depends(deps.get_db),
-        id: int,
-        current_user: models.Player = Depends(deps.get_current_user)
+    *,
+    db: Session = Depends(deps.get_db),
+    id: int,
+    current_user: models.Player = Depends(deps.get_current_user)
 ) -> Any:
     game = crud.game.get(db=db, id=id)
 
@@ -83,4 +77,3 @@ def delete_game(
     crud.game.remove(db=db, id=id)
 
     return game
-

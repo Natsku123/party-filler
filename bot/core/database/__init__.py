@@ -4,8 +4,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 
-DATABASE_URL = f"mysql+pymysql://{settings.DB_USER}:{settings.DB_PASS}@" \
-               f"{settings.DB_HOST}/{settings.DB_NAME}?charset=utf8mb4"
+DATABASE_URL = (
+    f"mysql+pymysql://{settings.DB_USER}:{settings.DB_PASS}@"
+    f"{settings.DB_HOST}/{settings.DB_NAME}?charset=utf8mb4"
+)
 
 engine = create_engine(DATABASE_URL)
 
