@@ -55,6 +55,8 @@ def create_member(
 
         send_webhook.delay("http://bot:9080/webhook", webhook.json())
 
+        crud.party.lock(db, crud.party.get(db, member.party_id))
+
     if (
         member.party.channel
         and len(member.party.members) == member.party.min_players
@@ -64,6 +66,8 @@ def create_member(
         webhook = schemas.PartyReadyWebhook(**webhook_data)
 
         send_webhook.delay("http://bot:9080/webhook", webhook.json())
+
+        crud.party.lock(db, crud.party.get(db, member.party_id))
 
     return member
 
