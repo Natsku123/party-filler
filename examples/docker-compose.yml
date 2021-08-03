@@ -1,0 +1,100 @@
+version: "3.3"
+services:
+  traefik:
+    image: traefik:latest
+    network_mode: host                                     # Optional but may help logging and fail2ban implementation
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /srv/docker/traefik/traefik.yml:/traefik.yml          # Change mount path if needed.
+      - /srv/docker/traefik/acme.json:/acme.json            # Change mount path if needed.
+    networks:
+      - traefik
+
+  bot:
+    image: ghcr.io/natsku123/party-filler-bot               # Check version!
+    environment:
+      TOKEN: ${BOT_TOKEN}
+      DB_NAME: ${DATABASE}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASSWORD}
+    networks:
+      - default
+
+  backend:
+    image: ghcr.io/natsku123/party-filler-backend           # Check version!
+    environment:
+      SERVER_NAME: ${SERVER_NAME}
+      DB_NAME: ${DATABASE}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST:-db}
+      DISCORD_CLIENT_ID: ${CLIENT_ID}
+      DISCORD_CLIENT_SECRET: ${CLIENT_SECRET}
+      BOT_TOKEN: ${BOT_TOKEN}
+      DOMAIN: ${DOMAIN}
+      SECRET_KEY: ${SECRET_KEY}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.party-backend.rule=Host(`party.example.com`) && Path(`/api`)"     # Change Domain!
+      - "traefik.http.routers.party-backend.tls=true"
+      - "traefik.http.routers.party-backend.tls.certresolver=letsencrypt"
+    depends_on:
+      - redis
+      - db
+    networks:
+      - default
+      - traefik
+
+  worker:
+    image: ghcr.io/natsku123/party-filler-worker          # Check version!
+    environment:
+      DB_NAME: ${DATABASE}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST:-db}
+    depends_on:
+      - redis
+      - backend
+    networks:
+      - default
+
+  frontend:
+    image: ghcr.io/natsku123/party-filler-frontend        # Check version!
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.party-frontend.rule=Host(`party.example.com`)"      # Change Domain!
+      - "traefik.http.routers.party-frontend.tls=true"
+      - "traefik.http.routers.party-frontend.tls.certresolver=letsencrypt"
+    depends_on:
+      - backend
+    networks:
+      - default
+      - traefik
+
+  redis:
+    image: redis:alpine
+    networks:
+      - default
+
+  db:
+    image: mysql/mysql-server:latest
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DATABASE}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
+    volumes:
+      - /srv/docker/party-filler/mysql:/var/lib/mysql
+    networks:
+      - default
+
+
+networks:
+  traefik:
+    external: true
+    name: traefiknet
