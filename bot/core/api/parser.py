@@ -205,7 +205,7 @@ class Parser:
 
         self.__embed.title = f"**{event.party.title}** timed out! :/"
 
-        self.__embed.description = f"\n\n**Players**:"
+        self.__embed.description = "\n\n**Players**:"
 
         for member in event.party.members:
             if member.role and event.party.leader_id == member.player_id:
