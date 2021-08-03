@@ -156,6 +156,7 @@ async def webhook(request):
 
             embed.title = f"**{event.party.title}** is full!"
 
+
             embed.description = f"**Players**:"
 
             for member in event.party.members:
@@ -185,6 +186,7 @@ async def webhook(request):
             )
 
             embed.title = f"**{event.party.title}** is ready!"
+
 
             embed.description = (
                 f"Party minimum required players reached!" f"\n\n**Players**:"

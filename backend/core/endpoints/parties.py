@@ -46,6 +46,7 @@ def create_party(
     if notify and party.channel:
         webhook_data = {
             "party": party,
+
             "event": {
                 "name": "on_party_create",
                 "timestamp": datetime_to_string(datetime.datetime.now()),

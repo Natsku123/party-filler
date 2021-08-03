@@ -18,5 +18,3 @@ test_player = init_test_db()
 def test_root():
     response = client.get("/")
     assert response.status_code == 200, response.text
-
-

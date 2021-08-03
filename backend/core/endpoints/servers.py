@@ -10,34 +10,32 @@ from core.utils import is_superuser
 router = APIRouter()
 
 
-@router.get('/', response_model=List[schemas.Server], tags=["servers"])
+@router.get("/", response_model=List[schemas.Server], tags=["servers"])
 def get_servers(
-        db: Session = Depends(deps.get_db),
-        skip: int = 0,
-        limit: int = 100
+    db: Session = Depends(deps.get_db), skip: int = 0, limit: int = 100
 ) -> Any:
     return crud.server.get_multi(db, skip=skip, limit=limit)
 
 
-@router.post('/', response_model=schemas.Server, tags=["servers"])
+@router.post("/", response_model=schemas.Server, tags=["servers"])
 def create_server(
-        *,
-        db: Session = Depends(deps.get_db),
-        server: schemas.ServerCreate,
-        current_user: models.Player = Depends(deps.get_current_user)
+    *,
+    db: Session = Depends(deps.get_db),
+    server: schemas.ServerCreate,
+    current_user: models.Player = Depends(deps.get_current_user)
 ) -> Any:
     if not current_user:
         raise HTTPException(status_code=401, detail="Not authorized")
     return crud.server.create(db, obj_in=server)
 
 
-@router.put('/{id}', response_model=schemas.Server, tags=["servers"])
+@router.put("/{id}", response_model=schemas.Server, tags=["servers"])
 def update_server(
-        *,
-        db: Session = Depends(deps.get_db),
-        id: int,
-        server: schemas.ServerUpdate,
-        current_user: models.Player = Depends(deps.get_current_user)
+    *,
+    db: Session = Depends(deps.get_db),
+    id: int,
+    server: schemas.ServerUpdate,
+    current_user: models.Player = Depends(deps.get_current_user)
 ) -> Any:
     db_server = crud.server.get(db=db, id=id)
 
@@ -51,12 +49,8 @@ def update_server(
     return db_server
 
 
-@router.get('/{id}', response_model=schemas.Server, tags=["servers"])
-def get_server(
-        *,
-        db: Session = Depends(deps.get_db),
-        id: int
-) -> Any:
+@router.get("/{id}", response_model=schemas.Server, tags=["servers"])
+def get_server(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     server = crud.server.get(db=db, id=id)
 
     if not server:
@@ -65,12 +59,12 @@ def get_server(
     return server
 
 
-@router.delete('/{id}', response_model=schemas.Server, tags=["servers"])
+@router.delete("/{id}", response_model=schemas.Server, tags=["servers"])
 def delete_server(
-        *,
-        db: Session = Depends(deps.get_db),
-        id: int,
-        current_user: models.Player = Depends(deps.get_current_user)
+    *,
+    db: Session = Depends(deps.get_db),
+    id: int,
+    current_user: models.Player = Depends(deps.get_current_user)
 ) -> Any:
     server = crud.server.get(db=db, id=id)
 
@@ -86,25 +80,14 @@ def delete_server(
 
 
 @router.get(
-    '/{id}/channels',
-    response_model=List[schemas.Channel],
-    tags=["servers", "channels"]
+    "/{id}/channels", response_model=List[schemas.Channel], tags=["servers", "channels"]
 )
 def get_channels(
-        *,
-        db: Session = Depends(deps.get_db),
-        id: int,
-        skip: int = 0,
-        limit: int = 100
+    *, db: Session = Depends(deps.get_db), id: int, skip: int = 0, limit: int = 100
 ) -> Any:
     server = crud.server.get(db=db, id=id)
 
     if not server:
         raise HTTPException(status_code=404, detail="Server not found")
 
-    return crud.channel.get_multi_by_server(
-        db,
-        server_id=id,
-        skip=skip,
-        limit=limit
-    )
+    return crud.channel.get_multi_by_server(db, server_id=id, skip=skip, limit=limit)

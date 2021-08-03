@@ -99,6 +99,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         return q.offset(skip).limit(limit).all()
 
+      
     def create(self, db: Session, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in_data = camel_dict_to_snake(jsonable_encoder(obj_in))
         db_obj = self.model(**obj_in_data)
@@ -207,7 +208,7 @@ class CRUDParty(CRUDBase[models.Party, schemas.PartyCreate, schemas.PartyUpdate]
         db.refresh(db_obj)
         return db_obj
 
-
+      
 class CRUDServer(CRUDBase[models.Server, schemas.ServerCreate, schemas.ServerUpdate]):
     def get_by_discord_id(self, db: Session, *, discord_id: str) -> models.Server:
         return (

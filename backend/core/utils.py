@@ -24,7 +24,7 @@ def snake_to_camel(snake: str):
 
 
 def camel_to_snake(camel: str):
-    temp = re.sub('([A-Z][a-z]+)', r' \1', re.sub('([A-Z]+)', r' \1', camel)).split()
+    temp = re.sub("([A-Z][a-z]+)", r" \1", re.sub("([A-Z]+)", r" \1", camel)).split()
     snake = ""
 
     # Convert to snake case
@@ -68,8 +68,7 @@ def snake_dict_to_camel(snake_obj):
     camel_obj = {}
     if isinstance(snake_obj, list):
         for i in range(len(snake_obj)):
-            if isinstance(snake_obj[i], dict) or \
-                    isinstance(snake_obj[i], list):
+            if isinstance(snake_obj[i], dict) or isinstance(snake_obj[i], list):
                 snake_obj[i] = snake_dict_to_camel(snake_obj[i])
     if isinstance(snake_obj, dict):
         for key, value in snake_obj.items():
@@ -90,8 +89,7 @@ def camel_dict_to_snake(camel_obj):
     snake_obj = {}
     if isinstance(camel_obj, list):
         for i in range(len(camel_obj)):
-            if isinstance(camel_obj[i], dict) or \
-                    isinstance(camel_obj[i], list):
+            if isinstance(camel_obj[i], dict) or isinstance(camel_obj[i], list):
                 camel_obj[i] = camel_dict_to_snake(camel_obj[i])
     if isinstance(camel_obj, dict):
         for key, value in camel_obj.items():
@@ -120,19 +118,16 @@ def get_channel_info(discord_id: str):
     :return: channel object
     """
     r = requests.get(
-        'https://discord.com/api/v6/channels/' + discord_id,
-        headers={'Authorization': 'Bot ' + str(os.environ.get(
-            'BOT_TOKEN', 'NO TOKEN'
-        ))}
+        "https://discord.com/api/v6/channels/" + discord_id,
+        headers={
+            "Authorization": "Bot " + str(os.environ.get("BOT_TOKEN", "NO TOKEN"))
+        },
     )
     return r.json()
 
 
 def send_webhook(content: BaseModel):
-    response = requests.post(
-        'http://bot:9080/webhook',
-        data=content.json()
-    )
+    response = requests.post("http://bot:9080/webhook", data=content.json())
     if response.status_code != 200:
         raise ValueError(response.text)
 

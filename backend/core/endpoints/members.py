@@ -46,7 +46,7 @@ def create_member(
             },
         }
         webhook = schemas.MemberJoinWebhook(**webhook_data)
-
+        
         send_webhook.delay("http://bot:9080/webhook", webhook.json())
 
     if member.party.channel and len(member.party.members) == member.party.max_players:
@@ -56,6 +56,7 @@ def create_member(
         send_webhook.delay("http://bot:9080/webhook", webhook.json())
 
         crud.party.lock(db, crud.party.get(db, member.party_id))
+
 
     if (
         member.party.channel
@@ -78,7 +79,7 @@ def update_member(
     db: Session = Depends(deps.get_db),
     id: int,
     member: schemas.MemberUpdate,
-    current_user: models.Player = Depends(deps.get_current_user)
+    current_user: models.Player = Depends(deps.get_current_user),
 ) -> Any:
     db_member = crud.member.get(db=db, id=id)
 
@@ -107,7 +108,7 @@ def delete_member(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    current_user: models.Player = Depends(deps.get_current_user)
+    current_user: models.Player = Depends(deps.get_current_user),
 ) -> Any:
     member = crud.member.get(db=db, id=id)
 
