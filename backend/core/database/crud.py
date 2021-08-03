@@ -120,18 +120,21 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         q = db.query(self.model)
 
+        # Add filter to query
         if filters is not None:
             if isinstance(filters, str):
                 filters = json.loads(filters)
 
             q = q.filter(*parse_filter(filters, self.model))
 
+        # Add grouping to query
         if group is not None:
             if isinstance(group, str):
                 group = json.loads(group)
 
             q = q.group_by(*group)
 
+        # Add ordering to query
         if order is not None:
             if isinstance(order, str):
                 order = json.loads(order)

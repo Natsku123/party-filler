@@ -1,7 +1,7 @@
 import datetime
-from typing import Any, List
+from typing import Any, List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from core import deps
@@ -15,9 +15,16 @@ router = APIRouter()
 
 @router.get("/", response_model=List[schemas.Member], tags=["members"])
 def get_members(
-    db: Session = Depends(deps.get_db), skip: int = 0, limit: int = 100
+    db: Session = Depends(deps.get_db),
+    skip: int = 0,
+    limit: int = 100,
+    filters: Optional[str] = Query(None, alias="filter"),
+    order: Optional[Union[str, List[str]]] = None,
+    group: Optional[Union[str, List[str]]] = None,
 ) -> Any:
-    return crud.member.get_multi(db, skip=skip, limit=limit)
+    return crud.member.get_multi(
+        db, skip=skip, limit=limit, filters=filters, order=order, group=group
+    )
 
 
 @router.post("/", response_model=schemas.Member, tags=["members"])
@@ -26,7 +33,7 @@ def create_member(
     db: Session = Depends(deps.get_db),
     member: schemas.MemberCreate,
     current_user: models.Player = Depends(deps.get_current_user),
-    notify: bool = False
+    notify: bool = False,
 ) -> Any:
     if not current_user or (
         current_user.id != member.player_id and not is_superuser(current_user)
@@ -46,7 +53,7 @@ def create_member(
             },
         }
         webhook = schemas.MemberJoinWebhook(**webhook_data)
-        
+
         send_webhook.delay("http://bot:9080/webhook", webhook.json())
 
     if member.party.channel and len(member.party.members) == member.party.max_players:
@@ -56,7 +63,6 @@ def create_member(
         send_webhook.delay("http://bot:9080/webhook", webhook.json())
 
         crud.party.lock(db, crud.party.get(db, member.party_id))
-
 
     if (
         member.party.channel
