@@ -111,6 +111,7 @@ class Party(Base):
     channel_id = Column(Integer, ForeignKey("channels.id"))
     start_time = Column(DateTime)
     end_time = Column(DateTime)
+    locked = Column(Boolean, default=False)
 
     channel = relationship("Channel", lazy="joined")
     leader = relationship("Player", lazy="joined")

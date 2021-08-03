@@ -9,9 +9,11 @@ from core.database.schemas import (
     MemberJoinWebhook,
     PartyFullWebhook,
     PartyReadyWebhook,
+    PartyTimedoutWebhook,
 )
 
 from core.config import settings
+from core.utils import discord_avatar_url
 
 
 routes = RouteTableDef()
@@ -70,13 +72,20 @@ async def webhook(request):
             if bot.get_channel(channel_id) is None:
                 raise ValueError("Bot cannot find channel!")
 
+            embed.set_author(
+                name=event.party.leader.name,
+                icon_url=discord_avatar_url(
+                    event.party.leader, support_gifs=True, size=4096
+                ),
+                url=settings.SITE_HOSTNAME,
+            )
+
             embed.title = f"***{event.party.leader.name}*** is looking for more players to play ***{event.party.game.name}***!"
 
             # Cut description if too long
             if len(event.party.description) > 1000:
                 event.party.description = event.party.description[:1000] + "..."
 
-            # TODO add join link
             embed.description = (
                 f"**{event.party.title}**\n"
                 f"{event.party.description}\n"
@@ -107,6 +116,14 @@ async def webhook(request):
             if bot.get_channel(channel_id) is None:
                 raise ValueError("Bot cannot find channel!")
 
+            embed.set_author(
+                name=event.member.player.name,
+                icon_url=discord_avatar_url(
+                    event.member.player, support_gifs=True, size=4096
+                ),
+                url=settings.SITE_HOSTNAME,
+            )
+
             embed.title = (
                 f"**{event.member.player.name}** "
                 f"joined **{event.member.party.title}**!"
@@ -129,7 +146,16 @@ async def webhook(request):
             if bot.get_channel(channel_id) is None:
                 raise ValueError("Bot cannot find channel!")
 
-            embed.title = f"**{event.party.name}** " f"is full!"
+            embed.set_author(
+                name=event.party.leader.name,
+                icon_url=discord_avatar_url(
+                    event.party.leader, support_gifs=True, size=4096
+                ),
+                url=settings.SITE_HOSTNAME,
+            )
+
+            embed.title = f"**{event.party.title}** is full!"
+
 
             embed.description = f"**Players**:"
 
@@ -151,7 +177,16 @@ async def webhook(request):
             if bot.get_channel(channel_id) is None:
                 raise ValueError("Bot cannot find channel!")
 
-            embed.title = f"**{event.party.name}** " f"is ready!"
+            embed.set_author(
+                name=event.party.leader.name,
+                icon_url=discord_avatar_url(
+                    event.party.leader, support_gifs=True, size=4096
+                ),
+                url=settings.SITE_HOSTNAME,
+            )
+
+            embed.title = f"**{event.party.title}** is ready!"
+
 
             embed.description = (
                 f"Party minimum required players reached!" f"\n\n**Players**:"
@@ -161,6 +196,45 @@ async def webhook(request):
                 embed.add_field(
                     name=member.player.name,
                     value=member.role.name if member.role else "",
+                    inline=False,
+                )
+
+            await bot.get_channel(channel_id).send(embed=embed)
+
+        elif received_hook.get("event").get("name") == "on_party_timed_out":
+
+            event = PartyTimedoutWebhook.parse_obj(received_hook)
+
+            channel_id = int(event.party.channel.discord_id)
+
+            if bot.get_channel(channel_id) is None:
+                raise ValueError("Bot cannot find channel!")
+
+            embed.set_author(
+                name=event.party.leader.name,
+                icon_url=discord_avatar_url(
+                    event.party.leader, support_gifs=True, size=4096
+                ),
+                url=settings.SITE_HOSTNAME,
+            )
+
+            embed.title = f"**{event.party.title}** timed out! :/"
+
+            embed.description = f"\n\n**Players**:"
+
+            for member in event.party.members:
+                if member.role and event.party.leader_id == member.player_id:
+                    member_value = f"Leader - {member.role.name}"
+                elif event.party.leader_id == member.player_id:
+                    member_value = "Leader"
+                elif member.role:
+                    member_value = f"Member - {member.role.name}"
+                else:
+                    member_value = "Member"
+
+                embed.add_field(
+                    name=member.player.name,
+                    value=member_value,
                     inline=False,
                 )
 

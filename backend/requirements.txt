@@ -9,3 +9,8 @@ cryptography
 authlib
 itsdangerous
 httpx
+celery
+python-dateutil
+pydantic
+starlette
+redis

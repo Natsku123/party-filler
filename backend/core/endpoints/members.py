@@ -6,7 +6,9 @@ from sqlalchemy.orm import Session
 
 from core import deps
 from core.database import crud, models, schemas
-from core.utils import send_webhook, datetime_to_string, is_superuser
+from core.utils import datetime_to_string, is_superuser
+
+from worker import send_webhook
 
 router = APIRouter()
 
@@ -24,7 +26,7 @@ def create_member(
     db: Session = Depends(deps.get_db),
     member: schemas.MemberCreate,
     current_user: models.Player = Depends(deps.get_current_user),
-    notify: bool = False,
+    notify: bool = False
 ) -> Any:
     if not current_user or (
         current_user.id != member.player_id and not is_superuser(current_user)
@@ -44,22 +46,17 @@ def create_member(
             },
         }
         webhook = schemas.MemberJoinWebhook(**webhook_data)
-        try:
-            send_webhook(webhook)
-        except ValueError as e:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Member has been added to the party, but there "
-                f"was an error with the notification: {e}",
-            )
+        
+        send_webhook.delay("http://bot:9080/webhook", webhook.json())
 
     if member.party.channel and len(member.party.members) == member.party.max_players:
         webhook_data = {"party": member.party, "event": {"name": "on_party_full"}}
         webhook = schemas.PartyFullWebhook(**webhook_data)
-        try:
-            send_webhook(webhook)
-        except ValueError:
-            pass
+
+        send_webhook.delay("http://bot:9080/webhook", webhook.json())
+
+        crud.party.lock(db, crud.party.get(db, member.party_id))
+
 
     if (
         member.party.channel
@@ -68,10 +65,10 @@ def create_member(
     ):
         webhook_data = {"party": member.party, "event": {"name": "on_party_ready"}}
         webhook = schemas.PartyReadyWebhook(**webhook_data)
-        try:
-            send_webhook(webhook)
-        except ValueError:
-            pass
+
+        send_webhook.delay("http://bot:9080/webhook", webhook.json())
+
+        crud.party.lock(db, crud.party.get(db, member.party_id))
 
     return member
 

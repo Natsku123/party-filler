@@ -6,7 +6,9 @@ from sqlalchemy.orm import Session
 
 from core import deps
 from core.database import crud, models, schemas
-from core.utils import send_webhook, datetime_to_string, is_superuser
+from core.utils import datetime_to_string, is_superuser
+
+from worker import send_webhook
 
 router = APIRouter()
 
@@ -44,16 +46,15 @@ def create_party(
     if notify and party.channel:
         webhook_data = {
             "party": party,
-            "event": {"name": "on_party_create", "timestamp": datetime.datetime.now()},
+
+            "event": {
+                "name": "on_party_create",
+                "timestamp": datetime_to_string(datetime.datetime.now()),
+            },
         }
         webhook = schemas.PartyCreateWebhook(**webhook_data)
-        try:
-            send_webhook(webhook)
-        except ValueError as e:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Party was created but the notification failed: {e}",
-            )
+
+        send_webhook.delay("http://bot:9080/webhook", webhook.json())
 
     return party
 

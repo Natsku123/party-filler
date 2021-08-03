@@ -13,6 +13,7 @@ services:
       - "./bot/files:/files"
     ports:
       - "9080:9080"
+
   backend:
     build:
       context: ./backend
@@ -22,19 +23,39 @@ services:
       DB_NAME: ${DATABASE}
       DB_USER: ${DB_USER}
       DB_PASS: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST:-db}
       DISCORD_CLIENT_ID: ${CLIENT_ID}
       DISCORD_CLIENT_SECRET: ${CLIENT_SECRET}
       BOT_TOKEN: ${BOT_TOKEN}
       API_HOSTNAME: ${API_HOSTNAME}
       SITE_HOSTNAME: ${SITE_HOSTNAME}
       SECRET_KEY: ${SECRET_KEY}
-      WEBHOOK_ID: ${WEBHOOK_ID}
-      SUPERUSERS: ${SUPERUSERS}
       REDIRECT_URL: ${REDIRECT_URL}
     volumes:
       - "./backend:/app"
     ports:
       - "8800:80"
+    depends_on:
+      - redis
+      - db
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile-worker
+    environment:
+      DB_NAME: ${DATABASE}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST:-db}
+    volumes:
+      - "./backend:/app"
+    depends_on:
+      - redis
+      - backend
+
+  redis:
+    image: redis:alpine
+
   db:
     image: mysql/mysql-server:latest
     restart: always
@@ -43,6 +64,5 @@ services:
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${ROOT_PASSWORD}
-      SUPERUSERS: ${SUPERUSERS}
     volumes:
       - "./data/party-finder/mysql:/var/lib/mysql"

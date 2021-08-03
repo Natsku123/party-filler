@@ -229,7 +229,7 @@ class Party(PartyBase):
     id: int = Field(..., description="ID of party")
     channel: Optional["Channel"] = Field(None, description="Channel object")
     leader: "PlayerShort" = Field(..., description="Player object of leader")
-    members: List["MemberShort"] = Field([], description="Member objects of party")
+    members: List["Member"] = Field([], description="Member objects of party")
     game: "GameShort" = Field(None, description="Game object")
 
     class Config:
@@ -360,6 +360,11 @@ class PartyFullWebhook(BaseModel):
 
 class PartyReadyWebhook(BaseModel):
     party: "Party" = (Field(..., description="Party that is ready"),)
+    event: "WebhookEvent" = Field(..., description="Event info")
+
+
+class PartyTimedoutWebhook(BaseModel):
+    party: "Party" = (Field(..., description="Party that timed out"),)
     event: "WebhookEvent" = Field(..., description="Event info")
 
 

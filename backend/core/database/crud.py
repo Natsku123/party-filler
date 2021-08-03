@@ -1,7 +1,9 @@
 import dateutil.parser
+import json
 from sqlalchemy.orm import Session
 
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
+from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from core.utils import camel_dict_to_snake
 
@@ -14,19 +16,90 @@ ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
+FilterParseException = HTTPException(
+    status_code=400, detail="Filter parsing failed. Invalid attributes present."
+)
+
+
+def parse_filter(filters: dict, parent: Any) -> list:
+    """
+    Convert filter dict into filter list
+
+    :param filters: Dict to be converted
+    :param parent: Parent object / model
+    :return: Filter list
+    """
+    new_filters = []
+
+    for k, v in filters.items():
+
+        # Detect comparison
+        gt = "__gt" in k
+        ge = "__ge" in k
+        lt = "__lt" in k
+        le = "__le" in k
+
+        # Remove suffixes
+        if gt or ge or lt or le:
+            k = k[:-4]
+
+        try:
+            attr = getattr(parent, k)
+
+            # Construct filter expressions
+            if isinstance(v, dict):
+                new_filters += parse_filter(v, attr.property.mapper.class_)
+            else:
+                if gt:
+                    new_filters.append(attr > v)
+                elif ge:
+                    new_filters.append(attr >= v)
+                elif lt:
+                    new_filters.append(attr < v)
+                elif le:
+                    new_filters.append(attr <= v)
+                else:
+                    new_filters.append(attr == v)
+        except AttributeError:
+            raise FilterParseException
+
+    return new_filters
+
 
 class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def __init__(self, model: Type[ModelType]):
         self.model = model
 
+    def get_count(self, db: Session) -> int:
+        """
+        Get total number of objects in database.
+        :param db: Database Session to be used
+        """
+        return db.query(self.model).count()
+
     def get(self, db: Session, id: Any) -> Optional[ModelType]:
         return db.query(self.model).filter(self.model.id == id).first()
 
     def get_multi(
-        self, db: Session, *, skip: int = 0, limit: int = 100
+        self,
+        db: Session,
+        *,
+        skip: int = 0,
+        limit: int = 100,
+        filters: Optional[Union[Dict, str]] = None
     ) -> List[ModelType]:
-        return db.query(self.model).offset(skip).limit(limit).all()
 
+        q = db.query(self.model)
+
+        if filters is not None:
+            if isinstance(filters, str):
+                filters = json.loads(filters)
+
+            q = q.filter(*parse_filter(filters, self.model))
+
+        return q.offset(skip).limit(limit).all()
+
+      
     def create(self, db: Session, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in_data = camel_dict_to_snake(jsonable_encoder(obj_in))
         db_obj = self.model(**obj_in_data)
@@ -121,7 +194,21 @@ class CRUDParty(CRUDBase[models.Party, schemas.PartyCreate, schemas.PartyUpdate]
         db.refresh(db_obj)
         return db_obj
 
+    def lock(self, db: Session, *, db_obj: ModelType) -> ModelType:
+        """
+        Lock Party
 
+        :param db: Database Session
+        :param db_obj: Party instance
+        """
+        db_obj.locked = True
+
+        db.add(db_obj)
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
+
+      
 class CRUDServer(CRUDBase[models.Server, schemas.ServerCreate, schemas.ServerUpdate]):
     def get_by_discord_id(self, db: Session, *, discord_id: str) -> models.Server:
         return (
