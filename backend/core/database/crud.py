@@ -114,6 +114,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         skip: int = 0,
         limit: int = 100,
         filters: Optional[Union[Dict, str]] = None,
+        group: Optional[Union[List[str], str]] = None,
         order: Optional[Union[List[str], str]] = None
     ) -> List[ModelType]:
 
@@ -124,6 +125,12 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 filters = json.loads(filters)
 
             q = q.filter(*parse_filter(filters, self.model))
+
+        if group is not None:
+            if isinstance(group, str):
+                group = json.loads(group)
+
+            q = q.group_by(*group)
 
         if order is not None:
             if isinstance(order, str):
