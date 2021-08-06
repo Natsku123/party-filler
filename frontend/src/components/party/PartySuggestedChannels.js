@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Field } from 'formik';
 import { partyService } from '../../services/parties';
 import { channelService } from '../../services/channels';
-import { Button, Chip, Grid, IconButton, InputLabel, MenuItem, Select } from '@material-ui/core';
+import { Chip, Grid, IconButton, InputLabel, MenuItem, Select } from '@material-ui/core';
 import { Skeleton } from '@material-ui/lab';
 
 import CloseIcon from '@material-ui/icons/Close';

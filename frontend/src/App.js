@@ -1,17 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   BrowserRouter as Router,
-  Switch, Route, Link
+  Switch, Route,
 } from 'react-router-dom';
-import {
-  Container,
-  AppBar,
-  Toolbar,
-  IconButton,
-  Button,
-  Grid,
-} from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
 
 import PartyCreate from './components/party/PartyCreate';
 import Parties from './components/party/Parties';
@@ -21,18 +12,7 @@ import Player from './components/Player';
 import NotifySnackbar, { useSnackbar } from './components/NotifySnackbar';
 import Layout from './components/Layout';
 
-
-const useStyles = makeStyles(() => ({
-  link: {
-    padding: 5,
-  },
-  grow: {
-    flex: '1 1 auto',
-  },
-}));
-
 const App = () => {
-  const classes = useStyles();
   const {
     handleSnackbarClose,
     showSnackbar,

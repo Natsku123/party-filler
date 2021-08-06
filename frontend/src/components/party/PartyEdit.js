@@ -18,7 +18,7 @@ import { gameService } from '../../services/games';
 
 import NewGameDialog from '../NewGameDialog';
 
-const PartyEdit = ({ party, setEdit, setParty, onError, onSuccess }) => {
+const PartyEdit = ({ party, setEdit, onError, onSuccess }) => {
   const [ channels, setChannels ] = useState(null);
   const [ games, setGames ] = useState(null);
 
