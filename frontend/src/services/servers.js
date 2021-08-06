@@ -1,10 +1,10 @@
-import {BaseApiService} from "./baseApiService";
+import { BaseApiService } from './baseApiService';
 
 
 class ServerService extends BaseApiService {
-  getChannels = (id) => {
+  getChannels(id) {
     return this.instance.get(`/${id}/channels`).then(r => r.data);
-  };
+  }
 }
 
 export const serverService = new ServerService('/servers');

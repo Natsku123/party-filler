@@ -18,25 +18,25 @@ class BaseApiService {
     );
   }
 
-  getAll = (skip=0, limit=100) => {
+  getAll(skip=0, limit=100) {
     return this.instance.get(`/?skip=${skip}&limit=${limit}`).then(r => r.data);
-  };
+  }
 
-  getOne = (id) => {
+  getOne(id) {
     return this.instance.get(`/${id}`).then(r => r.data);
-  };
+  }
 
-  create = (newObject) => {
+  create(newObject) {
     return this.instance.post('/', newObject).then(r => r.data);
-  };
+  }
 
-  update = (id, newObject) => {
+  update(id, newObject) {
     return this.instance.put(`/${id}`, newObject).then(r => r.data);
-  };
+  }
 
-  remove = (id) => {
+  remove(id) {
     return this.instance.delete(`/${id}`).then(r => r.data);
-  };
+  }
 }
 
 export { BaseApiService };
