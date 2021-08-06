@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
 import {
-  Button, Container, Grid, IconButton,
-  MenuItem, Typography,
+  Button, Grid, IconButton,
+  Typography,
 } from '@material-ui/core';
 import {
   MuiPickersUtilsProvider,
@@ -10,12 +10,11 @@ import {
 import MomentUtils from '@date-io/moment';
 
 import { Formik, Form, Field } from 'formik';
-import { TextField, Select } from 'formik-material-ui';
+import { TextField } from 'formik-material-ui';
 import { DateTimePicker } from 'formik-material-ui-pickers';
 
 import { partyService } from '../../services/parties';
 import { playerService } from '../../services/players';
-import { gameService } from '../../services/games';
 
 import NewGameDialog from '../NewGameDialog';
 import { Skeleton } from '@material-ui/lab';
@@ -49,16 +48,11 @@ const PageTitle = withStyles({
 const PartyCreate = (props) => {
   const classes = useStyles();
 
-  const [ channels, setChannels ] = useState([]);
   const [ currentUser, setCurrentUser ] = useState(null);
-  const [ games, setGames ] = useState([]);
 
   const [ newGameDialog, setNewGameDialog ] = useState(false);
-  const [ newChannelDialog, setNewChannelDialog ] = useState(false);
 
   const [ playerReady, setPlayerReady ] = useState(false);
-  const [ channelsReady, setChannelsReady ] = useState(false);
-  const [ gamesReady, setGameReady ] = useState(false);
 
   const history = useHistory();
 
@@ -66,20 +60,6 @@ const PartyCreate = (props) => {
     playerService.getCurrent().then(res => {
       setCurrentUser(res);
       setPlayerReady(true);
-    }).catch(e => {
-      props.onError(e.response.data.detail);
-    });
-
-    playerService.getVisibleChannels().then(res => {
-      setChannels(res);
-      setChannelsReady(true);
-    }).catch(e => {
-      props.onError(e.response.data.detail);
-    });
-
-    gameService.getAll().then(res => {
-      setGames(res);
-      setGameReady(true);
     }).catch(e => {
       props.onError(e.response.data.detail);
     });
@@ -94,11 +74,6 @@ const PartyCreate = (props) => {
   };
 
   const openNewChannelDialog = () => {
-    setNewChannelDialog(true);
-  };
-
-  const closeNewChannelDialog = () => {
-    setNewChannelDialog(false);
   };
 
 

@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Moment from 'react-moment';
 import 'moment-timezone';
-import moment from 'moment/moment';
-import { useParams, useHistory, Link } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import {
   Button,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
   Grid, withStyles, Typography, Box,
 } from '@material-ui/core';
 

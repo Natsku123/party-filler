@@ -2,17 +2,17 @@ import { BaseApiService } from './baseApiService';
 
 
 class PlayerService extends BaseApiService {
-  getCurrent = () => {
+  getCurrent() {
     return this.instance.get('/').then(r => r.data);
-  };
+  }
 
-  getIsSuperuser = () => {
+  getIsSuperuser() {
     return this.instance.get('/superuser').then(r => r.data);
-  };
+  }
 
-  getVisibleChannels = () => {
+  getVisibleChannels() {
     return this.instance.get('/channels').then(r => r.data);
-  };
+  }
 }
 
 export const playerService = new PlayerService('/players');

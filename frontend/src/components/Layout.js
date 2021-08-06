@@ -1,19 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { NavLink } from 'react-router-dom';
 
 import {
-  Container,
   AppBar,
   Toolbar,
-  IconButton,
-  Button,
-  Grid, Typography, Menu, MenuItem,
+  Grid, Typography,
 } from '@material-ui/core';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 import { playerService } from '../services/players';
-import DiscordAvatar from '../components/DiscordAvatar';
 import ProfileMenu from './ProfileMenu';
 import MenuButton from './MenuButton';
 
@@ -22,11 +18,6 @@ const baseUrl = '/api';
 const getLoginUrl = () => {
   return `${baseUrl}/login`;
 };
-
-const getLogoutUrl = () => {
-  return `${baseUrl}/logout`;
-};
-
 
 const useStyles = makeStyles(() => ({
   link: {

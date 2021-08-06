@@ -1,6 +1,6 @@
-from typing import Any, List
+from typing import Any, List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from core import deps
@@ -12,9 +12,16 @@ router = APIRouter()
 
 @router.get("/", response_model=List[schemas.Role], tags=["roles"])
 def get_roles(
-    db: Session = Depends(deps.get_db), skip: int = 0, limit: int = 100
+    db: Session = Depends(deps.get_db),
+    skip: int = 0,
+    limit: int = 100,
+    filters: Optional[str] = Query(None, alias="filter"),
+    order: Optional[Union[str, List[str]]] = None,
+    group: Optional[Union[str, List[str]]] = None,
 ) -> Any:
-    return crud.role.get_multi(db, skip=skip, limit=limit)
+    return crud.role.get_multi(
+        db, skip=skip, limit=limit, filters=filters, order=order, group=group
+    )
 
 
 @router.post("/", response_model=schemas.Role, tags=["roles"])

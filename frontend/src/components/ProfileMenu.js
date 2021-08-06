@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Grid, Menu, MenuItem, Typography } from '@material-ui/core';
 import DiscordAvatar from './DiscordAvatar';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import MenuButton from './MenuButton';
 

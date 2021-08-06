@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Field } from 'formik';
 import { partyService } from '../../services/parties';
 import { channelService } from '../../services/channels';
-import { Button, Chip, Grid, IconButton, InputLabel, MenuItem, Select } from '@material-ui/core';
+import { Chip, Grid, IconButton, InputLabel, MenuItem, Select } from '@material-ui/core';
 import { Skeleton } from '@material-ui/lab';
 
 import CloseIcon from '@material-ui/icons/Close';
@@ -14,32 +14,43 @@ const PartySuggestedChannels = ({ player, name }) => {
   const [ channelsReady, setChannelsReady ] = useState(false);
 
   useEffect(() => {
-    channelService.getAll().then(res => {
-      if (player.servers) {
-        setAllChannels(res.filter(c => player.servers.findIndex(s => s.id === c.id) !== -1));
-      }
-    });
-  },[player]);
+    (async () => {
+      await channelService.getAll().then(res => {
+        if (player.servers) {
+          setAllChannels(res.filter(c => player.servers.findIndex(s => s.id === c.id) !== -1));
+        }
+      });
 
-  useEffect(() => {
-    partyService.getAll().then(res => {
-      let gs = [];
+      await partyService.getAll().then(res => {
+        let gs = {};
 
-      const promises = res.filter(p => p.members.some(m => m.playerId === player.id)).filter(p => p.channelId !== null).map(p => p.channelId).map(g => {
-        return channelService.getOne(g).then(channel => {
-          if (gs.findIndex(c => c.id === channel.id) === -1) gs.push(channel);
+        const promises = Object.entries(res.filter(p => p.members.some(m => m.playerId === player.id))
+          .filter(p => p.channelId !== null)
+          .map(p => p.channelId)
+          .reduce((c, e) => {
+            if (!c[e]) c[e] = 1;
+            else c[e]++;
+            return c;
+          },{}))
+          .sort((a, b) => b[1] - a[1])
+          .map((g, i) => {
+            return channelService.getOne(g[0]).then(channel => {
+              if (!gs[i]) gs[i] = channel;
+            });
+          });
+
+        Promise.all(promises).then(() => {
+          gs = Object.values(gs);
+
+          if (gs.length < 5) {
+            gs = gs.concat(allChannels.filter(g => gs.findIndex(c => c.id === g.id) === -1));
+          }
+          setChannels(gs.slice(0, gs.length < 5 ? gs.length : 5));
+          setChannelsReady(true);
         });
       });
-
-      Promise.all(promises).then(() => {
-        if (gs.length < 5) {
-          gs = gs.concat(allChannels.filter(g => gs.findIndex(c => c.id === g.id) === -1));
-        }
-        setChannels(gs.slice(0, gs.length < 5 ? gs.length : 5));
-        setChannelsReady(true);
-      });
-    });
-  }, [player, allChannels]);
+    })();
+  }, [player]);
 
   return (
     <Field name={ name } id={ name } type="number">

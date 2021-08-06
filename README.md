@@ -1,12 +1,64 @@
 # Party Filler
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Docker](https://github.com/Natsku123/party-filler/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/Natsku123/party-filler/actions/workflows/docker-publish.yml)
 
 Find more players to your parties from your Discord-server with Discord integrations 
 and party status tracking.
 
-## Webhook format
+## Installation
 
-### on_party_create
+### Discord
+
+Inorder to use PartyFiller properly, you will need a Discord Application. You can view your applications or create a new one from [Discord Developer Portal](https://discord.com/developers/applications).
+
+After creating an application, you will find the `CLIENT ID`, `CLIENT SECRET` and you can set a redirection URL for OAuth 2. The redirect URL should be in the following format:
+```https://[YOUR DOMAIN HERE]/api/authorize```
+
+![Discord OAuth2 Settings](https://raw.githubusercontent.com/Natsku123/party-filler/crud-sort/examples/images/partyfiller_discord_oauth.png)
+
+You can also add a bot to your applications (which is needed to use PartyFiller properly atm) in the Bot-tab. You can also change the bots name and get the `BOT_TOKEN`.
+
+![Discord Bot Settings](https://raw.githubusercontent.com/Natsku123/party-filler/crud-sort/examples/images/partyfiller_discord_bot.png)
+### Manual
+
+TODO: Add proper guide.
+
+You could install it manually though it is not recommended, since the stack was built and designed to be run inside Docker.
+
+### Docker Compose (Recommended)
+
+All necessary files needed to run PartyFiller can be found in `example` folder. The example `docker-compose.yml` file includes a Traefik service which you can use or setup separately and connect to the `traefiknet` network. You could also use some other reverse proxy in front of the services.
+
+Create a network for Traefik.
+```bash
+docker network create traefiknet
+```
+
+Copy traefik.yml into the traefik folder for example `/srv/docker/traefik`, make sure that the path is the same in the `docker-compose.yml` file.
+
+Move / copy `docker-compose.yml` and `example.env` to some new directory for example `/srv/docker/partyfiller`.
+
+Rename `example.env` into `.env` and make changes described in `docker-compose.yml` and change all values `CHANGE_ME` and `FROM_DISCORD` to appropriate values. `FROM_DISCORD` values are described and given in the [Discord](#discord) section.
+
+After the modifications you can just start the stack:
+```bash
+docker-compose up -d
+```
+
+### Docker without Compose (Recommended)
+
+TODO: Add guide.
+
+## General
+
+### Data Formats
+
+#### Webhooks
+
+<details>
+<summary>on_party_create</summary>
+<p>
+
 ```json
 {
     "party": {
@@ -31,11 +83,9 @@ and party status tracking.
             "discordId": "123456789012345678",
             "name": "Player name",
             "discriminator": "1234",
-            "icon": "<icon id>"
+            "icon": "iconHash"
         },
-        "members": [
-
-        ]
+        "members": []
     },
     "event": {
         "name": "on_party_create",
@@ -43,7 +93,12 @@ and party status tracking.
     }
 }
 ```
-### on_member_join
+</p>
+</details>
+<details>
+<summary>on_member_join</summary>
+<p>
+        
 ```json
 {
     "member": {
@@ -69,7 +124,7 @@ and party status tracking.
             "discordId": "123456789012345678",
             "name": "Player name",
             "discriminator": "1234",
-            "icon": "<icon id>"
+            "icon": "iconHash"
         },
         "role": null
     },
@@ -85,3 +140,5 @@ and party status tracking.
     }
 }
 ```
+</p>
+</details>

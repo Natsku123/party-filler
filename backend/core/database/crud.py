@@ -1,5 +1,6 @@
 import dateutil.parser
 import json
+from sqlalchemy import asc, desc
 from sqlalchemy.orm import Session
 
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
@@ -18,6 +19,10 @@ UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 FilterParseException = HTTPException(
     status_code=400, detail="Filter parsing failed. Invalid attributes present."
+)
+
+OrderParseException = HTTPException(
+    status_code=400, detail="Order parsing failed. Invalid attributes present."
 )
 
 
@@ -66,6 +71,28 @@ def parse_filter(filters: dict, parent: Any) -> list:
     return new_filters
 
 
+def parse_order(order: List[str], parent) -> List[str]:
+    """
+    Convert order list into usable version in SQLAlchemy
+
+    :param order: Order list
+    :param parent: Parent object
+    :return: New order list
+    """
+    for i, v in enumerate(order):
+        a = "__a" in v
+        d = "__d" in v
+
+        if a or d:
+            v = v[:-3]
+
+        if not hasattr(parent, v):
+            raise OrderParseException
+
+        order[i] = asc(v) if a and not d else desc(v) if not a and d else v
+    return order
+
+
 class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     def __init__(self, model: Type[ModelType]):
         self.model = model
@@ -86,20 +113,36 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         *,
         skip: int = 0,
         limit: int = 100,
-        filters: Optional[Union[Dict, str]] = None
+        filters: Optional[Union[Dict, str]] = None,
+        group: Optional[Union[List[str], str]] = None,
+        order: Optional[Union[List[str], str]] = None
     ) -> List[ModelType]:
 
         q = db.query(self.model)
 
+        # Add filter to query
         if filters is not None:
             if isinstance(filters, str):
                 filters = json.loads(filters)
 
             q = q.filter(*parse_filter(filters, self.model))
 
+        # Add grouping to query
+        if group is not None:
+            if isinstance(group, str):
+                group = json.loads(group)
+
+            q = q.group_by(*group)
+
+        # Add ordering to query
+        if order is not None:
+            if isinstance(order, str):
+                order = json.loads(order)
+
+            q = q.order_by(*parse_order(order, self.model))
+
         return q.offset(skip).limit(limit).all()
 
-      
     def create(self, db: Session, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in_data = camel_dict_to_snake(jsonable_encoder(obj_in))
         db_obj = self.model(**obj_in_data)
@@ -208,7 +251,7 @@ class CRUDParty(CRUDBase[models.Party, schemas.PartyCreate, schemas.PartyUpdate]
         db.refresh(db_obj)
         return db_obj
 
-      
+
 class CRUDServer(CRUDBase[models.Server, schemas.ServerCreate, schemas.ServerUpdate]):
     def get_by_discord_id(self, db: Session, *, discord_id: str) -> models.Server:
         return (
