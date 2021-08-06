@@ -14,30 +14,40 @@ const PartySuggestedGames = ({ player, name }) => {
   const [ gamesReady, setGamesReady ] = useState(false);
 
   useEffect(() => {
-    gameService.getAll().then(res => {
-      setAllGames(res);
-    });
-  },[player]);
+    (async () => {
+      await gameService.getAll().then(res => {
+        setAllGames(res);
+      });
 
-  useEffect(() => {
-    partyService.getAll().then(res => {
-      let gs = [];
+      await partyService.getAll().then(res => {
+        let gs = {};
 
-      const promises = res.filter(p => p.members.some(m => m.playerId === player.id)).map(p => p.gameId).map(g => {
-        return gameService.getOne(g).then(game => {
-          if (gs.findIndex(c => c.id === game.id) === -1) gs.push(game);
+        const promises = Object.entries(res.filter(p => p.members.some(m => m.playerId === player.id))
+          .map(p => p.gameId)
+          .reduce((c, e) => {
+            if (!c[e]) c[e] = 1;
+            else c[e]++;
+            return c;
+          },{}))
+          .sort((a, b) => b[1] - a[1])
+          .map((g, i) => {
+            return gameService.getOne(g[0]).then(game => {
+              if (!gs[i]) gs[i] = game;
+            });
+          });
+
+        Promise.all(promises).then(() => {
+          gs = Object.values(gs);
+
+          if (gs.length < 5) {
+            gs = gs.concat(allGames.filter(g => gs.findIndex(c => c.id === g.id) === -1));
+          }
+          setGames(gs.slice(0, gs.length < 5 ? gs.length : 5));
+          setGamesReady(true);
         });
       });
-
-      Promise.all(promises).then(() => {
-        if (gs.length < 5) {
-          gs = gs.concat(allGames.filter(g => gs.findIndex(c => c.id === g.id) === -1));
-        }
-        setGames(gs.slice(0, gs.length < 5 ? gs.length : 5));
-        setGamesReady(true);
-      });
-    });
-  }, [player, allGames]);
+    })();
+  }, [player]);
 
   return (
     <Field name={ name } id={ name } type="number">
