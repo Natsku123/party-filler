@@ -14,11 +14,11 @@ Inorder to use PartyFiller properly, you will need a Discord Application. You ca
 After creating an application, you will find the `CLIENT ID`, `CLIENT SECRET` and you can set a redirection URL for OAuth 2. The redirect URL should be in the following format:
 ```https://[YOUR DOMAIN HERE]/api/authorize```
 
-![Discord OAuth2 Settings](https://raw.githubusercontent.com/Natsku123/party-filler/crud-sort/examples/images/partyfiller_discord_oauth.png)
+![Discord OAuth2 Settings](https://raw.githubusercontent.com/Natsku123/party-filler/master/examples/images/partyfiller_discord_oauth.png)
 
 You can also add a bot to your applications (which is needed to use PartyFiller properly atm) in the Bot-tab. You can also change the bots name and get the `BOT_TOKEN`.
 
-![Discord Bot Settings](https://raw.githubusercontent.com/Natsku123/party-filler/crud-sort/examples/images/partyfiller_discord_bot.png)
+![Discord Bot Settings](https://raw.githubusercontent.com/Natsku123/party-filler/master/examples/images/partyfiller_discord_bot.png)
 ### Manual
 
 TODO: Add proper guide.
