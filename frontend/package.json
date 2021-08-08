@@ -24,7 +24,7 @@
     "react-scripts": "^4.0.3"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "BROWSER=none react-scripts start",
     "dev": "nodemon index.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
