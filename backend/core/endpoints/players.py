@@ -97,11 +97,9 @@ def update_player(
     if "code" not in profile:
         # Update player info
         player = schemas.PlayerUpdate(
-            **{
-                "name": profile.get("username"),
-                "discriminator": profile.get("discriminator"),
-                "icon": profile.get("avatar"),
-            }
+            name=profile.get("username"),
+            discriminator=profile.get("discriminator"),
+            icon=profile.get("avatar"),
         )
 
         db_player = crud.player.update(db, db_obj=db_player, obj_in=player)
@@ -115,11 +113,9 @@ def update_player(
 
             if server is None:
                 server_obj = schemas.ServerCreate(
-                    **{
-                        "name": guild.get("name"),
-                        "icon": guild.get("icon"),
-                        "discordId": guild.get("id"),
-                    }
+                    name=guild.get("name"),
+                    icon=guild.get("icon"),
+                    discordId=guild.get("id"),
                 )
 
                 server = crud.server.create(db, obj_in=server_obj)
@@ -129,11 +125,9 @@ def update_player(
                 "name", server.name
             ) or server.icon != guild.get("icon", server.icon):
                 server_obj = schemas.ServerUpdate(
-                    **{
-                        "name": guild.get("name"),
-                        "icon": guild.get("icon"),
-                        "discordId": guild.get("id"),
-                    }
+                    name=guild.get("name"),
+                    icon=guild.get("icon"),
+                    discordId=guild.get("id"),
                 )
 
                 server = crud.server.update(db, db_obj=server, obj_in=server_obj)

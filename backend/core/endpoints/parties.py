@@ -41,10 +41,8 @@ def create_party(
 
     # Create leader as member
     leader_member = schemas.MemberCreate(
-        **{
-            "party_id": party.id,
-            "player_id": party.leader_id,
-        }
+        party_id=party.id,
+        player_id=party.leader_id,
     )
     crud.member.create(db, obj_in=leader_member)
     db.refresh(party)

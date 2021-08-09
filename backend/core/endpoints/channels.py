@@ -64,11 +64,9 @@ def create_channel(
         if server is None:
             raise HTTPException(status_code=404, detail="Server not found")
         channel = schemas.ChannelCreate(
-            **{
-                "discordId": channel.discord_id,
-                "name": channel_data.get("name"),
-                "serverId": server.id,
-            }
+            discordId=channel.discord_id,
+            name=channel_data.get("name"),
+            serverId=server.id,
         )
 
     if not current_user:
@@ -117,11 +115,9 @@ def update_channel(
             .first()
         )
         channel = schemas.ChannelCreate(
-            **{
-                "discordId": channel.discord_id,
-                "name": channel_data.get("name"),
-                "serverId": server.id,
-            }
+            discordId=channel.discord_id,
+            name=channel_data.get("name"),
+            serverId=server.id,
         )
 
     db_channel = crud.channel.update(db=db, db_obj=db_channel, obj_in=channel)

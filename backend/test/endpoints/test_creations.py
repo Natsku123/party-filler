@@ -2,50 +2,36 @@ from test.test_main import client
 from test import *
 
 
-def test_create_server_1():
-    response = client.post("/servers/", json=TEST_SERVER_1)
+def create_helper(test_channel, path):
+    response = client.post(f"/{path}/", json=test_channel)
     assert response.status_code == 200, response.text
     data = response.json()
 
-    for key, value in TEST_SERVER_1.items():
+    for key, value in test_channel.items():
         assert key in data
         assert data[key] == value
 
     assert "id" in data
-    server_id = data["id"]
+    item_id = data["id"]
 
-    response = client.get(f"/servers/{server_id}")
+    response = client.get(f"/{path}/{item_id}")
     assert response.status_code == 200, response.text
 
     data = response.json()
-    for key, value in TEST_SERVER_1.items():
+    for key, value in test_channel.items():
         assert key in data
         assert data[key] == value
 
-    assert data["id"] == server_id
+    assert data["id"] == item_id
+    return data
+
+
+def test_create_server_1():
+    create_helper(TEST_SERVER_1, "servers")
 
 
 def test_create_server_2():
-    response = client.post("/servers/", json=TEST_SERVER_2)
-    assert response.status_code == 200, response.text
-    data = response.json()
-
-    for key, value in TEST_SERVER_2.items():
-        assert key in data
-        assert data[key] == value
-
-    assert "id" in data
-    server_id = data["id"]
-
-    response = client.get(f"/servers/{server_id}")
-    assert response.status_code == 200, response.text
-
-    data = response.json()
-    for key, value in TEST_SERVER_2.items():
-        assert key in data
-        assert data[key] == value
-
-    assert data["id"] == server_id
+    create_helper(TEST_SERVER_2, "servers")
 
 
 def test_create_server_no_id():
@@ -58,50 +44,16 @@ def test_create_server_no_name():
     assert response.status_code == 422, response.text
 
 
+def create_channel_test_helper(test_channel):
+    create_helper(test_channel, "channels")
+
+
 def test_create_channel_1():
-    response = client.post("/channels/", json=TEST_CHANNEL_1)
-    assert response.status_code == 200, response.text
-    data = response.json()
-
-    for key, value in TEST_CHANNEL_1.items():
-        assert key in data
-        assert data[key] == value
-
-    assert "id" in data
-    channel_id = data["id"]
-
-    response = client.get(f"/channels/{channel_id}")
-    assert response.status_code == 200, response.text
-
-    data = response.json()
-    for key, value in TEST_CHANNEL_1.items():
-        assert key in data
-        assert data[key] == value
-
-    assert data["id"] == channel_id
+    create_helper(TEST_CHANNEL_1, "channels")
 
 
 def test_create_channel_2():
-    response = client.post("/channels/", json=TEST_CHANNEL_2)
-    assert response.status_code == 200, response.text
-    data = response.json()
-
-    for key, value in TEST_CHANNEL_2.items():
-        assert key in data
-        assert data[key] == value
-
-    assert "id" in data
-    channel_id = data["id"]
-
-    response = client.get(f"/channels/{channel_id}")
-    assert response.status_code == 200, response.text
-
-    data = response.json()
-    for key, value in TEST_CHANNEL_2.items():
-        assert key in data
-        assert data[key] == value
-
-    assert data["id"] == channel_id
+    create_helper(TEST_CHANNEL_2, "channels")
 
 
 def test_create_channel_no_name():
@@ -120,49 +72,11 @@ def test_create_channel_no_server():
 
 
 def test_create_game_1():
-    response = client.post("/games/", json=TEST_GAME_1)
-    assert response.status_code == 200, response.text
-    data = response.json()
-
-    for key, value in TEST_GAME_1.items():
-        assert key in data
-        assert data[key] == value
-
-    assert "id" in data
-    game_id = data["id"]
-
-    response = client.get(f"/games/{game_id}")
-    assert response.status_code == 200, response.text
-
-    data = response.json()
-    for key, value in TEST_GAME_1.items():
-        assert key in data
-        assert data[key] == value
-
-    assert data["id"] == game_id
+    create_helper(TEST_GAME_1, "games")
 
 
 def test_create_game_2():
-    response = client.post("/games/", json=TEST_GAME_2)
-    assert response.status_code == 200, response.text
-    data = response.json()
-
-    for key, value in TEST_GAME_2.items():
-        assert key in data
-        assert data[key] == value
-
-    assert "id" in data
-    game_id = data["id"]
-
-    response = client.get(f"/games/{game_id}")
-    assert response.status_code == 200, response.text
-
-    data = response.json()
-    for key, value in TEST_GAME_2.items():
-        assert key in data
-        assert data[key] == value
-
-    assert data["id"] == game_id
+    create_helper(TEST_GAME_2, "games")
 
 
 def test_create_game_no_name():
@@ -171,45 +85,15 @@ def test_create_game_no_name():
 
 
 def test_create_party_1():
-    response = client.post("/parties/", json=TEST_PARTY_1)
-    assert response.status_code == 200, response.text
-    data = response.json()
-
-    for key, value in TEST_PARTY_1.items():
-        assert key in data
-        assert data[key] == value
-
-    assert "id" in data
-    assert "game" in data
-    assert "leader" in data
-    assert data["game"] != "null" and data["game"] is not None
-    assert data["leader"] != "null" and data["game"] is not None
-
-    party_id = data["id"]
-
-    response = client.get(f"/parties/{party_id}")
-    assert response.status_code == 200, response.text
-
-    data = response.json()
-    for key, value in TEST_PARTY_1.items():
-        assert key in data
-        assert data[key] == value
-
-    assert "id" in data
-    assert "game" in data
-    assert "leader" in data
-    assert data["game"] != "null" and data["game"] is not None
-    assert data["leader"] != "null" and data["game"] is not None
-
-    assert data["id"] == party_id
+    party_helper(TEST_PARTY_1)
 
 
 def test_create_party_2():
-    response = client.post("/parties/", json=TEST_PARTY_2)
-    assert response.status_code == 200, response.text
-    data = response.json()
+    party_helper(TEST_PARTY_2)
 
-    for key, value in TEST_PARTY_2.items():
+
+def validate_test_party(test_party, data):
+    for key, value in test_party.items():
         assert key in data
         assert data[key] == value
 
@@ -219,21 +103,19 @@ def test_create_party_2():
     assert data["game"] != "null" and data["game"] is not None
     assert data["leader"] != "null" and data["game"] is not None
 
-    party_id = data["id"]
 
+def party_helper(test_party):
+    response = client.post("/parties/", json=test_party)
+    assert response.status_code == 200, response.text
+    data = response.json()
+    validate_test_party(test_party, data)
+
+    party_id = data["id"]
     response = client.get(f"/parties/{party_id}")
     assert response.status_code == 200, response.text
 
     data = response.json()
-    for key, value in TEST_PARTY_2.items():
-        assert key in data
-        assert data[key] == value
-
-    assert "id" in data
-    assert "game" in data
-    assert "leader" in data
-    assert data["game"] != "null" and data["game"] is not None
-    assert data["leader"] != "null" and data["game"] is not None
+    validate_test_party(test_party, data)
 
     assert data["id"] == party_id
 
@@ -254,200 +136,60 @@ def test_create_party_no_game():
 
 
 def test_create_role_1():
-    response = client.post("/roles/", json=TEST_ROLE_1)
-    assert response.status_code == 200, response.text
-    data = response.json()
-
-    for key, value in TEST_ROLE_1.items():
-        assert key in data
-        assert data[key] == value
-
-    assert "id" in data
-    role_id = data["id"]
-
-    response = client.get(f"/roles/{role_id}")
-    assert response.status_code == 200, response.text
-
-    data = response.json()
-    for key, value in TEST_ROLE_1.items():
-        assert key in data
-        assert data[key] == value
-
-    assert data["id"] == role_id
+    create_helper(TEST_ROLE_1, "roles")
 
 
 def test_create_role_2():
-    response = client.post("/roles/", json=TEST_ROLE_2)
-    assert response.status_code == 200, response.text
-    data = response.json()
-
-    for key, value in TEST_ROLE_2.items():
-        assert key in data
-        assert data[key] == value
-
-    assert "id" in data
-    role_id = data["id"]
-
-    response = client.get(f"/roles/{role_id}")
-    assert response.status_code == 200, response.text
-
-    data = response.json()
-    for key, value in TEST_ROLE_2.items():
-        assert key in data
-        assert data[key] == value
-
-    assert data["id"] == role_id
+    create_helper(TEST_ROLE_2, "roles")
 
 
 def test_create_role_3():
-    response = client.post("/roles/", json=TEST_ROLE_3)
-    assert response.status_code == 200, response.text
-    data = response.json()
+    create_helper(TEST_ROLE_3, "roles")
 
-    for key, value in TEST_ROLE_3.items():
-        assert key in data
-        assert data[key] == value
 
+def validate_member(data):
     assert "id" in data
-    role_id = data["id"]
+    assert "party" in data
+    assert "player" in data
+    assert data["party"] != "null" and data["party"] is not None
+    assert data["player"] != "null" and data["player"] is not None
 
-    response = client.get(f"/roles/{role_id}")
+
+def create_member_helper(test_member, should_have_role=False):
+    post_response_data = create_helper(test_member, "members")
+
+    validate_member(post_response_data)
+
+    member_id = post_response_data["id"]
+    response = client.get(f"/members/{member_id}")
     assert response.status_code == 200, response.text
+    get_response = response.json()
+    for key, value in test_member.items():
+        assert key in get_response
+        assert get_response[key] == value
 
-    data = response.json()
-    for key, value in TEST_ROLE_3.items():
-        assert key in data
-        assert data[key] == value
+    validate_member(get_response)
 
-    assert data["id"] == role_id
+    if should_have_role:
+        assert get_response["role"] != "null" and get_response["role"] is not None
+    else:
+        assert get_response["role"] != "null" and get_response["role"] is None
+    assert get_response["id"] == member_id
+    get_party_member_response = client.get(f"/parties/{test_member['partyId']}").json()
+    assert "members" in get_party_member_response
+    assert id_in_list(get_party_member_response["members"], member_id)
 
 
 def test_create_member_1():
-    response = client.post("/members/", json=TEST_MEMBER_1)
-    assert response.status_code == 200, response.text
-    data = response.json()
-
-    for key, value in TEST_MEMBER_1.items():
-        assert key in data
-        assert data[key] == value
-
-    assert "id" in data
-    assert "party" in data
-    assert "player" in data
-    assert data["party"] != "null" and data["party"] is not None
-    assert data["player"] != "null" and data["player"] is not None
-
-    member_id = data["id"]
-
-    response = client.get(f"/members/{member_id}")
-    assert response.status_code == 200, response.text
-
-    data = response.json()
-    for key, value in TEST_MEMBER_1.items():
-        assert key in data
-        assert data[key] == value
-
-    assert "party" in data
-    assert "player" in data
-    assert "role" in data
-    assert "id" in data
-    assert data["party"] != "null" and data["party"] is not None
-    assert data["player"] != "null" and data["player"] is not None
-    assert data["role"] != "null" and data["role"] is None
-
-    assert data["id"] == member_id
-
-    response = client.get(f"/parties/{TEST_MEMBER_1['partyId']}")
-    data = response.json()
-
-    assert "members" in data
-    assert id_in_list(data["members"], member_id)
+    create_member_helper(TEST_MEMBER_1)
 
 
 def test_create_member_2():
-    response = client.post("/members/", json=TEST_MEMBER_2)
-    assert response.status_code == 200, response.text
-    data = response.json()
-
-    for key, value in TEST_MEMBER_2.items():
-        assert key in data
-        assert data[key] == value
-
-    assert "id" in data
-    assert "party" in data
-    assert "player" in data
-    assert data["party"] != "null" and data["party"] is not None
-    assert data["player"] != "null" and data["player"] is not None
-
-    member_id = data["id"]
-
-    response = client.get(f"/members/{member_id}")
-    assert response.status_code == 200, response.text
-
-    data = response.json()
-    for key, value in TEST_MEMBER_2.items():
-        assert key in data
-        assert data[key] == value
-
-    assert "party" in data
-    assert "player" in data
-    assert "role" in data
-    assert "id" in data
-    assert data["party"] != "null" and data["party"] is not None
-    assert data["player"] != "null" and data["player"] is not None
-    assert data["role"] == "null" or data["role"] is None
-
-    assert data["id"] == member_id
-
-    response = client.get(f"/parties/{TEST_MEMBER_2['partyId']}")
-    data = response.json()
-
-    assert "members" in data
-    assert id_in_list(data["members"], member_id)
+    create_member_helper(TEST_MEMBER_2)
 
 
 def test_create_member_3():
-    response = client.post("/members/", json=TEST_MEMBER_3)
-    assert response.status_code == 200, response.text
-    data = response.json()
-
-    for key, value in TEST_MEMBER_3.items():
-        assert key in data
-        assert data[key] == value
-
-    assert "id" in data
-    assert "party" in data
-    assert "player" in data
-    assert "role" in data
-    assert data["party"] != "null" and data["party"] is not None
-    assert data["player"] != "null" and data["player"] is not None
-    assert data["role"] != "null" and data["role"] is not None
-
-    member_id = data["id"]
-
-    response = client.get(f"/members/{member_id}")
-    assert response.status_code == 200, response.text
-
-    data = response.json()
-    for key, value in TEST_MEMBER_3.items():
-        assert key in data
-        assert data[key] == value
-
-    assert "party" in data
-    assert "player" in data
-    assert "role" in data
-    assert "id" in data
-    assert data["party"] != "null" and data["party"] is not None
-    assert data["player"] != "null" and data["player"] is not None
-    assert data["role"] != "null" and data["role"] is not None
-
-    assert data["id"] == member_id
-
-    response = client.get(f"/parties/{TEST_MEMBER_3['partyId']}")
-    data = response.json()
-
-    assert "members" in data
-    assert id_in_list(data["members"], member_id)
+    create_member_helper(TEST_MEMBER_3, True)
 
 
 def test_create_member_no_party():
@@ -460,147 +202,51 @@ def test_create_member_no_player():
     assert response.status_code == 422, response.text
 
 
-def test_delete_members():
-    response = client.get("/members/")
+def delete_helper(path: str):
+    response = client.get(f"/{path}/")
     assert response.status_code == 200, response.text
 
     data = response.json()
 
     assert len(data) > 0
 
-    for member in data:
-        del_response = client.delete(f"/members/{member['id']}")
+    for item in data:
+        del_response = client.delete(f"/{path}/{item['id']}")
 
-        assert del_response.status_code == 200, response.text
+        assert del_response.status_code == 200, del_response.text
         del_data = del_response.json()
 
-        for key, value in member.items():
+        for key, value in item.items():
             assert key in del_data
             assert del_data[key] == value
 
-    response = client.get("/members/")
+    response = client.get(f"/{path}/")
     assert response.status_code == 200, response.text
 
     data = response.json()
 
     assert len(data) == 0
+
+
+def test_delete_members():
+    delete_helper("members")
 
 
 def test_delete_roles():
-    response = client.get("/roles/")
-    assert response.status_code == 200, response.text
-
-    data = response.json()
-
-    assert len(data) > 0
-
-    for role in data:
-        del_response = client.delete(f"/roles/{role['id']}")
-
-        assert del_response.status_code == 200, response.text
-        del_data = del_response.json()
-
-        for key, value in role.items():
-            assert key in del_data
-            assert del_data[key] == value
-
-    response = client.get("/roles/")
-    assert response.status_code == 200, response.text
-
-    data = response.json()
-
-    assert len(data) == 0
+    delete_helper("roles")
 
 
 def test_delete_parties():
-    response = client.get("/parties/")
-    assert response.status_code == 200, response.text
-
-    data = response.json()
-
-    assert len(data) > 0
-
-    for party in data:
-        del_response = client.delete(f"/parties/{party['id']}")
-
-        assert del_response.status_code == 200, response.text
-        del_data = del_response.json()
-
-        for key, value in party.items():
-            assert key in del_data
-            assert del_data[key] == value
-
-    response = client.get("/parties/")
-    assert response.status_code == 200, response.text
-
-    data = response.json()
-
-    assert len(data) == 0
+    delete_helper("parties")
 
 
 def test_delete_games():
-    response = client.get("/games/")
-    assert response.status_code == 200, response.text
-
-    data = response.json()
-
-    assert len(data) > 0
-
-    for game in data:
-        del_response = client.delete(f"/games/{game['id']}")
-
-        assert del_response.status_code == 200, response.text
-        del_data = del_response.json()
-
-        for key, value in game.items():
-            assert key in del_data
-            assert del_data[key] == value
-
-    response = client.get("/games/")
-    assert response.status_code == 200, response.text
-
-    data = response.json()
-
-    assert len(data) == 0
+    delete_helper("games")
 
 
 def test_delete_channels():
-    response = client.get("/channels/")
-    assert response.status_code == 200, response.text
-
-    data = response.json()
-
-    assert len(data) > 0
-
-    for channel in data:
-        del_response = client.delete(f"/channels/{channel['id']}")
-
-        assert del_response.status_code == 200, response.text
-
-    response = client.get("/channels/")
-    assert response.status_code == 200, response.text
-
-    data = response.json()
-
-    assert len(data) == 0
+    delete_helper("channels")
 
 
 def test_delete_servers():
-    response = client.get("/servers/")
-    assert response.status_code == 200, response.text
-
-    data = response.json()
-
-    assert len(data) > 0
-
-    for server in data:
-        del_response = client.delete(f"/servers/{server['id']}")
-
-        assert del_response.status_code == 200, response.text
-
-    response = client.get("/servers/")
-    assert response.status_code == 200, response.text
-
-    data = response.json()
-
-    assert len(data) == 0
+    delete_helper("servers")

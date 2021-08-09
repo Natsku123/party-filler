@@ -1,6 +1,7 @@
 .idea/
 *.vim
 venv/
+.venv/
 data/
 .env.backup
 .env
