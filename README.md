@@ -45,7 +45,7 @@ After the modifications you can just start the stack:
 docker-compose up -d
 ```
 
-### Docker without Compose (Recommended)
+### Docker Standalone (Recommended)
 
 TODO: Add guide.
 

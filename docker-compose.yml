@@ -18,6 +18,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        BUILD_VERSION: 'development'
     environment:
       SERVER_NAME: ${SERVER_NAME}
       DB_NAME: ${DATABASE}

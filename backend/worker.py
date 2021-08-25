@@ -7,7 +7,6 @@ import requests
 from celery import Celery, Task
 from celery.schedules import crontab
 
-from pydantic import BaseModel
 from typing import Union
 
 from sqlalchemy.orm import scoped_session

@@ -3,6 +3,11 @@ from typing import List, Optional
 from pydantic import BaseModel, Field, validator, root_validator
 
 
+class Meta(BaseModel):
+    version: Optional[str]
+    build: Optional[str]
+
+
 class OAuth2TokenBase(BaseModel):
     player_id: int = Field(..., gt=0, alias="playerId", description="ID of player")
     name: str = Field(..., description="Name of token OAuth provider")

@@ -46,6 +46,9 @@ class Settings(BaseSettings):
             return v
         raise ValueError(v)
 
+    VERSION: str = os.environ.get("VERSION", "UNKNOWN")
+    BUILD: str = os.environ.get("BUILD", "UNKNOWN")
+
     class Config:
         case_sensitive = True
 

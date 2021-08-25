@@ -8,6 +8,7 @@ from starlette.responses import RedirectResponse
 from config import settings
 from core.database import SessionLocal
 from core.database.models import OAuth2Token, Player, Server
+from core.database.schemas import Meta
 from sqlalchemy.orm import Session
 
 from core.deps import get_current_user, get_db
@@ -233,6 +234,11 @@ async def authorize(request: Request, db: Session = Depends(get_db)):
         del request.session["redirect_url"]
 
     return RedirectResponse(url=url)
+
+
+@app.get("/meta", response_model=Meta)
+def meta():
+    return {"version": settings.VERSION, "build": settings.BUILD}
 
 
 app.include_router(party_router, prefix="/parties")
