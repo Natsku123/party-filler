@@ -194,9 +194,14 @@ jobs:
       - name: Parse version tag
         id: version
         run: |
-          IFS=',' read -r -a tags <<< "${{ steps.meta.outputs.tags }}"
-          IFS=':' read -r -a stag <<< "$tags[-1]"
-          echo "::set-output name=version::$stag[-1]"
+          SUB=','
+          if [[ "${{ steps.meta.outputs.tags }}" == *"$SUB"* ]]; then
+            IFS=',' read -r -a tags <<< "${{ steps.meta.outputs.tags }}"
+            IFS=':' read -r -a stag <<< "${tags[-1]}"
+          else
+            IFS=':' read -r -a stag <<< "${{ steps.meta.outputs.tags }}"
+          fi
+          echo "::set-output name=version::${stag[-1]}"
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
