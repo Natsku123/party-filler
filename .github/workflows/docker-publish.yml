@@ -190,7 +190,8 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: BUILD_VERSION=${{ steps.meta.outputs.tags.0 }}
+          build-args:
+            - BUILD_VERSION=${{ steps.meta.outputs.tags.0 }}
 
   build-worker:
     needs: [ pylint-backend, pytest-backend ]
