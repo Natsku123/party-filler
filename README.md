@@ -1,6 +1,7 @@
 # Party Filler
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Docker](https://github.com/Natsku123/party-filler/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/Natsku123/party-filler/actions/workflows/docker-publish.yml)
+[![Docs](https://github.com/Natsku123/party-filler/actions/workflows/docs-publish.yml/badge.svg)](https://github.com/Natsku123/party-filler/actions/workflows/docs-publish.yml)
 
 Find more players to your parties from your Discord-server with Discord integrations 
 and party status tracking.
