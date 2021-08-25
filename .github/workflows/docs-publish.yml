@@ -1,0 +1,39 @@
+name: Docs
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+on:
+  push:
+    branches: [ main ]
+    # Publish semver tags as releases.
+    tags: [ 'v*.*.*' ]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    name: Build Backend Docker image
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y.%m.%d')"
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - uses: actions/checkout@master
+      - run: |
+          pip install -r backend/requirements.txt
+          python backend/generate_api_docs.py ${{ steps.date.outputs.date }} https://natsku123.github.io/party-filler/api/openapi.json
+      - uses: seanmiddleditch/gha-publish-to-git@master
+        with:
+          branch: gh-pages
+          github_token: '${{ secrets.GITHUB_TOKEN  }}'
+          github_pat: '${{ secrets.GH_PAT }}'
+          source_folder: docs
+        if: success() && github.event_name == 'push'
