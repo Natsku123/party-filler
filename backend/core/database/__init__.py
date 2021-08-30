@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Table, Column, Integer, ForeignKey
 from sqlalchemy.orm import sessionmaker
 from typing import Any
 from sqlalchemy.ext.declarative import as_declarative
@@ -20,3 +20,11 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 class Base:
     id: Any
     __name__: str
+
+
+player_server_association = Table(
+    "players_servers",
+    Base.metadata,
+    Column("player_id", Integer, ForeignKey("players.id")),
+    Column("server_id", Integer, ForeignKey("servers.id")),
+)
