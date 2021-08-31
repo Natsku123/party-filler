@@ -31,6 +31,24 @@ class Channel(SQLModel, table=True):
     server: "Server" = Relationship(sa_relationship=relationship("Server"))
 
 
+class ChannelShort(SQLModel):
+    id: Optional[int] = Field(
+        None,
+        description="ID of channel",
+    )
+    name: str = Field(
+        description="Name of channel from Discord",
+    )
+    discord_id: str = Field(
+        alias="discordId",
+        description="Discord ID of channel",
+    )
+    server_id: int = Field(
+        alias="serverId",
+        description="ID of server associated with",
+    )
+
+
 class ChannelCreate(SQLModel):
     name: Optional[str] = Field(None, description="Name of channel from Discord")
     discord_id: str = Field(..., alias="discordId", description="Discord ID of channel")
