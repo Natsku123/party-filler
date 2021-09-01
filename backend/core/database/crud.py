@@ -1,21 +1,23 @@
 import dateutil.parser
 import json
-from sqlalchemy import asc, desc
-from sqlalchemy.orm import Session
+from sqlmodel import SQLModel, Session, asc, desc, col
 
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from core.utils import camel_dict_to_snake
 
-from pydantic import BaseModel
-from core.database import Base
+from core.database import channels
+from core.database import games
+from core.database import members
+from core.database import parties
+from core.database import players
+from core.database import roles
+from core.database import servers
 
-from core.database import models, schemas
-
-ModelType = TypeVar("ModelType", bound=Base)
-CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
-UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
+ModelType = TypeVar("ModelType", bound=SQLModel)
+CreateSchemaType = TypeVar("CreateSchemaType", bound=SQLModel)
+UpdateSchemaType = TypeVar("UpdateSchemaType", bound=SQLModel)
 
 FilterParseException = HTTPException(
     status_code=400, detail="Filter parsing failed. Invalid attributes present."
@@ -56,15 +58,15 @@ def parse_filter(filters: dict, parent: Any) -> list:
                 new_filters += parse_filter(v, attr.property.mapper.class_)
             else:
                 if gt:
-                    new_filters.append(attr > v)
+                    new_filters.append(col(attr) > v)
                 elif ge:
-                    new_filters.append(attr >= v)
+                    new_filters.append(col(attr) >= v)
                 elif lt:
-                    new_filters.append(attr < v)
+                    new_filters.append(col(attr) < v)
                 elif le:
-                    new_filters.append(attr <= v)
+                    new_filters.append(col(attr) <= v)
                 else:
-                    new_filters.append(attr == v)
+                    new_filters.append(col(attr) == v)
         except AttributeError:
             raise FilterParseException
 
@@ -89,7 +91,13 @@ def parse_order(order: List[str], parent) -> List[str]:
         if not hasattr(parent, v):
             raise OrderParseException
 
-        order[i] = asc(v) if a and not d else desc(v) if not a and d else v
+        order[i] = (
+            asc(col(getattr(parent, v)))
+            if a and not d
+            else desc(col(getattr(parent, v)))
+            if not a and d
+            else col(getattr(parent, v))
+        )
     return order
 
 
@@ -181,7 +189,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return obj
 
 
-class CRUDParty(CRUDBase[models.Party, schemas.PartyCreate, schemas.PartyUpdate]):
+class CRUDParty(CRUDBase[parties.Party, parties.PartyCreate, parties.PartyUpdate]):
     def create(self, db: Session, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in_data = camel_dict_to_snake(jsonable_encoder(obj_in))
         start_time = None
@@ -193,7 +201,7 @@ class CRUDParty(CRUDBase[models.Party, schemas.PartyCreate, schemas.PartyUpdate]
         if "end_time" in obj_in_data and obj_in_data["end_time"]:
             end_time = dateutil.parser.parse(obj_in_data["end_time"])
 
-        db_party = models.Party(
+        db_party = parties.Party(
             title=obj_in_data["title"],
             leader_id=obj_in_data["leader_id"],
             game_id=obj_in_data["game_id"],
@@ -252,22 +260,22 @@ class CRUDParty(CRUDBase[models.Party, schemas.PartyCreate, schemas.PartyUpdate]
         return db_obj
 
 
-class CRUDServer(CRUDBase[models.Server, schemas.ServerCreate, schemas.ServerUpdate]):
-    def get_by_discord_id(self, db: Session, *, discord_id: str) -> models.Server:
+class CRUDServer(CRUDBase[servers.Server, servers.ServerCreate, servers.ServerUpdate]):
+    def get_by_discord_id(self, db: Session, *, discord_id: str) -> servers.Server:
         return (
-            db.query(self.model).filter(models.Server.discord_id == discord_id).first()
+            db.query(self.model).filter(servers.Server.discord_id == discord_id).first()
         )
 
 
 class CRUDChannel(
-    CRUDBase[models.Channel, schemas.ChannelCreate, schemas.ChannelUpdate]
+    CRUDBase[channels.Channel, channels.ChannelCreate, channels.ChannelUpdate]
 ):
     def get_multi_by_server(
         self, db: Session, *, server_id: int, skip: int = 0, limit: int = 100
-    ) -> List[models.Channel]:
+    ) -> List[channels.Channel]:
         return (
             db.query(self.model)
-            .filter(models.Channel.server_id == server_id)
+            .filter(channels.Channel.server_id == server_id)
             .offset(skip)
             .limit(limit)
             .all()
@@ -275,45 +283,45 @@ class CRUDChannel(
 
     def get_multi_by_servers(
         self, db: Session, *, server_ids: List[int], skip: int = 0, limit: int = 100
-    ) -> List[models.Channel]:
+    ) -> List[channels.Channel]:
         return (
             db.query(self.model)
-            .filter(models.Channel.server_id.in_(server_ids))
+            .filter(col(channels.Channel.server_id).in_(server_ids))
             .offset(skip)
             .limit(limit)
             .all()
         )
 
 
-class CRUDPlayer(CRUDBase[models.Player, schemas.PlayerCreate, schemas.PlayerUpdate]):
+class CRUDPlayer(CRUDBase[players.Player, players.PlayerCreate, players.PlayerUpdate]):
     pass
 
 
-class CRUDMember(CRUDBase[models.Member, schemas.MemberCreate, schemas.MemberUpdate]):
+class CRUDMember(CRUDBase[members.Member, members.MemberCreate, members.MemberUpdate]):
     def get_multi_by_party(
         self, db: Session, *, party_id: int, skip: int = 0, limit: int = 100
-    ) -> List[models.Member]:
+    ) -> List[members.Member]:
         return (
             db.query(self.model)
-            .filter(models.Member.party_id == party_id)
+            .filter(members.Member.party_id == party_id)
             .offset(skip)
             .limit(limit)
             .all()
         )
 
 
-class CRUDRole(CRUDBase[models.Role, schemas.RoleCreate, schemas.RoleUpdate]):
+class CRUDRole(CRUDBase[roles.Role, roles.RoleCreate, roles.RoleUpdate]):
     pass
 
 
-class CRUDGame(CRUDBase[models.Game, schemas.GameCreate, schemas.GameUpdate]):
+class CRUDGame(CRUDBase[games.Game, games.GameCreate, games.GameUpdate]):
     pass
 
 
-party = CRUDParty(models.Party)
-server = CRUDServer(models.Server)
-channel = CRUDChannel(models.Channel)
-player = CRUDPlayer(models.Player)
-member = CRUDMember(models.Member)
-role = CRUDRole(models.Role)
-game = CRUDGame(models.Game)
+party = CRUDParty(parties.Party)
+server = CRUDServer(servers.Server)
+channel = CRUDChannel(channels.Channel)
+player = CRUDPlayer(players.Player)
+member = CRUDMember(members.Member)
+role = CRUDRole(roles.Role)
+game = CRUDGame(games.Game)
