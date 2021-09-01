@@ -2,7 +2,7 @@ import main
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 
 from core import deps
 from core.database import crud, models, schemas

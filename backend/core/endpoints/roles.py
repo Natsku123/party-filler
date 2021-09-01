@@ -1,7 +1,7 @@
 from typing import Any, List, Optional, Union
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 
 from core import deps
 from core.database import crud, models, schemas

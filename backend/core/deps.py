@@ -1,14 +1,13 @@
-from typing import Generator
-
 from fastapi import Depends, HTTPException, Request
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 
 from .database import crud, models
-from core.database import SessionLocal
+from core.database import engine
 
 
-def get_db(request: Request):
-    return request.state.db
+def get_db():
+    with Session(engine) as session:
+        yield session
 
 
 # def get_db():
