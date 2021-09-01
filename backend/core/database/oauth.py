@@ -11,7 +11,7 @@ class OAuth2Token(SQLModel, table=True):
         description="ID of token",
     )
     player_id: int = Field(
-        sa_column=Column(Integer, ForeignKey("players.id"), nullable=False),
+        sa_column=Column(Integer, ForeignKey("player.id"), nullable=False),
         gt=0,
         alias="playerId",
         description="ID of player",

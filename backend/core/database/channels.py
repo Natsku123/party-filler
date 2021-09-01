@@ -24,7 +24,7 @@ class Channel(SQLModel, table=True):
         description="Discord ID of channel",
     )
     server_id: int = Field(
-        sa_column=Column(Integer, ForeignKey("servers.id"), nullable=False),
+        sa_column=Column(Integer, ForeignKey("server.id"), nullable=False),
         alias="serverId",
         description="ID of server associated with",
     )

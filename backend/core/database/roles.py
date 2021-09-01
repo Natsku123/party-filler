@@ -10,7 +10,7 @@ class Role(SQLModel, table=True):
         description="ID of role",
     )
     party_id: Optional[int] = Field(
-        sa_column=Column(Integer, ForeignKey("parties.id")),
+        sa_column=Column(Integer, ForeignKey("party.id")),
         gt=0,
         alias="partyId",
         description="ID of party",

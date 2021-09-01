@@ -14,13 +14,13 @@ class Party(SQLModel, table=True):
         sa_column=Column(String(255), nullable=False), description="Title of party"
     )
     leader_id: int = Field(
-        sa_column=Column(Integer, ForeignKey("players.id")),
+        sa_column=Column(Integer, ForeignKey("player.id")),
         gt=0,
         alias="leaderId",
         description="ID of party leader",
     )
     game_id: int = Field(
-        sa_column=Column(Integer, ForeignKey("games.id")),
+        sa_column=Column(Integer, ForeignKey("game.id")),
         gt=0,
         alias="gameId",
         description="ID of game to be played",
@@ -41,7 +41,7 @@ class Party(SQLModel, table=True):
         sa_column=Column(Text()), description="Description of party"
     )
     channel_id: Optional[int] = Field(
-        sa_column=Column(Integer, ForeignKey("channels.id")),
+        sa_column=Column(Integer, ForeignKey("channel.id")),
         gt=0,
         alias="channelId",
         description="ID of channel",

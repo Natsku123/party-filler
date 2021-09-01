@@ -25,6 +25,6 @@ class Base:
 player_server_association = Table(
     "players_servers",
     Base.metadata,
-    Column("player_id", Integer, ForeignKey("players.id")),
-    Column("server_id", Integer, ForeignKey("servers.id")),
+    Column("player_id", Integer, ForeignKey("player.id")),
+    Column("server_id", Integer, ForeignKey("server.id")),
 )

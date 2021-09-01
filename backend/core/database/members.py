@@ -17,20 +17,20 @@ class Member(SQLModel):
         description="Required number of players for member to play",
     )
     party_id: int = Field(
-        sa_column=Column(Integer, ForeignKey("parties.id"), nullable=False),
+        sa_column=Column(Integer, ForeignKey("party.id"), nullable=False),
         gt=0,
         alias="partyId",
         description="ID of party",
     )
     player_id: int = Field(
-        sa_column=Column(Integer, ForeignKey("players.id"), nullable=False),
+        sa_column=Column(Integer, ForeignKey("player.id"), nullable=False),
         gt=0,
         alias="playerId",
         description="ID of player",
     )
     role_id: Optional[int] = Field(
         None,
-        sa_column=Column(Integer, ForeignKey("roles.id"), nullable=True),
+        sa_column=Column(Integer, ForeignKey("role.id"), nullable=True),
         gt=0,
         alias="roleId",
         description="ID of role",
