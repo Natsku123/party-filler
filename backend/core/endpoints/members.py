@@ -21,8 +21,8 @@ def get_members(
     skip: int = 0,
     limit: int = 100,
     filters: Optional[str] = Query(None, alias="filter"),
-    order: Optional[Union[str, List[str]]] = None,
-    group: Optional[Union[str, List[str]]] = None,
+    order: Optional[Union[str, List[str]]] = Query(None),
+    group: Optional[Union[str, List[str]]] = Query(None),
 ) -> Any:
     return crud.member.get_multi(
         db, skip=skip, limit=limit, filters=filters, order=order, group=group
@@ -35,7 +35,7 @@ def create_member(
     db: Session = Depends(deps.get_db),
     member: MemberCreate,
     current_user: Player = Depends(deps.get_current_user),
-    notify: bool = False,
+    notify: bool = Query(False),
 ) -> Any:
     if not current_user or (
         current_user.id != member.player_id and not is_superuser(current_user)

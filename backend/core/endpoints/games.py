@@ -18,8 +18,8 @@ def get_games(
     skip: int = 0,
     limit: int = 100,
     filters: Optional[str] = Query(None, alias="filter"),
-    order: Optional[Union[str, List[str]]] = None,
-    group: Optional[Union[str, List[str]]] = None,
+    order: Optional[Union[str, List[str]]] = Query(None),
+    group: Optional[Union[str, List[str]]] = Query(None),
 ) -> Any:
     return crud.game.get_multi(
         db, skip=skip, limit=limit, filters=filters, order=order, group=group
