@@ -5,7 +5,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session
 
 from core import deps
-from core.database import crud, models, schemas
+from core.database import crud, schemas
+from core.database.players import Player
+from core.database.members import Member, MemberCreate, MemberUpdate
 from core.utils import datetime_to_string, is_superuser
 
 from worker import send_webhook
@@ -13,7 +15,7 @@ from worker import send_webhook
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.Member], tags=["members"])
+@router.get("/", response_model=List[Member], tags=["members"])
 def get_members(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
@@ -27,12 +29,12 @@ def get_members(
     )
 
 
-@router.post("/", response_model=schemas.Member, tags=["members"])
+@router.post("/", response_model=Member, tags=["members"])
 def create_member(
     *,
     db: Session = Depends(deps.get_db),
-    member: schemas.MemberCreate,
-    current_user: models.Player = Depends(deps.get_current_user),
+    member: MemberCreate,
+    current_user: Player = Depends(deps.get_current_user),
     notify: bool = False,
 ) -> Any:
     if not current_user or (
@@ -79,13 +81,13 @@ def create_member(
     return member
 
 
-@router.put("/{id}", response_model=schemas.Member, tags=["members"])
+@router.put("/{id}", response_model=Member, tags=["members"])
 def update_member(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    member: schemas.MemberUpdate,
-    current_user: models.Player = Depends(deps.get_current_user),
+    member: MemberUpdate,
+    current_user: Player = Depends(deps.get_current_user),
 ) -> Any:
     db_member = crud.member.get(db=db, id=id)
 
@@ -99,7 +101,7 @@ def update_member(
     return db_member
 
 
-@router.get("/{id}", response_model=schemas.Member, tags=["members"])
+@router.get("/{id}", response_model=Member, tags=["members"])
 def get_member(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     member = crud.member.get(db=db, id=id)
 
@@ -109,12 +111,12 @@ def get_member(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     return member
 
 
-@router.delete("/{id}", response_model=schemas.Member, tags=["members"])
+@router.delete("/{id}", response_model=Member, tags=["members"])
 def delete_member(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    current_user: models.Player = Depends(deps.get_current_user),
+    current_user: Player = Depends(deps.get_current_user),
 ) -> Any:
     member = crud.member.get(db=db, id=id)
 
