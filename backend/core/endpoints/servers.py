@@ -4,13 +4,16 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session
 
 from core import deps
-from core.database import crud, models, schemas
+from core.database import crud
+from core.database.players import Player
+from core.database.channels import Channel
+from core.database.servers import Server, ServerCreate, ServerUpdate
 from core.utils import is_superuser
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.Server], tags=["servers"])
+@router.get("/", response_model=List[Server], tags=["servers"])
 def get_servers(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
@@ -24,25 +27,25 @@ def get_servers(
     )
 
 
-@router.post("/", response_model=schemas.Server, tags=["servers"])
+@router.post("/", response_model=Server, tags=["servers"])
 def create_server(
     *,
     db: Session = Depends(deps.get_db),
-    server: schemas.ServerCreate,
-    current_user: models.Player = Depends(deps.get_current_user)
+    server: ServerCreate,
+    current_user: Player = Depends(deps.get_current_user)
 ) -> Any:
     if not current_user:
         raise HTTPException(status_code=401, detail="Not authorized")
     return crud.server.create(db, obj_in=server)
 
 
-@router.put("/{id}", response_model=schemas.Server, tags=["servers"])
+@router.put("/{id}", response_model=Server, tags=["servers"])
 def update_server(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    server: schemas.ServerUpdate,
-    current_user: models.Player = Depends(deps.get_current_user)
+    server: ServerUpdate,
+    current_user: Player = Depends(deps.get_current_user)
 ) -> Any:
     db_server = crud.server.get(db=db, id=id)
 
@@ -56,7 +59,7 @@ def update_server(
     return db_server
 
 
-@router.get("/{id}", response_model=schemas.Server, tags=["servers"])
+@router.get("/{id}", response_model=Server, tags=["servers"])
 def get_server(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     server = crud.server.get(db=db, id=id)
 
@@ -66,12 +69,12 @@ def get_server(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     return server
 
 
-@router.delete("/{id}", response_model=schemas.Server, tags=["servers"])
+@router.delete("/{id}", response_model=Server, tags=["servers"])
 def delete_server(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    current_user: models.Player = Depends(deps.get_current_user)
+    current_user: Player = Depends(deps.get_current_user)
 ) -> Any:
     server = crud.server.get(db=db, id=id)
 
@@ -87,7 +90,7 @@ def delete_server(
 
 
 @router.get(
-    "/{id}/channels", response_model=List[schemas.Channel], tags=["servers", "channels"]
+    "/{id}/channels", response_model=List[Channel], tags=["servers", "channels"]
 )
 def get_channels(
     *, db: Session = Depends(deps.get_db), id: int, skip: int = 0, limit: int = 100
