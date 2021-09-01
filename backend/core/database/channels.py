@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from sqlmodel import Field, SQLModel, Relationship
 from sqlalchemy.orm import relationship
 from sqlalchemy import (
@@ -7,6 +7,9 @@ from sqlalchemy import (
     Integer,
     String,
 )
+
+if TYPE_CHECKING:
+    from .servers import ServerShort
 
 
 class Channel(SQLModel, table=True):
@@ -28,7 +31,7 @@ class Channel(SQLModel, table=True):
         alias="serverId",
         description="ID of server associated with",
     )
-    server: "Server" = Relationship(sa_relationship=relationship("Server"))
+    server: "ServerShort" = Relationship(sa_relationship=relationship("Server"))
 
 
 class ChannelShort(SQLModel):

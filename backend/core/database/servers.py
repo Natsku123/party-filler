@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
 from sqlmodel import Field, SQLModel, Relationship
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import (
@@ -8,6 +8,10 @@ from sqlalchemy import (
 )
 
 from core.database import player_server_association
+
+if TYPE_CHECKING:
+    from .players import PlayerShort
+    from .channels import ChannelShort
 
 
 class Server(SQLModel, table=True):
@@ -27,10 +31,10 @@ class Server(SQLModel, table=True):
         alias="discordId",
         description="Discord ID of server",
     )
-    channels: List["Channel"] = Relationship(
+    channels: List["ChannelShort"] = Relationship(
         sa_relationship=relationship("Channel", backref=backref("server", lazy=True))
     )
-    players: List["Player"] = Relationship(
+    players: List["PlayerShort"] = Relationship(
         sa_relationship=relationship(
             "Player", secondary=player_server_association, back_populates="servers"
         )

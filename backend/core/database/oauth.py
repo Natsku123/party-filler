@@ -1,7 +1,10 @@
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from sqlmodel import Field, SQLModel, Relationship
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, ForeignKey
+
+if TYPE_CHECKING:
+    from .players import PlayerShort
 
 
 class OAuth2Token(SQLModel, table=True):
@@ -21,7 +24,7 @@ class OAuth2Token(SQLModel, table=True):
         description="Name of token OAuth provider",
     )
 
-    player: "Player" = Relationship(sa_relationship=relationship("Player"))
+    player: "PlayerShort" = Relationship(sa_relationship=relationship("Player"))
 
     token_type: Optional[str] = Field(
         sa_column=Column(String(20)), alias="tokenType", description="Type of token"
