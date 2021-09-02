@@ -6,14 +6,14 @@ from sqlmodel import Session
 from core import deps
 from core.database import crud
 from core.database.players import Player
-from core.database.channels import Channel
-from core.database.servers import Server, ServerCreate, ServerUpdate
+from core.database.channels import ChannelRead
+from core.database.servers import ServerCreate, ServerUpdate, ServerRead
 from core.utils import is_superuser
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[Server], tags=["servers"])
+@router.get("/", response_model=List[ServerRead], tags=["servers"])
 def get_servers(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
@@ -27,7 +27,7 @@ def get_servers(
     )
 
 
-@router.post("/", response_model=Server, tags=["servers"])
+@router.post("/", response_model=ServerRead, tags=["servers"])
 def create_server(
     *,
     db: Session = Depends(deps.get_db),
@@ -39,7 +39,7 @@ def create_server(
     return crud.server.create(db, obj_in=server)
 
 
-@router.put("/{id}", response_model=Server, tags=["servers"])
+@router.put("/{id}", response_model=ServerRead, tags=["servers"])
 def update_server(
     *,
     db: Session = Depends(deps.get_db),
@@ -59,7 +59,7 @@ def update_server(
     return db_server
 
 
-@router.get("/{id}", response_model=Server, tags=["servers"])
+@router.get("/{id}", response_model=ServerRead, tags=["servers"])
 def get_server(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     server = crud.server.get(db=db, id=id)
 
@@ -69,7 +69,7 @@ def get_server(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     return server
 
 
-@router.delete("/{id}", response_model=Server, tags=["servers"])
+@router.delete("/{id}", response_model=ServerRead, tags=["servers"])
 def delete_server(
     *,
     db: Session = Depends(deps.get_db),
@@ -90,7 +90,7 @@ def delete_server(
 
 
 @router.get(
-    "/{id}/channels", response_model=List[Channel], tags=["servers", "channels"]
+    "/{id}/channels", response_model=List[ChannelRead], tags=["servers", "channels"]
 )
 def get_channels(
     *, db: Session = Depends(deps.get_db), id: int, skip: int = 0, limit: int = 100

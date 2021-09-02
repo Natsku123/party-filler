@@ -7,8 +7,8 @@ from sqlmodel import Session
 from core import deps
 from core.database import crud, schemas
 from core.database.players import Player
-from core.database.parties import Party, PartyCreate, PartyUpdate
-from core.database.members import Member, MemberCreate
+from core.database.parties import PartyCreate, PartyUpdate, PartyRead
+from core.database.members import MemberCreate, MemberRead
 from core.utils import datetime_to_string, is_superuser
 
 from worker import send_webhook
@@ -16,7 +16,7 @@ from worker import send_webhook
 router = APIRouter()
 
 
-@router.get("/", response_model=List[Party], tags=["parties"])
+@router.get("/", response_model=List[PartyRead], tags=["parties"])
 def get_parties(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
@@ -30,7 +30,7 @@ def get_parties(
     )
 
 
-@router.post("/", response_model=Party, tags=["parties"])
+@router.post("/", response_model=PartyRead, tags=["parties"])
 def create_party(
     *,
     db: Session = Depends(deps.get_db),
@@ -66,7 +66,7 @@ def create_party(
     return party
 
 
-@router.put("/{id}", response_model=Party, tags=["parties"])
+@router.put("/{id}", response_model=PartyRead, tags=["parties"])
 def update_party(
     *,
     db: Session = Depends(deps.get_db),
@@ -86,7 +86,7 @@ def update_party(
     return db_party
 
 
-@router.get("/{id}", response_model=Party, tags=["parties"])
+@router.get("/{id}", response_model=PartyRead, tags=["parties"])
 def get_party(
     *,
     db: Session = Depends(deps.get_db),
@@ -100,7 +100,7 @@ def get_party(
     return party
 
 
-@router.delete("/{id}", response_model=Party, tags=["parties"])
+@router.delete("/{id}", response_model=PartyRead, tags=["parties"])
 def delete_party(
     *,
     db: Session = Depends(deps.get_db),
@@ -120,7 +120,9 @@ def delete_party(
     return party
 
 
-@router.get("/{id}/players", response_model=List[Member], tags=["parties", "members"])
+@router.get(
+    "/{id}/players", response_model=List[MemberRead], tags=["parties", "members"]
+)
 def get_members(
     *, db: Session = Depends(deps.get_db), id: int, skip: int = 0, limit: int = 100
 ) -> Any:

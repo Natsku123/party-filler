@@ -10,8 +10,8 @@ from sqlalchemy import (
 from core.database import player_server_association, relationship_settings
 
 if TYPE_CHECKING:
-    from .players import Player
-    from .channels import Channel
+    from .players import Player, PlayerShort
+    from .channels import Channel, ChannelShort
 
 
 class Server(SQLModel, table=True):
@@ -65,3 +65,19 @@ class ServerShort(SQLModel):
     name: str = Field(description="Name of server from Discord")
     icon: Optional[str] = Field(None, description="Icon of server from Discord")
     discord_id: str = Field(alias="discordId", description="Discord ID of server")
+
+
+class ServerRead(SQLModel):
+    id: int = Field(
+        description="ID of server",
+    )
+    name: str = Field(
+        description="Name of server from Discord",
+    )
+    icon: Optional[str] = Field(description="Icon of server from Discord")
+    discord_id: str = Field(
+        alias="discordId",
+        description="Discord ID of server",
+    )
+    channels: List["ChannelShort"] = []
+    players: List["PlayerShort"] = []

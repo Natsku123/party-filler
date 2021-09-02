@@ -1,14 +1,19 @@
 from datetime import datetime
-from typing import Optional
-from pydantic import BaseModel, Field
+from typing import Optional, TYPE_CHECKING
+from sqlmodel import SQLModel, Field
+
+if TYPE_CHECKING:
+    from .members import MemberRead
+    from .channels import ChannelRead
+    from .parties import PartyRead
 
 
-class Meta(BaseModel):
+class Meta(SQLModel):
     version: Optional[str]
     build: Optional[str]
 
 
-class WebhookEvent(BaseModel):
+class WebhookEvent(SQLModel):
     name: str = (Field(..., description="Name / identifier of event"),)
     timestamp: Optional[datetime] = Field(None, description="Timestamp")
 
@@ -16,33 +21,33 @@ class WebhookEvent(BaseModel):
         allow_population_by_field_name = True
 
 
-class MemberJoinWebhook(BaseModel):
-    member: "Member" = (Field(..., description="Member that joined"),)
-    channel: "Channel" = (Field(..., description="Channel to notify"),)
+class MemberJoinWebhook(SQLModel):
+    member: "MemberRead" = (Field(..., description="Member that joined"),)
+    channel: "ChannelRead" = (Field(..., description="Channel to notify"),)
     event: "WebhookEvent" = Field(..., description="Event info")
 
 
-class PartyCreateWebhook(BaseModel):
-    party: "Party" = (Field(..., description="Party created"),)
+class PartyCreateWebhook(SQLModel):
+    party: "PartyRead" = (Field(..., description="Party created"),)
     event: "WebhookEvent" = Field(..., description="Event info")
 
 
-class PartyFullWebhook(BaseModel):
-    party: "Party" = (Field(..., description="Party filled"),)
+class PartyFullWebhook(SQLModel):
+    party: "PartyRead" = (Field(..., description="Party filled"),)
     event: "WebhookEvent" = Field(..., description="Event info")
 
 
-class PartyReadyWebhook(BaseModel):
-    party: "Party" = (Field(..., description="Party that is ready"),)
+class PartyReadyWebhook(SQLModel):
+    party: "PartyRead" = (Field(..., description="Party that is ready"),)
     event: "WebhookEvent" = Field(..., description="Event info")
 
 
-class PartyTimedoutWebhook(BaseModel):
-    party: "Party" = (Field(..., description="Party that timed out"),)
+class PartyTimedoutWebhook(SQLModel):
+    party: "PartyRead" = (Field(..., description="Party that timed out"),)
     event: "WebhookEvent" = Field(..., description="Event info")
 
 
-class IsSuperUser(BaseModel):
+class IsSuperUser(SQLModel):
     is_superuser: bool = Field(
         ..., alias="isSuperuser", description="Is current user superuser"
     )

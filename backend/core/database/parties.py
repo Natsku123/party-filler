@@ -6,11 +6,11 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime, Bool
 from core.database import relationship_settings
 
 if TYPE_CHECKING:
-    from .channels import Channel
-    from .players import Player
-    from .members import Member
-    from .games import Game
-    from .roles import Role
+    from .channels import Channel, ChannelShort
+    from .players import Player, PlayerShort
+    from .members import Member, MemberShort
+    from .games import Game, GameShort
+    from .roles import Role, RoleShort
 
 
 class Party(SQLModel, table=True):
@@ -165,3 +165,53 @@ class PartyShort(SQLModel):
         alias="endTime", description="Party search end time"
     )
     locked: bool = Field(alias="locked", description="Party locked status")
+
+
+class PartyRead(SQLModel):
+    id: int = Field(
+        description="ID of party",
+    )
+    title: str = Field(description="Title of party")
+    leader_id: int = Field(
+        gt=0,
+        alias="leaderId",
+        description="ID of party leader",
+    )
+    game_id: int = Field(
+        gt=0,
+        alias="gameId",
+        description="ID of game to be played",
+    )
+    max_players: Optional[int] = Field(
+        gt=0,
+        alias="maxPlayers",
+        description="Maximum number of players",
+    )
+    min_players: Optional[int] = Field(
+        gt=0,
+        alias="minPlayers",
+        description="Minimum number of players",
+    )
+    description: Optional[str] = Field(description="Description of party")
+    channel_id: Optional[int] = Field(
+        gt=0,
+        alias="channelId",
+        description="ID of channel",
+    )
+    start_time: Optional[datetime] = Field(
+        alias="startTime",
+        description="Party search start time",
+    )
+    end_time: Optional[datetime] = Field(
+        alias="endTime", description="Party search end time"
+    )
+    locked: bool = Field(
+        alias="locked",
+        description="Party locked status",
+    )
+
+    channel: Optional["ChannelShort"] = None
+    leader: "PlayerShort"
+    members: List["MemberShort"] = []
+    roles: List["RoleShort"] = []
+    game: "GameShort"

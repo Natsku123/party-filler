@@ -46,3 +46,15 @@ class GameShort(SQLModel):
         alias="defaultMaxPlayers",
         description="Default number of maximum players for this game",
     )
+
+
+class GameRead(SQLModel):
+    id: int = Field(
+        description="ID of game",
+    )
+    name: str = Field(description="Name of game")
+    default_max_players: int = Field(
+        gt=0,
+        alias="defaultMaxPlayers",
+        description="Default number of maximum players for this game",
+    )

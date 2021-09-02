@@ -1,4 +1,4 @@
-fastapi
+fastapi>=0.68.1
 uvicorn
 sqlalchemy
 alembic
@@ -14,4 +14,4 @@ python-dateutil
 pydantic
 starlette
 redis
-sqlmodel
+sqlmodel>=0.0.4

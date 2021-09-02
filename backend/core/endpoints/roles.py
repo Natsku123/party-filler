@@ -5,14 +5,14 @@ from sqlmodel import Session
 
 from core import deps
 from core.database import crud
-from core.database.roles import Role, RoleCreate, RoleUpdate
+from core.database.roles import RoleCreate, RoleUpdate, RoleRead
 from core.database.players import Player
 from core.utils import is_superuser
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[Role], tags=["roles"])
+@router.get("/", response_model=List[RoleRead], tags=["roles"])
 def get_roles(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
@@ -26,7 +26,7 @@ def get_roles(
     )
 
 
-@router.post("/", response_model=Role, tags=["roles"])
+@router.post("/", response_model=RoleRead, tags=["roles"])
 def create_role(
     *,
     db: Session = Depends(deps.get_db),
@@ -38,7 +38,7 @@ def create_role(
     return crud.role.create(db, obj_in=role)
 
 
-@router.put("/{id}", response_model=Role, tags=["roles"])
+@router.put("/{id}", response_model=RoleRead, tags=["roles"])
 def update_role(
     *,
     db: Session = Depends(deps.get_db),
@@ -62,7 +62,7 @@ def update_role(
     return db_role
 
 
-@router.get("/{id}", response_model=Role, tags=["roles"])
+@router.get("/{id}", response_model=RoleRead, tags=["roles"])
 def get_role(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     role = crud.role.get(db=db, id=id)
 
@@ -72,7 +72,7 @@ def get_role(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     return role
 
 
-@router.delete("/{id}", response_model=Role, tags=["roles"])
+@router.delete("/{id}", response_model=RoleRead, tags=["roles"])
 def delete_role(
     *,
     db: Session = Depends(deps.get_db),

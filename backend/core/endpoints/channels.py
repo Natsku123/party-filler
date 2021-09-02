@@ -9,13 +9,13 @@ from core import deps
 from core.database import crud
 from core.database.players import Player
 from core.database.servers import Server
-from core.database.channels import Channel, ChannelCreate, ChannelUpdate
+from core.database.channels import Channel, ChannelCreate, ChannelUpdate, ChannelRead
 from core.utils import is_superuser, get_channel_info
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[Channel], tags=["channels"])
+@router.get("/", response_model=List[ChannelRead], tags=["channels"])
 def get_channels(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
@@ -29,7 +29,7 @@ def get_channels(
     )
 
 
-@router.post("/", response_model=Channel, tags=["channels"])
+@router.post("/", response_model=ChannelRead, tags=["channels"])
 def create_channel(
     *,
     db: Session = Depends(deps.get_db),
@@ -76,7 +76,7 @@ def create_channel(
     return crud.channel.create(db, obj_in=channel)
 
 
-@router.put("/{id}", response_model=Channel, tags=["channels"])
+@router.put("/{id}", response_model=ChannelRead, tags=["channels"])
 def update_channel(
     *,
     db: Session = Depends(deps.get_db),
@@ -125,7 +125,7 @@ def update_channel(
     return db_channel
 
 
-@router.get("/{id}", response_model=Channel, tags=["channels"])
+@router.get("/{id}", response_model=ChannelRead, tags=["channels"])
 def get_channel(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     channel = crud.channel.get(db=db, id=id)
 
@@ -135,7 +135,7 @@ def get_channel(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     return channel
 
 
-@router.delete("/{id}", response_model=Channel, tags=["channels"])
+@router.delete("/{id}", response_model=ChannelRead, tags=["channels"])
 def delete_channel(
     *,
     db: Session = Depends(deps.get_db),

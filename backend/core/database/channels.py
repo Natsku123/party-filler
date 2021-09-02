@@ -1,6 +1,5 @@
 from typing import Optional, TYPE_CHECKING
 from sqlmodel import Field, SQLModel, Relationship
-from sqlalchemy.orm import relationship
 from sqlalchemy import (
     Column,
     ForeignKey,
@@ -11,7 +10,7 @@ from sqlalchemy import (
 from core.database import relationship_settings
 
 if TYPE_CHECKING:
-    from .servers import Server
+    from .servers import Server, ServerShort
 
 
 class Channel(SQLModel, table=True):
@@ -70,3 +69,21 @@ class ChannelUpdate(SQLModel):
     server_id: Optional[int] = Field(
         None, alias="serverId", description="ID of server associated with"
     )
+
+
+class ChannelRead(SQLModel):
+    id: int = Field(
+        description="ID of channel",
+    )
+    name: str = Field(
+        description="Name of channel from Discord",
+    )
+    discord_id: str = Field(
+        alias="discordId",
+        description="Discord ID of channel",
+    )
+    server_id: int = Field(
+        alias="serverId",
+        description="ID of server associated with",
+    )
+    server: "ServerShort"

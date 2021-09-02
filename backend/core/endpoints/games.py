@@ -6,13 +6,13 @@ from sqlmodel import Session
 from core import deps
 from core.database import crud
 from core.database.players import Player
-from core.database.games import Game, GameCreate, GameUpdate
+from core.database.games import GameCreate, GameUpdate, GameRead
 from core.utils import is_superuser
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[Game], tags=["games"])
+@router.get("/", response_model=List[GameRead], tags=["games"])
 def get_games(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
@@ -26,7 +26,7 @@ def get_games(
     )
 
 
-@router.post("/", response_model=Game, tags=["games"])
+@router.post("/", response_model=GameRead, tags=["games"])
 def create_game(
     *,
     db: Session = Depends(deps.get_db),
@@ -38,7 +38,7 @@ def create_game(
     return crud.game.create(db, obj_in=game)
 
 
-@router.put("/{id}", response_model=Game, tags=["games"])
+@router.put("/{id}", response_model=GameRead, tags=["games"])
 def update_game(
     *,
     db: Session = Depends(deps.get_db),
@@ -58,7 +58,7 @@ def update_game(
     return db_game
 
 
-@router.get("/{id}", response_model=Game, tags=["games"])
+@router.get("/{id}", response_model=GameRead, tags=["games"])
 def get_game(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     game = crud.game.get(db=db, id=id)
 
@@ -68,7 +68,7 @@ def get_game(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     return game
 
 
-@router.delete("/{id}", response_model=Game, tags=["games"])
+@router.delete("/{id}", response_model=GameRead, tags=["games"])
 def delete_game(
     *,
     db: Session = Depends(deps.get_db),

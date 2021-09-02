@@ -1,14 +1,13 @@
 from typing import Optional, TYPE_CHECKING
 from sqlmodel import Field, SQLModel, Relationship
-from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, ForeignKey
 
 from core.database import relationship_settings
 
 if TYPE_CHECKING:
-    from .parties import Party
-    from .players import Player
-    from .roles import Role
+    from .parties import Party, PartyShort
+    from .players import Player, PlayerShort
+    from .roles import Role, RoleShort
 
 
 class Member(SQLModel, table=True):
@@ -92,3 +91,35 @@ class MemberShort(SQLModel):
 
     player: "Player"
     role: Optional["Role"] = None
+
+
+class MemberRead(SQLModel):
+    id: int = Field(
+        description="ID of member",
+    )
+    player_req: Optional[int] = Field(
+        None,
+        gt=0,
+        alias="playerReq",
+        description="Required number of players for member to play",
+    )
+    party_id: int = Field(
+        gt=0,
+        alias="partyId",
+        description="ID of party",
+    )
+    player_id: int = Field(
+        gt=0,
+        alias="playerId",
+        description="ID of player",
+    )
+    role_id: Optional[int] = Field(
+        None,
+        gt=0,
+        alias="roleId",
+        description="ID of role",
+    )
+
+    party: "PartyShort"
+    player: "PlayerShort"
+    role: Optional["RoleShort"] = None

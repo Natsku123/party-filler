@@ -10,7 +10,7 @@ from sqlalchemy import (
 from core.database import player_server_association, relationship_settings
 
 if TYPE_CHECKING:
-    from .servers import Server
+    from .servers import Server, ServerShort
 
 
 class Player(SQLModel, table=True):
@@ -77,3 +77,22 @@ class PlayerShort(SQLModel):
     name: str = Field(description="Discord username of player")
     discriminator: str = Field(description="Discord user discriminator")
     icon: Optional[str] = Field(None, description="Discord icon hash")
+
+
+class PlayerRead(SQLModel):
+    id: int = Field(
+        description="ID of player",
+    )
+    discord_id: str = Field(
+        alias="discordId",
+        description="ID on discord",
+    )
+    name: str = Field(
+        description="Discord username of player",
+    )
+    discriminator: str = Field(
+        description="Discord user discriminator",
+    )
+    icon: Optional[str] = Field(description="Discord icon hash")
+
+    servers: List["ServerShort"] = []
