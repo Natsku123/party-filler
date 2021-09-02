@@ -1,17 +1,17 @@
 from typing import Optional, List, TYPE_CHECKING
 from sqlmodel import Field, SQLModel, Relationship
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 from sqlalchemy import (
     Column,
     Integer,
     String,
 )
 
-from core.database import player_server_association
+from core.database import player_server_association, relationship_settings
 
 if TYPE_CHECKING:
-    from .players import PlayerShort
-    from .channels import ChannelShort
+    from .players import Player
+    from .channels import Channel
 
 
 class Server(SQLModel, table=True):
@@ -31,12 +31,17 @@ class Server(SQLModel, table=True):
         alias="discordId",
         description="Discord ID of server",
     )
-    channels: List["ChannelShort"] = Relationship(
-        sa_relationship=relationship("Channel", backref=backref("server", lazy=True))
-    )
-    players: List["PlayerShort"] = Relationship(
+    channels: List["Channel"] = Relationship(
         sa_relationship=relationship(
-            "Player", secondary=player_server_association, back_populates="servers"
+            "Channel", back_populates="server", **relationship_settings
+        )
+    )
+    players: List["Player"] = Relationship(
+        sa_relationship=relationship(
+            "Player",
+            secondary=player_server_association,
+            back_populates="servers",
+            **relationship_settings
         )
     )
 

@@ -8,8 +8,10 @@ from sqlalchemy import (
     String,
 )
 
+from core.database import relationship_settings
+
 if TYPE_CHECKING:
-    from .servers import ServerShort
+    from .servers import Server
 
 
 class Channel(SQLModel, table=True):
@@ -31,7 +33,7 @@ class Channel(SQLModel, table=True):
         alias="serverId",
         description="ID of server associated with",
     )
-    server: "ServerShort" = Relationship(sa_relationship=relationship("Server"))
+    server: "Server" = Relationship(sa_relationship_kwargs=relationship_settings)
 
 
 class ChannelShort(SQLModel):

@@ -3,6 +3,8 @@
 venv/
 .venv/
 data/
+*backup/
+*.backup
 .env.backup
 .env
 .DS_Store

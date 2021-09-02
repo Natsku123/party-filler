@@ -1,14 +1,16 @@
 from typing import Optional, List, TYPE_CHECKING
 from sqlmodel import Field, SQLModel, Relationship
-from sqlalchemy.orm import relationship
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime, Boolean
 
+from core.database import relationship_settings
+
 if TYPE_CHECKING:
-    from .channels import ChannelShort
-    from .players import PlayerShort
-    from .members import MemberShort
-    from .games import GameShort
+    from .channels import Channel
+    from .players import Player
+    from .members import Member
+    from .games import Game
+    from .roles import Role
 
 
 class Party(SQLModel, table=True):
@@ -66,16 +68,13 @@ class Party(SQLModel, table=True):
         description="Party locked status",
     )
 
-    channel: Optional["ChannelShort"] = Relationship(
-        sa_relationship=relationship("Channel", lazy="joined")
+    channel: Optional["Channel"] = Relationship(
+        sa_relationship_kwargs=relationship_settings
     )
-    leader: "PlayerShort" = Relationship(
-        sa_relationship=relationship("Player", lazy="joined")
-    )
-    members: List["MemberShort"] = Relationship(sa_relationship=relationship("Member"))
-    game: "GameShort" = Relationship(
-        sa_relationship=relationship("Game", lazy="joined")
-    )
+    leader: "Player" = Relationship(sa_relationship_kwargs=relationship_settings)
+    members: List["Member"] = Relationship(sa_relationship_kwargs=relationship_settings)
+    roles: List["Role"] = Relationship(sa_relationship_kwargs=relationship_settings)
+    game: "Game" = Relationship(sa_relationship_kwargs=relationship_settings)
 
 
 #     @root_validator

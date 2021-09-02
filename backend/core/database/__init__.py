@@ -1,6 +1,6 @@
-from sqlalchemy import create_engine, Table, Column, Integer, ForeignKey
+from sqlmodel import create_engine, Table, Column, Integer, ForeignKey, SQLModel, Field
 from sqlalchemy.orm import sessionmaker
-from typing import Any
+from typing import Any, Optional
 from sqlalchemy.ext.declarative import as_declarative
 from config import settings
 
@@ -15,6 +15,8 @@ SQLALCHEMY_DATABASE_URL = "mysql+pymysql://{username}:{password}@{server}/{db}".
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+relationship_settings = {"lazy": "joined", "join_depth": 1}
+
 
 @as_declarative()
 class Base:
@@ -22,9 +24,14 @@ class Base:
     __name__: str
 
 
+# class PlayerServerLink(SQLModel, table=True):
+#     player_id: Optional[int] = Field(foreign_key="player.id")
+#     server_id: Optional[int] = Field(foreign_key="server.id")
+
+
 player_server_association = Table(
     "players_servers",
-    Base.metadata,
+    SQLModel.metadata,
     Column("player_id", Integer, ForeignKey("player.id")),
     Column("server_id", Integer, ForeignKey("server.id")),
 )

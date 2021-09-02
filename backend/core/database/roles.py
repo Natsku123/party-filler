@@ -1,10 +1,12 @@
 from typing import Optional, TYPE_CHECKING
 from sqlmodel import Field, SQLModel, Relationship
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, ForeignKey
 
+from core.database import relationship_settings
+
 if TYPE_CHECKING:
-    from .parties import PartyShort
+    from .parties import Party
 
 
 class Role(SQLModel, table=True):
@@ -28,8 +30,10 @@ class Role(SQLModel, table=True):
         description="Maximum number of players of role",
     )
 
-    party: Optional["PartyShort"] = Relationship(
-        sa_relationship=relationship("Party", backref=backref("roles", lazy=True))
+    party: Optional["Party"] = Relationship(
+        sa_relationship=relationship(
+            "Party", back_populates="roles", **relationship_settings
+        )
     )
 
 

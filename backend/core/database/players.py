@@ -7,10 +7,10 @@ from sqlalchemy import (
     String,
 )
 
-from core.database import player_server_association
+from core.database import player_server_association, relationship_settings
 
 if TYPE_CHECKING:
-    from .servers import ServerShort
+    from .servers import Server
 
 
 class Player(SQLModel, table=True):
@@ -35,9 +35,13 @@ class Player(SQLModel, table=True):
         sa_column=Column(String(64)), description="Discord icon hash"
     )
 
-    servers: List["ServerShort"] = Relationship(
+    servers: List["Server"] = Relationship(
+        # sa_relationship_kwargs=relationship_settings, back_populates="players"
         sa_relationship=relationship(
-            "Server", secondary=player_server_association, back_populates="players"
+            "Server",
+            secondary=player_server_association,
+            back_populates="players",
+            **relationship_settings
         )
     )
 

@@ -3,8 +3,10 @@ from sqlmodel import Field, SQLModel, Relationship
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, ForeignKey
 
+from core.database import relationship_settings
+
 if TYPE_CHECKING:
-    from .players import PlayerShort
+    from .players import Player
 
 
 class OAuth2Token(SQLModel, table=True):
@@ -24,7 +26,7 @@ class OAuth2Token(SQLModel, table=True):
         description="Name of token OAuth provider",
     )
 
-    player: "PlayerShort" = Relationship(sa_relationship=relationship("Player"))
+    player: "Player" = Relationship(sa_relationship_kwargs=relationship_settings)
 
     token_type: Optional[str] = Field(
         sa_column=Column(String(20)), alias="tokenType", description="Type of token"

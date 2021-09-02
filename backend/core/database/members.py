@@ -3,13 +3,15 @@ from sqlmodel import Field, SQLModel, Relationship
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, ForeignKey
 
+from core.database import relationship_settings
+
 if TYPE_CHECKING:
-    from .parties import PartyShort
-    from .players import PlayerShort
-    from .roles import RoleShort
+    from .parties import Party
+    from .players import Player
+    from .roles import Role
 
 
-class Member(SQLModel):
+class Member(SQLModel, table=True):
     id: Optional[int] = Field(
         sa_column=Column(Integer, primary_key=True, unique=True),
         description="ID of member",
@@ -41,15 +43,11 @@ class Member(SQLModel):
         description="ID of role",
     )
 
-    party: "PartyShort" = Relationship(
-        sa_relationship=relationship("Party", lazy="joined", back_populates="members")
+    party: "Party" = Relationship(
+        sa_relationship_kwargs=relationship_settings, back_populates="members"
     )
-    player: "PlayerShort" = Relationship(
-        sa_relationship=relationship("Player", lazy="joined")
-    )
-    role: Optional["RoleShort"] = Relationship(
-        sa_relationship=relationship("Role", lazy="joined")
-    )
+    player: "Player" = Relationship(sa_relationship_kwargs=relationship_settings)
+    role: Optional["Role"] = Relationship(sa_relationship_kwargs=relationship_settings)
 
 
 class MemberCreate(SQLModel):
@@ -92,5 +90,5 @@ class MemberShort(SQLModel):
     player_id: int = Field(gt=0, alias="playerId", description="ID of player")
     role_id: Optional[int] = Field(None, gt=0, alias="roleId", description="ID of role")
 
-    player: "PlayerShort"
-    role: Optional["RoleShort"] = None
+    player: "Player"
+    role: Optional["Role"] = None
