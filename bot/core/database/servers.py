@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from .models import Player, PlayerShort, Channel, ChannelShort
 
 
-class Server(SQLModel, table=True):
+class Server(SQLModel):
     id: Optional[int] = Field(
         description="ID of server",
     )

@@ -19,29 +19,29 @@ class WebhookEvent(SQLModel):
 
 
 class MemberJoinWebhook(SQLModel):
-    member: "MemberRead" = (Field(description="Member that joined"),)
-    channel: "ChannelRead" = (Field(description="Channel to notify"),)
-    event: "WebhookEvent" = Field(description="Event info")
+    member: MemberRead = (Field(description="Member that joined"),)
+    channel: ChannelRead = (Field(description="Channel to notify"),)
+    event: WebhookEvent = Field(description="Event info")
 
 
 class PartyCreateWebhook(SQLModel):
-    party: "PartyRead" = (Field(description="Party created"),)
-    event: "WebhookEvent" = Field(description="Event info")
+    party: PartyRead = (Field(description="Party created"),)
+    event: WebhookEvent = Field(description="Event info")
 
 
 class PartyFullWebhook(SQLModel):
-    party: "PartyRead" = (Field(description="Party filled"),)
-    event: "WebhookEvent" = Field(description="Event info")
+    party: PartyRead = (Field(description="Party filled"),)
+    event: WebhookEvent = Field(description="Event info")
 
 
 class PartyReadyWebhook(SQLModel):
-    party: "PartyRead" = (Field(description="Party that is ready"),)
-    event: "WebhookEvent" = Field(description="Event info")
+    party: PartyRead = (Field(description="Party that is ready"),)
+    event: WebhookEvent = Field(description="Event info")
 
 
 class PartyTimedoutWebhook(SQLModel):
-    party: "PartyRead" = (Field(description="Party that timed out"),)
-    event: "WebhookEvent" = Field(description="Event info")
+    party: PartyRead = (Field(description="Party that timed out"),)
+    event: WebhookEvent = Field(description="Event info")
 
 
 class IsSuperUser(SQLModel):

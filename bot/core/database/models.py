@@ -7,7 +7,7 @@ from .players import Player, PlayerRead, PlayerShort, PlayerCreate, PlayerUpdate
 from .roles import Role, RoleRead, RoleShort, RoleCreate, RoleUpdate
 from .servers import Server, ServerRead, ServerShort, ServerCreate, ServerUpdate
 
-Channel.update_forward_refs()
+Channel.update_forward_refs(Server=Server)
 ChannelRead.update_forward_refs(ServerShort=ServerShort)
 ChannelShort.update_forward_refs()
 
@@ -15,16 +15,18 @@ Game.update_forward_refs()
 GameRead.update_forward_refs()
 GameShort.update_forward_refs()
 
-Member.update_forward_refs()
+Member.update_forward_refs(Party=Party, Player=Player, Role=Role)
 MemberRead.update_forward_refs(
     PartyShort=PartyShort, PlayerShort=PlayerShort, RoleShort=RoleShort
 )
 MemberShort.update_forward_refs(PlayerShort=PlayerShort, RoleShort=RoleShort)
 
-OAuth2Token.update_forward_refs()
+OAuth2Token.update_forward_refs(Player=Player)
 OAuth2TokenShort.update_forward_refs()
 
-Party.update_forward_refs()
+Party.update_forward_refs(
+    Channel=Channel, Player=Player, Member=Member, Role=Role, Game=Game
+)
 PartyRead.update_forward_refs(
     ChannelShort=ChannelShort,
     PlayerShort=PlayerShort,
@@ -34,14 +36,14 @@ PartyRead.update_forward_refs(
 )
 PartyShort.update_forward_refs()
 
-Player.update_forward_refs()
+Player.update_forward_refs(Server=Server)
 PlayerRead.update_forward_refs(ServerShort=ServerShort)
 PlayerShort.update_forward_refs()
 
-Role.update_forward_refs()
+Role.update_forward_refs(Party=Party)
 RoleRead.update_forward_refs(PartyShort=PartyShort)
 RoleShort.update_forward_refs()
 
-Server.update_forward_refs()
+Server.update_forward_refs(Channel=Channel, Player=Player)
 ServerRead.update_forward_refs(ChannelShort=ChannelShort, PlayerShort=PlayerShort)
 ServerShort.update_forward_refs()
