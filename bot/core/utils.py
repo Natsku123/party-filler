@@ -1,5 +1,5 @@
 from typing import Union
-from core.database.schemas import Player, PlayerShort
+from core.database.models import Player, PlayerShort
 
 
 def discord_avatar_url(
