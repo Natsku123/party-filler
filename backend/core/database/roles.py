@@ -36,6 +36,10 @@ class Role(SQLModel, table=True):
         )
     )
 
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
+
 
 class RoleCreate(SQLModel):
     party_id: Optional[int] = Field(
@@ -45,6 +49,10 @@ class RoleCreate(SQLModel):
     max_players: Optional[int] = Field(
         None, gt=0, alias="maxPlayers", description="Maximum number of players of role"
     )
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
 
 
 class RoleUpdate(SQLModel):
@@ -56,6 +64,10 @@ class RoleUpdate(SQLModel):
         None, gt=0, alias="maxPlayers", description="Maximum number of players of role"
     )
 
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
+
 
 class RoleShort(SQLModel):
     id: int = Field(description="ID of role")
@@ -66,6 +78,10 @@ class RoleShort(SQLModel):
     max_players: Optional[int] = Field(
         None, gt=0, alias="maxPlayers", description="Maximum number of players of role"
     )
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
 
 
 class RoleRead(SQLModel):
@@ -85,3 +101,7 @@ class RoleRead(SQLModel):
     )
 
     party: Optional["PartyShort"] = None
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True

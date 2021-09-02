@@ -83,23 +83,25 @@ class Party(SQLModel, table=True):
     roles: List["Role"] = Relationship(sa_relationship_kwargs=relationship_settings)
     game: "Game" = Relationship(sa_relationship_kwargs=relationship_settings)
 
+    #     @root_validator
+    #     def check_min_and_max_players(cls, values):
+    #         min_p, max_p = values.get("min_players"), values.get("max_players")
+    #         if min_p is not None and max_p is not None and min_p > max_p:
+    #             raise ValueError(
+    #                 "Maximum number of players cannot " "be less than the minimum!"
+    #             )
+    #         return values
 
-#     @root_validator
-#     def check_min_and_max_players(cls, values):
-#         min_p, max_p = values.get("min_players"), values.get("max_players")
-#         if min_p is not None and max_p is not None and min_p > max_p:
-#             raise ValueError(
-#                 "Maximum number of players cannot " "be less than the minimum!"
-#             )
-#         return values
-
-#     @root_validator
-#     def check_times(cls, values):
-#         start, end = values.get("start_time"), values.get("end_time")
-#         if start is not None and end is not None and start > end:
-#             raise ValueError("Start time cannot be greater than end time")
-#
-#         return values
+    #     @root_validator
+    #     def check_times(cls, values):
+    #         start, end = values.get("start_time"), values.get("end_time")
+    #         if start is not None and end is not None and start > end:
+    #             raise ValueError("Start time cannot be greater than end time")
+    #
+    #         return values
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
 
 
 class PartyCreate(SQLModel):
@@ -122,6 +124,10 @@ class PartyCreate(SQLModel):
     end_time: Optional[datetime] = Field(
         None, alias="endTime", description="Party search end time"
     )
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
 
 
 class PartyUpdate(SQLModel):
@@ -149,6 +155,10 @@ class PartyUpdate(SQLModel):
         None, alias="endTime", description="Party search end time"
     )
 
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
+
 
 class PartyShort(SQLModel):
     id: Optional[int] = Field(description="ID of party")
@@ -172,6 +182,10 @@ class PartyShort(SQLModel):
         alias="endTime", description="Party search end time"
     )
     locked: bool = Field(alias="locked", description="Party locked status")
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
 
 
 class PartyRead(SQLModel):
@@ -222,3 +236,7 @@ class PartyRead(SQLModel):
     members: List["MemberShort"] = []
     roles: List["RoleShort"] = []
     game: "GameShort"
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True

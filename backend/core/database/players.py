@@ -54,12 +54,20 @@ class Player(SQLModel, table=True):
             "icon": self.icon,
         }
 
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
+
 
 class PlayerCreate(SQLModel):
     discord_id: str = Field(alias="discordId", description="ID on discord")
     name: str = Field(description="Discord username of player")
     discriminator: str = Field(description="Discord user discriminator")
     icon: Optional[str] = Field(None, description="Discord icon hash")
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
 
 
 class PlayerUpdate(SQLModel):
@@ -70,6 +78,10 @@ class PlayerUpdate(SQLModel):
     discriminator: Optional[str] = Field(None, description="Discord user discriminator")
     icon: Optional[str] = Field(None, description="Discord icon hash")
 
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
+
 
 class PlayerShort(SQLModel):
     id: int = Field(description="ID of player")
@@ -77,6 +89,10 @@ class PlayerShort(SQLModel):
     name: str = Field(description="Discord username of player")
     discriminator: str = Field(description="Discord user discriminator")
     icon: Optional[str] = Field(None, description="Discord icon hash")
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
 
 
 class PlayerRead(SQLModel):
@@ -96,3 +112,7 @@ class PlayerRead(SQLModel):
     icon: Optional[str] = Field(description="Discord icon hash")
 
     servers: List["ServerShort"] = []
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True

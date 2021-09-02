@@ -34,6 +34,10 @@ class Channel(SQLModel, table=True):
     )
     server: "Server" = Relationship(sa_relationship_kwargs=relationship_settings)
 
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
+
 
 class ChannelShort(SQLModel):
     id: int = Field(
@@ -51,6 +55,10 @@ class ChannelShort(SQLModel):
         description="ID of server associated with",
     )
 
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
+
 
 class ChannelCreate(SQLModel):
     name: Optional[str] = Field(None, description="Name of channel from Discord")
@@ -58,6 +66,10 @@ class ChannelCreate(SQLModel):
     server_id: Optional[int] = Field(
         None, alias="serverId", description="ID of server associated with"
     )
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
 
 
 class ChannelUpdate(SQLModel):
@@ -68,6 +80,10 @@ class ChannelUpdate(SQLModel):
     server_id: Optional[int] = Field(
         None, alias="serverId", description="ID of server associated with"
     )
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
 
 
 class ChannelRead(SQLModel):
@@ -86,3 +102,7 @@ class ChannelRead(SQLModel):
         description="ID of server associated with",
     )
     server: "ServerShort"
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True

@@ -55,6 +55,10 @@ class OAuth2Token(SQLModel, table=True):
             expires_at=self.expires_at,
         )
 
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
+
 
 class OAuth2TokenCreate(SQLModel):
     player_id: int = Field(gt=0, alias="playerId", description="ID of player")
@@ -71,6 +75,10 @@ class OAuth2TokenCreate(SQLModel):
     expires_at: Optional[int] = Field(
         0, ge=0, alias="expiresAt", description="Token expiration"
     )
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
 
 
 class OAuth2TokenUpdate(SQLModel):
@@ -91,6 +99,10 @@ class OAuth2TokenUpdate(SQLModel):
         None, ge=0, alias="expiresAt", description="Token expiration"
     )
 
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
+
 
 class OAuth2TokenShort(SQLModel):
     token_id: int = Field(alias="tokenId", description="ID of token")
@@ -108,3 +120,7 @@ class OAuth2TokenShort(SQLModel):
     expires_at: Optional[int] = Field(
         0, ge=0, alias="expiresAt", description="Token expiration"
     )
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True

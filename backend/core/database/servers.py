@@ -44,11 +44,19 @@ class Server(SQLModel, table=True):
         )
     )
 
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
+
 
 class ServerCreate(SQLModel):
     name: str = Field(description="Name of server from Discord")
     icon: Optional[str] = Field(None, description="Icon of server from Discord")
     discord_id: str = Field(alias="discordId", description="Discord ID of server")
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
 
 
 class ServerUpdate(SQLModel):
@@ -58,12 +66,20 @@ class ServerUpdate(SQLModel):
         None, alias="discordId", description="Discord ID of server"
     )
 
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
+
 
 class ServerShort(SQLModel):
     id: int = Field(description="ID of server")
     name: str = Field(description="Name of server from Discord")
     icon: Optional[str] = Field(None, description="Icon of server from Discord")
     discord_id: str = Field(alias="discordId", description="Discord ID of server")
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
 
 
 class ServerRead(SQLModel):
@@ -80,3 +96,7 @@ class ServerRead(SQLModel):
     )
     channels: List["ChannelShort"] = []
     players: List["PlayerShort"] = []
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True

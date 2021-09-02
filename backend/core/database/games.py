@@ -18,6 +18,10 @@ class Game(SQLModel, table=True):
         description="Default number of maximum players for this game",
     )
 
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
+
 
 class GameCreate(SQLModel):
     name: str = Field(description="Name of game")
@@ -26,6 +30,10 @@ class GameCreate(SQLModel):
         alias="defaultMaxPlayers",
         description="Default number of maximum players for this game",
     )
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
 
 
 class GameUpdate(SQLModel):
@@ -37,6 +45,10 @@ class GameUpdate(SQLModel):
         description="Default number of maximum players for this game",
     )
 
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
+
 
 class GameShort(SQLModel):
     id: int = Field(description="ID of game")
@@ -46,6 +58,10 @@ class GameShort(SQLModel):
         alias="defaultMaxPlayers",
         description="Default number of maximum players for this game",
     )
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
 
 
 class GameRead(SQLModel):
@@ -58,3 +74,7 @@ class GameRead(SQLModel):
         alias="defaultMaxPlayers",
         description="Default number of maximum players for this game",
     )
+
+    class Config:
+        orm_mode = True
+        allow_population_by_field_name = True
