@@ -10,7 +10,7 @@ services:
       DB_USER: ${DB_USER}
       DB_PASS: ${DB_PASSWORD}
     volumes:
-      - "./bot/files:/files"
+      - "./bot:/bot"
     ports:
       - "9080:9080"
 
