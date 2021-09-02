@@ -1,11 +1,8 @@
 from datetime import datetime
-from typing import Optional, TYPE_CHECKING
+from typing import Optional
 from sqlmodel import SQLModel, Field
 
-if TYPE_CHECKING:
-    from .members import MemberRead
-    from .channels import ChannelRead
-    from .parties import PartyRead
+from .models import MemberRead, ChannelRead, PartyRead
 
 
 class Meta(SQLModel):

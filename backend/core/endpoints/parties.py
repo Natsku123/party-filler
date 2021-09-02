@@ -64,7 +64,7 @@ def create_party(
                 "timestamp": datetime_to_string(datetime.datetime.now()),
             },
         }
-        webhook = schemas.PartyCreateWebhook(**webhook_data)
+        webhook = schemas.PartyCreateWebhook.parse_obj(webhook_data)
 
         send_webhook.delay("http://bot:9080/webhook", webhook.json())
 

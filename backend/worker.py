@@ -47,7 +47,7 @@ def check_party_timeout():
 
         for party in parties:
             webhook_data = {"party": party, "event": {"name": "on_party_timed_out"}}
-            webhook = schemas.PartyTimedoutWebhook(**webhook_data)
+            webhook = schemas.PartyTimedoutWebhook.parse_obj(webhook_data)
 
             # Send timeout webhook
             send_webhook.delay("http://bot:9080/webhook", webhook.json())

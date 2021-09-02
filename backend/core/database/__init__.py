@@ -15,7 +15,7 @@ SQLALCHEMY_DATABASE_URL = "mysql+pymysql://{username}:{password}@{server}/{db}".
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-relationship_settings = {"lazy": "joined"}
+relationship_settings = {}
 
 
 @as_declarative()
