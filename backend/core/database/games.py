@@ -11,7 +11,7 @@ class Game(SQLModel, table=True):
     name: str = Field(
         sa_column=Column(String(255), nullable=False), description="Name of game"
     )
-    default_max_players: int = Field(
+    default_max_players: Optional[int] = Field(
         sa_column=Column(Integer),
         gt=0,
         alias="defaultMaxPlayers",
@@ -25,7 +25,8 @@ class Game(SQLModel, table=True):
 
 class GameCreate(SQLModel):
     name: str = Field(description="Name of game")
-    default_max_players: int = Field(
+    default_max_players: Optional[int] = Field(
+        None,
         gt=0,
         alias="defaultMaxPlayers",
         description="Default number of maximum players for this game",
@@ -53,7 +54,8 @@ class GameUpdate(SQLModel):
 class GameShort(SQLModel):
     id: int = Field(description="ID of game")
     name: str = Field(description="Name of game")
-    default_max_players: int = Field(
+    default_max_players: Optional[int] = Field(
+        None,
         gt=0,
         alias="defaultMaxPlayers",
         description="Default number of maximum players for this game",
@@ -69,7 +71,8 @@ class GameRead(SQLModel):
         description="ID of game",
     )
     name: str = Field(description="Name of game")
-    default_max_players: int = Field(
+    default_max_players: Optional[int] = Field(
+        None,
         gt=0,
         alias="defaultMaxPlayers",
         description="Default number of maximum players for this game",

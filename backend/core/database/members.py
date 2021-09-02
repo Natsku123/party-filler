@@ -2,8 +2,6 @@ from typing import Optional, TYPE_CHECKING
 from sqlmodel import Field, SQLModel, Relationship
 from sqlalchemy import Column, Integer, ForeignKey
 
-from core.database import relationship_settings
-
 if TYPE_CHECKING:
     from .models import Party, PartyShort, Player, PlayerShort, Role, RoleShort
 
@@ -41,10 +39,10 @@ class Member(SQLModel, table=True):
     )
 
     party: "Party" = Relationship(
-        sa_relationship_kwargs=relationship_settings, back_populates="members"
+        sa_relationship_kwargs={"lazy": "joined"}, back_populates="members"
     )
-    player: "Player" = Relationship(sa_relationship_kwargs=relationship_settings)
-    role: Optional["Role"] = Relationship(sa_relationship_kwargs=relationship_settings)
+    player: "Player" = Relationship(sa_relationship_kwargs={"lazy": "joined"})
+    role: Optional["Role"] = Relationship(sa_relationship_kwargs={"lazy": "joined"})
 
     class Config:
         orm_mode = True

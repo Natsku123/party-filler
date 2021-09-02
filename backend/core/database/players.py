@@ -7,7 +7,7 @@ from sqlalchemy import (
     String,
 )
 
-from core.database import player_server_association, relationship_settings
+from core.database import player_server_association
 
 if TYPE_CHECKING:
     from .models import Server, ServerShort
@@ -38,10 +38,7 @@ class Player(SQLModel, table=True):
     servers: List["Server"] = Relationship(
         # sa_relationship_kwargs=relationship_settings, back_populates="players"
         sa_relationship=relationship(
-            "Server",
-            secondary=player_server_association,
-            back_populates="players",
-            **relationship_settings
+            "Server", secondary=player_server_association, back_populates="players"
         )
     )
 

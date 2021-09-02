@@ -3,8 +3,6 @@ from sqlmodel import Field, SQLModel, Relationship
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime, Boolean
 
-from core.database import relationship_settings
-
 if TYPE_CHECKING:
     from .models import (
         Channel,
@@ -76,12 +74,12 @@ class Party(SQLModel, table=True):
     )
 
     channel: Optional["Channel"] = Relationship(
-        sa_relationship_kwargs=relationship_settings
+        sa_relationship_kwargs={"lazy": "joined"}
     )
-    leader: "Player" = Relationship(sa_relationship_kwargs=relationship_settings)
-    members: List["Member"] = Relationship(sa_relationship_kwargs=relationship_settings)
-    roles: List["Role"] = Relationship(sa_relationship_kwargs=relationship_settings)
-    game: "Game" = Relationship(sa_relationship_kwargs=relationship_settings)
+    leader: "Player" = Relationship(sa_relationship_kwargs={"lazy": "joined"})
+    members: List["Member"] = Relationship()
+    roles: List["Role"] = Relationship()
+    game: "Game" = Relationship(sa_relationship_kwargs={"lazy": "joined"})
 
     #     @root_validator
     #     def check_min_and_max_players(cls, values):

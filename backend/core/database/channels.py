@@ -7,8 +7,6 @@ from sqlalchemy import (
     String,
 )
 
-from core.database import relationship_settings
-
 if TYPE_CHECKING:
     from .models import Server, ServerShort
 
@@ -32,7 +30,7 @@ class Channel(SQLModel, table=True):
         alias="serverId",
         description="ID of server associated with",
     )
-    server: "Server" = Relationship(sa_relationship_kwargs=relationship_settings)
+    server: "Server" = Relationship()
 
     class Config:
         orm_mode = True

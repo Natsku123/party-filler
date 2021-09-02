@@ -1,13 +1,14 @@
 from fastapi import HTTPException, Depends
 from sqlmodel import create_engine, Session, SQLModel
+from sqlmodel.pool import StaticPool
 
 from core.database import models, crud
 from test import *
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    "sqlite://",
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
 )
 
 

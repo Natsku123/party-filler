@@ -3,8 +3,6 @@ from sqlmodel import Field, SQLModel, Relationship
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, ForeignKey
 
-from core.database import relationship_settings
-
 if TYPE_CHECKING:
     from .models import Party, PartyShort
 
@@ -31,9 +29,7 @@ class Role(SQLModel, table=True):
     )
 
     party: Optional["Party"] = Relationship(
-        sa_relationship=relationship(
-            "Party", back_populates="roles", **relationship_settings
-        )
+        sa_relationship=relationship("Party", back_populates="roles")
     )
 
     class Config:
