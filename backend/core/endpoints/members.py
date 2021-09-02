@@ -6,8 +6,7 @@ from sqlmodel import Session
 
 from core import deps
 from core.database import crud, schemas
-from core.database.players import Player
-from core.database.members import MemberCreate, MemberUpdate, MemberRead
+from core.database.models import MemberCreate, MemberUpdate, MemberRead, Player
 from core.utils import datetime_to_string, is_superuser
 
 from worker import send_webhook

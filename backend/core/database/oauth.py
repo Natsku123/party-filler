@@ -1,12 +1,11 @@
 from typing import Optional, TYPE_CHECKING
 from sqlmodel import Field, SQLModel, Relationship
-from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, ForeignKey
 
 from core.database import relationship_settings
 
 if TYPE_CHECKING:
-    from .players import Player
+    from .models import Player
 
 
 class OAuth2Token(SQLModel, table=True):

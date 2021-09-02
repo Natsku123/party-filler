@@ -7,9 +7,14 @@ from config import settings
 
 from core import deps
 from core.database import crud
-from core.database.players import Player
-from core.database.servers import Server
-from core.database.channels import Channel, ChannelCreate, ChannelUpdate, ChannelRead
+from core.database.models import (
+    Player,
+    Server,
+    Channel,
+    ChannelCreate,
+    ChannelUpdate,
+    ChannelRead,
+)
 from core.utils import is_superuser, get_channel_info
 
 router = APIRouter()

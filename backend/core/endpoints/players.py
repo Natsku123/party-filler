@@ -6,9 +6,14 @@ from sqlmodel import Session
 
 from core import deps
 from core.database import crud, schemas
-from core.database.players import Player, PlayerUpdate, PlayerRead
-from core.database.channels import ChannelRead
-from core.database.servers import ServerCreate, ServerUpdate
+from core.database.models import (
+    Player,
+    PlayerUpdate,
+    PlayerRead,
+    ChannelRead,
+    ServerCreate,
+    ServerUpdate,
+)
 from core.utils import is_superuser
 
 router = APIRouter()

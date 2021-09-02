@@ -39,7 +39,7 @@ class GameUpdate(SQLModel):
 
 
 class GameShort(SQLModel):
-    id: int = Field(..., description="ID of game")
+    id: int = Field(description="ID of game")
     name: str = Field(description="Name of game")
     default_max_players: int = Field(
         gt=0,

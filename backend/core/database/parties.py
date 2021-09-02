@@ -6,11 +6,18 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime, Bool
 from core.database import relationship_settings
 
 if TYPE_CHECKING:
-    from .channels import Channel, ChannelShort
-    from .players import Player, PlayerShort
-    from .members import Member, MemberShort
-    from .games import Game, GameShort
-    from .roles import Role, RoleShort
+    from .models import (
+        Channel,
+        ChannelShort,
+        Player,
+        PlayerShort,
+        Member,
+        MemberShort,
+        Game,
+        GameShort,
+        Role,
+        RoleShort,
+    )
 
 
 class Party(SQLModel, table=True):

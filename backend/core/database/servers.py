@@ -10,8 +10,7 @@ from sqlalchemy import (
 from core.database import player_server_association, relationship_settings
 
 if TYPE_CHECKING:
-    from .players import Player, PlayerShort
-    from .channels import Channel, ChannelShort
+    from .models import Player, PlayerShort, Channel, ChannelShort
 
 
 class Server(SQLModel, table=True):

@@ -5,9 +5,13 @@ from sqlmodel import Session
 
 from core import deps
 from core.database import crud
-from core.database.players import Player
-from core.database.channels import ChannelRead
-from core.database.servers import ServerCreate, ServerUpdate, ServerRead
+from core.database.models import (
+    ServerCreate,
+    ServerUpdate,
+    ServerRead,
+    Player,
+    ChannelRead,
+)
 from core.utils import is_superuser
 
 router = APIRouter()
@@ -89,9 +93,7 @@ def delete_server(
     return server
 
 
-@router.get(
-    "/{id}/channels", response_model=List[ChannelRead], tags=["servers", "channels"]
-)
+@router.get("/{id}/channels", response_model=List[ChannelRead], tags=["servers"])
 def get_channels(
     *, db: Session = Depends(deps.get_db), id: int, skip: int = 0, limit: int = 100
 ) -> Any:

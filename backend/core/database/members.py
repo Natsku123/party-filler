@@ -5,9 +5,7 @@ from sqlalchemy import Column, Integer, ForeignKey
 from core.database import relationship_settings
 
 if TYPE_CHECKING:
-    from .parties import Party, PartyShort
-    from .players import Player, PlayerShort
-    from .roles import Role, RoleShort
+    from .models import Party, PartyShort, Player, PlayerShort, Role, RoleShort
 
 
 class Member(SQLModel, table=True):
@@ -78,7 +76,7 @@ class MemberUpdate(SQLModel):
 
 
 class MemberShort(SQLModel):
-    id: int = Field(..., description="ID of member")
+    id: int = Field(description="ID of member")
     player_req: Optional[int] = Field(
         None,
         gt=0,
@@ -89,8 +87,8 @@ class MemberShort(SQLModel):
     player_id: int = Field(gt=0, alias="playerId", description="ID of player")
     role_id: Optional[int] = Field(None, gt=0, alias="roleId", description="ID of role")
 
-    player: "Player"
-    role: Optional["Role"] = None
+    player: "PlayerShort"
+    role: Optional["RoleShort"] = None
 
 
 class MemberRead(SQLModel):

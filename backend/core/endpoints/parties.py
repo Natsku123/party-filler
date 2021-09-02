@@ -6,9 +6,14 @@ from sqlmodel import Session
 
 from core import deps
 from core.database import crud, schemas
-from core.database.players import Player
-from core.database.parties import PartyCreate, PartyUpdate, PartyRead
-from core.database.members import MemberCreate, MemberRead
+from core.database.models import (
+    PartyCreate,
+    PartyUpdate,
+    PartyRead,
+    Player,
+    MemberCreate,
+    MemberRead,
+)
 from core.utils import datetime_to_string, is_superuser
 
 from worker import send_webhook
@@ -120,9 +125,7 @@ def delete_party(
     return party
 
 
-@router.get(
-    "/{id}/players", response_model=List[MemberRead], tags=["parties", "members"]
-)
+@router.get("/{id}/players", response_model=List[MemberRead], tags=["parties"])
 def get_members(
     *, db: Session = Depends(deps.get_db), id: int, skip: int = 0, limit: int = 100
 ) -> Any:

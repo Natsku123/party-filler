@@ -10,7 +10,7 @@ from sqlalchemy import (
 from core.database import relationship_settings
 
 if TYPE_CHECKING:
-    from .servers import Server, ServerShort
+    from .models import Server, ServerShort
 
 
 class Channel(SQLModel, table=True):
@@ -36,8 +36,7 @@ class Channel(SQLModel, table=True):
 
 
 class ChannelShort(SQLModel):
-    id: Optional[int] = Field(
-        None,
+    id: int = Field(
         description="ID of channel",
     )
     name: str = Field(

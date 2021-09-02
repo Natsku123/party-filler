@@ -6,7 +6,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from core.database import relationship_settings
 
 if TYPE_CHECKING:
-    from .parties import Party, PartyShort
+    from .models import Party, PartyShort
 
 
 class Role(SQLModel, table=True):

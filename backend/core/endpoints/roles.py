@@ -5,8 +5,7 @@ from sqlmodel import Session
 
 from core import deps
 from core.database import crud
-from core.database.roles import RoleCreate, RoleUpdate, RoleRead
-from core.database.players import Player
+from core.database.models import RoleCreate, RoleUpdate, RoleRead, Player
 from core.utils import is_superuser
 
 router = APIRouter()

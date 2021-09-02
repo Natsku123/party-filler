@@ -7,13 +7,7 @@ from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from core.utils import camel_dict_to_snake
 
-from core.database import channels
-from core.database import games
-from core.database import members
-from core.database import parties
-from core.database import players
-from core.database import roles
-from core.database import servers
+from core.database import models
 
 ModelType = TypeVar("ModelType", bound=SQLModel)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=SQLModel)
@@ -191,7 +185,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return obj
 
 
-class CRUDParty(CRUDBase[parties.Party, parties.PartyCreate, parties.PartyUpdate]):
+class CRUDParty(CRUDBase[models.Party, models.PartyCreate, models.PartyUpdate]):
     def create(self, db: Session, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in_data = camel_dict_to_snake(jsonable_encoder(obj_in))
         start_time = None
@@ -203,7 +197,7 @@ class CRUDParty(CRUDBase[parties.Party, parties.PartyCreate, parties.PartyUpdate
         if "end_time" in obj_in_data and obj_in_data["end_time"]:
             end_time = dateutil.parser.parse(obj_in_data["end_time"])
 
-        db_party = parties.Party(
+        db_party = models.Party(
             title=obj_in_data["title"],
             leader_id=obj_in_data["leader_id"],
             game_id=obj_in_data["game_id"],
@@ -262,19 +256,17 @@ class CRUDParty(CRUDBase[parties.Party, parties.PartyCreate, parties.PartyUpdate
         return db_obj
 
 
-class CRUDServer(CRUDBase[servers.Server, servers.ServerCreate, servers.ServerUpdate]):
-    def get_by_discord_id(self, db: Session, *, discord_id: str) -> servers.Server:
+class CRUDServer(CRUDBase[models.Server, models.ServerCreate, models.ServerUpdate]):
+    def get_by_discord_id(self, db: Session, *, discord_id: str) -> models.Server:
         return (
-            db.query(self.model).filter(servers.Server.discord_id == discord_id).first()
+            db.query(self.model).filter(models.Server.discord_id == discord_id).first()
         )
 
 
-class CRUDChannel(
-    CRUDBase[channels.Channel, channels.ChannelCreate, channels.ChannelUpdate]
-):
+class CRUDChannel(CRUDBase[models.Channel, models.ChannelCreate, models.ChannelUpdate]):
     def get_multi_by_server(
         self, db: Session, *, server_id: int, skip: int = 0, limit: int = 100
-    ) -> List[channels.Channel]:
+    ) -> List[models.Channel]:
         # return (
         #     db.query(self.model)
         #     .filter(channels.Channel.server_id == server_id)
@@ -284,14 +276,14 @@ class CRUDChannel(
         # )
         return db.exec(
             select(self.model)
-            .filter(channels.Channel.server_id == server_id)
+            .filter(models.Channel.server_id == server_id)
             .offset(skip)
             .limit(limit)
         ).all()
 
     def get_multi_by_servers(
         self, db: Session, *, server_ids: List[int], skip: int = 0, limit: int = 100
-    ) -> List[channels.Channel]:
+    ) -> List[models.Channel]:
         # return (
         #     db.query(self.model)
         #     .filter(col(channels.Channel.server_id).in_(server_ids))
@@ -301,20 +293,20 @@ class CRUDChannel(
         # )
         return db.exec(
             select(self.model)
-            .filter(col(channels.Channel.server_id).in_(server_ids))
+            .filter(col(models.Channel.server_id).in_(server_ids))
             .offset(skip)
             .limit(limit)
         ).all()
 
 
-class CRUDPlayer(CRUDBase[players.Player, players.PlayerCreate, players.PlayerUpdate]):
+class CRUDPlayer(CRUDBase[models.Player, models.PlayerCreate, models.PlayerUpdate]):
     pass
 
 
-class CRUDMember(CRUDBase[members.Member, members.MemberCreate, members.MemberUpdate]):
+class CRUDMember(CRUDBase[models.Member, models.MemberCreate, models.MemberUpdate]):
     def get_multi_by_party(
         self, db: Session, *, party_id: int, skip: int = 0, limit: int = 100
-    ) -> List[members.Member]:
+    ) -> List[models.Member]:
         # return (
         #     db.query(self.model)
         #     .filter(members.Member.party_id == party_id)
@@ -324,24 +316,24 @@ class CRUDMember(CRUDBase[members.Member, members.MemberCreate, members.MemberUp
         # )
         return db.exec(
             select(self.model)
-            .filter(members.Member.party_id == party_id)
+            .filter(models.Member.party_id == party_id)
             .offset(skip)
             .limit(limit)
         ).all()
 
 
-class CRUDRole(CRUDBase[roles.Role, roles.RoleCreate, roles.RoleUpdate]):
+class CRUDRole(CRUDBase[models.Role, models.RoleCreate, models.RoleUpdate]):
     pass
 
 
-class CRUDGame(CRUDBase[games.Game, games.GameCreate, games.GameUpdate]):
+class CRUDGame(CRUDBase[models.Game, models.GameCreate, models.GameUpdate]):
     pass
 
 
-party = CRUDParty(parties.Party)
-server = CRUDServer(servers.Server)
-channel = CRUDChannel(channels.Channel)
-player = CRUDPlayer(players.Player)
-member = CRUDMember(members.Member)
-role = CRUDRole(roles.Role)
-game = CRUDGame(games.Game)
+party = CRUDParty(models.Party)
+server = CRUDServer(models.Server)
+channel = CRUDChannel(models.Channel)
+player = CRUDPlayer(models.Player)
+member = CRUDMember(models.Member)
+role = CRUDRole(models.Role)
+game = CRUDGame(models.Game)
