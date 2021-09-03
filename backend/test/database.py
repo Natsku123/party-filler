@@ -13,6 +13,7 @@ def session_fixture():
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
+    SQLModel.metadata.create_all(bind=engine)
     with Session(engine) as db:
 
         test_player = (
@@ -29,6 +30,5 @@ def session_fixture():
             db.commit()
             db.refresh(test_player)
 
-    SQLModel.metadata.create_all(bind=engine)
     with Session(engine) as session:
-        yield session, test_player
+        yield session
