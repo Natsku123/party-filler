@@ -77,7 +77,9 @@ class Party(SQLModel, table=True):
         sa_relationship_kwargs={"lazy": "joined"}
     )
     leader: "Player" = Relationship(sa_relationship_kwargs={"lazy": "joined"})
-    members: List["Member"] = Relationship()
+    members: List["Member"] = Relationship(
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
     roles: List["Role"] = Relationship()
     game: "Game" = Relationship(sa_relationship_kwargs={"lazy": "joined"})
 
