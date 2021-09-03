@@ -1,4 +1,5 @@
 import pytest
+from contextlib import contextmanager
 from sqlmodel import create_engine, Session, SQLModel
 from sqlmodel.pool import StaticPool
 
@@ -7,6 +8,18 @@ from test import *
 
 
 @pytest.fixture(name="session")
+def session_default():
+    with session_fixture() as result:
+        yield result
+
+
+@pytest.fixture(name="session_s", scope="session")
+def session_session():
+    with session_fixture() as result:
+        yield result
+
+
+@contextmanager
 def session_fixture():
     engine = create_engine(
         "sqlite://",
