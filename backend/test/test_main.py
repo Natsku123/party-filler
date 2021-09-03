@@ -1,20 +1,36 @@
+import pytest
+from fastapi import Depends, HTTPException
 from fastapi.testclient import TestClient
-
-from .database import get_testing_get_db, init_test_db, get_testing_current_user
+from sqlmodel import Session
 
 from core.deps import get_db, get_current_user
+from core.database import models, crud
 
 from main import app
 
 
-client = TestClient(app)
+@pytest.fixture(name="client")
+def client_fixture(session: Session):
+    def get_testing_get_db():
+        return session
 
-app.dependency_overrides[get_db] = get_testing_get_db
-app.dependency_overrides[get_current_user] = get_testing_current_user
+    def get_testing_current_user(
+        db: Session = Depends(get_testing_get_db),
+    ) -> models.Player:
+        user = crud.player.get(db, id=1)
+        if not user:
+            raise HTTPException(status_code=404, detail="Player not found")
 
-test_player = init_test_db()
+        return user
+
+    app.dependency_overrides[get_db] = get_testing_get_db
+    app.dependency_overrides[get_current_user] = get_testing_current_user
+
+    client = TestClient(app)
+    yield client
+    app.dependency_overrides.clear()
 
 
-def test_root():
+def test_root(client: TestClient):
     response = client.get("/")
     assert response.status_code == 200, response.text

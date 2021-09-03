@@ -1,36 +1,18 @@
-from fastapi import HTTPException, Depends
+import pytest
 from sqlmodel import create_engine, Session, SQLModel
 from sqlmodel.pool import StaticPool
 
-from core.database import models, crud
+from core.database import models
 from test import *
 
-engine = create_engine(
-    "sqlite://",
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
-)
 
-
-def get_testing_get_db():
-    with Session(engine) as session:
-        yield session
-
-
-def get_testing_current_user(
-    db: Session = Depends(get_testing_get_db),
-) -> models.Player:
-
-    user = crud.player.get(db, id=1)
-    if not user:
-        raise HTTPException(status_code=404, detail="Player not found")
-
-    return user
-
-
-def init_test_db():
-    SQLModel.metadata.create_all(bind=engine)
-
+@pytest.fixture(name="session")
+def session_fixture():
+    engine = create_engine(
+        "sqlite://",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
     with Session(engine) as db:
 
         test_player = (
@@ -47,4 +29,6 @@ def init_test_db():
             db.commit()
             db.refresh(test_player)
 
-    return test_player
+    SQLModel.metadata.create_all(bind=engine)
+    with Session(engine) as session:
+        yield session, test_player
