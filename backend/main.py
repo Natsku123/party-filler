@@ -28,14 +28,20 @@ app = FastAPI()
 
 
 def custom_openapi():
+
+    # Return "cached" API schema
     if app.openapi_schema:
         return app.openapi_schema
+
+    # Generate OpenAPI Schema
     openapi_schema = get_openapi(
         title=settings.SERVER_NAME,
         version=f"{settings.VERSION}:{settings.BUILD}",
         description=settings.SERVER_DESCRIPTION,
         routes=app.routes,
     )
+
+    # Make fields that are not required nullable
     for name, component in openapi_schema["components"]["schemas"].items():
         if (
             "required" in component
@@ -46,9 +52,13 @@ def custom_openapi():
             for f_name, field in component["properties"].items():
                 if f_name not in component["required"]:
                     field["nullable"] = True
-                component["properties"][f_name] = field
 
+                # Update field
+                component["properties"][f_name] = field
+        # Update component
         openapi_schema["components"]["schemas"][name] = component
+
+    # Save schema so it doesn't have to be generated every time
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
