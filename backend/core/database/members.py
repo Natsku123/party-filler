@@ -1,6 +1,7 @@
 from typing import Optional, TYPE_CHECKING
 from sqlmodel import Field, SQLModel, Relationship
 from sqlalchemy import Column, Integer, ForeignKey
+from core.database import INTEGER_SIZE
 
 if TYPE_CHECKING:
     from .models import Party, PartyShort, Player, PlayerShort, Role, RoleShort
@@ -10,23 +11,28 @@ class Member(SQLModel, table=True):
     id: Optional[int] = Field(
         sa_column=Column(Integer, primary_key=True, unique=True),
         description="ID of member",
+        gt=0,
+        le=INTEGER_SIZE,
     )
     player_req: Optional[int] = Field(
         None,
         sa_column=Column(Integer),
         gt=0,
+        le=INTEGER_SIZE,
         alias="playerReq",
         description="Required number of players for member to play",
     )
     party_id: int = Field(
         sa_column=Column(Integer, ForeignKey("party.id"), nullable=False),
         gt=0,
+        le=INTEGER_SIZE,
         alias="partyId",
         description="ID of party",
     )
     player_id: int = Field(
         sa_column=Column(Integer, ForeignKey("player.id"), nullable=False),
         gt=0,
+        le=INTEGER_SIZE,
         alias="playerId",
         description="ID of player",
     )
@@ -34,6 +40,7 @@ class Member(SQLModel, table=True):
         None,
         sa_column=Column(Integer, ForeignKey("role.id"), nullable=True),
         gt=0,
+        le=INTEGER_SIZE,
         alias="roleId",
         description="ID of role",
     )
@@ -53,12 +60,19 @@ class MemberCreate(SQLModel):
     player_req: Optional[int] = Field(
         None,
         gt=0,
+        le=INTEGER_SIZE,
         alias="playerReq",
         description="Required number of players for member to play",
     )
-    party_id: int = Field(gt=0, alias="partyId", description="ID of party")
-    player_id: int = Field(gt=0, alias="playerId", description="ID of player")
-    role_id: Optional[int] = Field(None, gt=0, alias="roleId", description="ID of role")
+    party_id: int = Field(
+        gt=0, le=INTEGER_SIZE, alias="partyId", description="ID of party"
+    )
+    player_id: int = Field(
+        gt=0, le=INTEGER_SIZE, alias="playerId", description="ID of player"
+    )
+    role_id: Optional[int] = Field(
+        None, gt=0, le=INTEGER_SIZE, alias="roleId", description="ID of role"
+    )
 
     class Config:
         orm_mode = True
@@ -69,16 +83,19 @@ class MemberUpdate(SQLModel):
     player_req: Optional[int] = Field(
         None,
         gt=0,
+        le=INTEGER_SIZE,
         alias="playerReq",
         description="Required number of players for member to play",
     )
     party_id: Optional[int] = Field(
-        None, gt=0, alias="partyId", description="ID of party"
+        None, gt=0, le=INTEGER_SIZE, alias="partyId", description="ID of party"
     )
     player_id: Optional[int] = Field(
-        None, gt=0, alias="playerId", description="ID of player"
+        None, gt=0, le=INTEGER_SIZE, alias="playerId", description="ID of player"
     )
-    role_id: Optional[int] = Field(None, gt=0, alias="roleId", description="ID of role")
+    role_id: Optional[int] = Field(
+        None, gt=0, le=INTEGER_SIZE, alias="roleId", description="ID of role"
+    )
 
     class Config:
         orm_mode = True
@@ -90,14 +107,21 @@ class MemberShort(SQLModel):
     player_req: Optional[int] = Field(
         None,
         gt=0,
+        le=INTEGER_SIZE,
         alias="playerReq",
         description="Required number of players for member to play",
     )
-    party_id: int = Field(gt=0, alias="partyId", description="ID of party")
-    player_id: int = Field(gt=0, alias="playerId", description="ID of player")
-    role_id: Optional[int] = Field(None, gt=0, alias="roleId", description="ID of role")
+    party_id: int = Field(
+        gt=0, le=INTEGER_SIZE, alias="partyId", description="ID of party"
+    )
+    player_id: int = Field(
+        gt=0, le=INTEGER_SIZE, alias="playerId", description="ID of player"
+    )
+    role_id: Optional[int] = Field(
+        None, gt=0, le=INTEGER_SIZE, alias="roleId", description="ID of role"
+    )
 
-    player: "PlayerShort"
+    player: Optional["PlayerShort"] = None
     role: Optional["RoleShort"] = None
 
     class Config:
@@ -112,28 +136,32 @@ class MemberRead(SQLModel):
     player_req: Optional[int] = Field(
         None,
         gt=0,
+        le=INTEGER_SIZE,
         alias="playerReq",
         description="Required number of players for member to play",
     )
     party_id: int = Field(
         gt=0,
+        le=INTEGER_SIZE,
         alias="partyId",
         description="ID of party",
     )
     player_id: int = Field(
         gt=0,
+        le=INTEGER_SIZE,
         alias="playerId",
         description="ID of player",
     )
     role_id: Optional[int] = Field(
         None,
         gt=0,
+        le=INTEGER_SIZE,
         alias="roleId",
         description="ID of role",
     )
 
     party: "PartyShort"
-    player: "PlayerShort"
+    player: Optional["PlayerShort"] = None
     role: Optional["RoleShort"] = None
 
     class Config:

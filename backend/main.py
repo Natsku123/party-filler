@@ -1,8 +1,10 @@
 from fastapi import FastAPI, Depends, Request, HTTPException, Response
+from fastapi.openapi.utils import get_openapi
 from fastapi.middleware.cors import CORSMiddleware
 
 from starlette.middleware.sessions import SessionMiddleware
 from authlib.integrations.starlette_client import OAuth
+from authlib.integrations.base_client.errors import UnsupportedTokenTypeError
 from starlette.responses import RedirectResponse
 
 from config import settings
@@ -23,6 +25,35 @@ from core.endpoints.games import router as game_router
 
 
 app = FastAPI()
+
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title=settings.SERVER_NAME,
+        version=f"{settings.VERSION}:{settings.BUILD}",
+        description=settings.SERVER_DESCRIPTION,
+        routes=app.routes,
+    )
+    for name, component in openapi_schema["components"]["schemas"].items():
+        if (
+            "required" in component
+            and component["required"]
+            and "properties" in component
+            and component["properties"]
+        ):
+            for f_name, field in component["properties"].items():
+                if f_name not in component["required"]:
+                    field["nullable"] = True
+                component["properties"][f_name] = field
+
+        openapi_schema["components"]["schemas"][name] = component
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi
 
 app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
 app.add_middleware(
@@ -98,7 +129,7 @@ async def root():
     return {"message": "Hello world!"}
 
 
-@app.get("/login")
+@app.get("/login", tags=["oauth"], responses={302: {}})
 async def login(request: Request, redirect: str = None):
     redirect_uri = settings.REDIRECT_URL + "/authorize"
 
@@ -110,14 +141,16 @@ async def login(request: Request, redirect: str = None):
     return await oauth.discord.authorize_redirect(request, redirect_uri)
 
 
-@app.get("/logout")
+@app.get("/logout", tags=["oauth"], responses={307: {}})
 async def logout(request: Request):
     redirect_url = settings.SITE_HOSTNAME
     request.session.pop("user", None)
     return RedirectResponse(url=redirect_url)
 
 
-@app.get("/player_update")
+@app.get(
+    "/player_update", tags=["oauth"], responses={401: {"description": "Unauthorized"}}
+)
 async def player_update(
     player: Player = Depends(get_current_user), db: Session = Depends(get_db)
 ):
@@ -145,14 +178,21 @@ async def player_update(
     return {"status": "player updated"}
 
 
-@app.get("/authorize")
+@app.get(
+    "/authorize",
+    tags=["oauth"],
+    responses={400: {"description": "Unsupported Token-Type"}},
+)
 async def authorize(request: Request, db: Session = Depends(get_db)):
     token = await oauth.discord.authorize_access_token(request)
 
-    if token:
-        resp = await oauth.discord.get("users/@me", token=token)
-    else:
-        resp = await oauth.discord.get("users/@me")
+    try:
+        if token:
+            resp = await oauth.discord.get("users/@me", token=token)
+        else:
+            resp = await oauth.discord.get("users/@me")
+    except UnsupportedTokenTypeError:
+        raise HTTPException(status_code=400, detail="Unsupported Token-Type")
 
     profile = resp.json()
 

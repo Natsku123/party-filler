@@ -180,8 +180,7 @@ def test_create_party_no_game(client: TestClient, create_deps=True):
     if create_deps:
         test_create_game_1(client)
         test_create_game_2(client)
-    response = client.post("/parties/", json=TEST_PARTY_NO_GAME)
-    assert response.status_code == 422, response.text
+    create_helper(client, TEST_PARTY_NO_GAME, "parties")
 
 
 @pytest.mark.usefixtures("client")

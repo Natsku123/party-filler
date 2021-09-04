@@ -6,6 +6,7 @@ from sqlalchemy import (
     Integer,
     String,
 )
+from core.database import INTEGER_SIZE
 
 if TYPE_CHECKING:
     from .models import Server, ServerShort
@@ -15,6 +16,8 @@ class Channel(SQLModel, table=True):
     id: Optional[int] = Field(
         sa_column=Column(Integer, primary_key=True, unique=True),
         description="ID of channel",
+        gt=0,
+        le=INTEGER_SIZE,
     )
     name: str = Field(
         sa_column=Column(String(255), nullable=False),
@@ -29,6 +32,8 @@ class Channel(SQLModel, table=True):
         sa_column=Column(Integer, ForeignKey("server.id"), nullable=False),
         alias="serverId",
         description="ID of server associated with",
+        gt=0,
+        le=INTEGER_SIZE,
     )
     server: "Server" = Relationship()
 
@@ -38,9 +43,7 @@ class Channel(SQLModel, table=True):
 
 
 class ChannelShort(SQLModel):
-    id: int = Field(
-        description="ID of channel",
-    )
+    id: int = Field(description="ID of channel", gt=0, le=INTEGER_SIZE)
     name: str = Field(
         description="Name of channel from Discord",
     )
@@ -51,6 +54,8 @@ class ChannelShort(SQLModel):
     server_id: int = Field(
         alias="serverId",
         description="ID of server associated with",
+        gt=0,
+        le=INTEGER_SIZE,
     )
 
     class Config:
@@ -62,7 +67,11 @@ class ChannelCreate(SQLModel):
     name: Optional[str] = Field(None, description="Name of channel from Discord")
     discord_id: str = Field(..., alias="discordId", description="Discord ID of channel")
     server_id: Optional[int] = Field(
-        None, alias="serverId", description="ID of server associated with"
+        None,
+        alias="serverId",
+        description="ID of server associated with",
+        gt=0,
+        le=INTEGER_SIZE,
     )
 
     class Config:
@@ -76,7 +85,11 @@ class ChannelUpdate(SQLModel):
         None, alias="discordId", description="Discord ID of channel"
     )
     server_id: Optional[int] = Field(
-        None, alias="serverId", description="ID of server associated with"
+        None,
+        alias="serverId",
+        description="ID of server associated with",
+        gt=0,
+        le=INTEGER_SIZE,
     )
 
     class Config:
@@ -85,9 +98,7 @@ class ChannelUpdate(SQLModel):
 
 
 class ChannelRead(SQLModel):
-    id: int = Field(
-        description="ID of channel",
-    )
+    id: int = Field(description="ID of channel", gt=0, le=INTEGER_SIZE)
     name: str = Field(
         description="Name of channel from Discord",
     )
@@ -98,6 +109,8 @@ class ChannelRead(SQLModel):
     server_id: int = Field(
         alias="serverId",
         description="ID of server associated with",
+        gt=0,
+        le=INTEGER_SIZE,
     )
     server: "ServerShort"
 

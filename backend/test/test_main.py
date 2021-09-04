@@ -72,11 +72,11 @@ def client_fixture(session: Session):
     def get_testing_current_user(
         db: Session = Depends(get_testing_get_db),
     ) -> models.Player:
-        user = crud.player.get(db, id=1)
-        if not user:
+        users = crud.player.get_multi(db)
+        if not users:
             raise HTTPException(status_code=404, detail="Player not found")
 
-        return user
+        return users[0]
 
     app.dependency_overrides[get_db] = get_testing_get_db
     app.dependency_overrides[get_current_user] = get_testing_current_user

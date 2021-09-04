@@ -1,24 +1,33 @@
 import datetime
 from typing import Any, List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from sqlmodel import Session
 
 from core import deps
-from core.database import crud, schemas
+from core.database import crud, schemas, INTEGER_SIZE
 from core.database.models import MemberCreate, MemberUpdate, MemberRead, Player
 from core.utils import datetime_to_string, is_superuser
+
+from core.endpoints import get_multi_responses as gmr, generic_responses as gr
 
 from worker import send_webhook
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[MemberRead], tags=["members"])
+@router.get(
+    "/", response_model=List[MemberRead], tags=["members"], responses={**gmr, **gr}
+)
 def get_members(
     db: Session = Depends(deps.get_db),
-    skip: int = 0,
-    limit: int = 100,
+    skip: int = Query(0, le=INTEGER_SIZE, ge=0, description="Skip N objects"),
+    limit: int = Query(
+        100,
+        le=INTEGER_SIZE,
+        ge=0,
+        description="Limit the number of objects returned by N",
+    ),
     filters: Optional[str] = Query(None, alias="filter"),
     order: Optional[str] = Query(None),
     group: Optional[str] = Query(None),
@@ -28,7 +37,7 @@ def get_members(
     )
 
 
-@router.post("/", response_model=MemberRead, tags=["members"])
+@router.post("/", response_model=MemberRead, tags=["members"], responses={**gr})
 def create_member(
     *,
     db: Session = Depends(deps.get_db),
@@ -80,11 +89,11 @@ def create_member(
     return member
 
 
-@router.put("/{id}", response_model=MemberRead, tags=["members"])
+@router.put("/{id}", response_model=MemberRead, tags=["members"], responses={**gr})
 def update_member(
     *,
     db: Session = Depends(deps.get_db),
-    id: int,
+    id: int = Path(..., le=INTEGER_SIZE, gt=0, description="ID of member"),
     member: MemberUpdate,
     current_user: Player = Depends(deps.get_current_user),
 ) -> Any:
@@ -100,8 +109,12 @@ def update_member(
     return db_member
 
 
-@router.get("/{id}", response_model=MemberRead, tags=["members"])
-def get_member(*, db: Session = Depends(deps.get_db), id: int) -> Any:
+@router.get("/{id}", response_model=MemberRead, tags=["members"], responses={**gr})
+def get_member(
+    *,
+    db: Session = Depends(deps.get_db),
+    id: int = Path(..., le=INTEGER_SIZE, gt=0, description="ID of member"),
+) -> Any:
     member = crud.member.get(db=db, id=id)
 
     if not member:
@@ -110,11 +123,11 @@ def get_member(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     return member
 
 
-@router.delete("/{id}", response_model=MemberRead, tags=["members"])
+@router.delete("/{id}", response_model=MemberRead, tags=["members"], responses={**gr})
 def delete_member(
     *,
     db: Session = Depends(deps.get_db),
-    id: int,
+    id: int = Path(..., le=INTEGER_SIZE, gt=0, description="ID of member"),
     current_user: Player = Depends(deps.get_current_user),
 ) -> Any:
     member = crud.member.get(db=db, id=id)

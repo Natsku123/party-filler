@@ -21,6 +21,8 @@ OrderParseException = HTTPException(
     status_code=400, detail="Order parsing failed. Invalid attributes present."
 )
 
+JSONParseError = HTTPException(status_code=400, detail="Invalid JSON string")
+
 
 def parse_filter(filters: dict, parent: Any) -> list:
     """
@@ -127,21 +129,38 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         # Add filter to query
         if filters is not None:
             if isinstance(filters, str):
-                filters = json.loads(filters)
+                try:
+                    filters = json.loads(filters)
+                except json.decoder.JSONDecodeError:
+                    raise JSONParseError
+
+                if not isinstance(filters, dict):
+                    raise JSONParseError
 
             q = q.filter(*parse_filter(filters, self.model))
 
         # Add grouping to query
         if group is not None:
             if isinstance(group, str):
-                group = json.loads(group)
+                try:
+                    group = json.loads(group)
+                except json.decoder.JSONDecodeError:
+                    raise JSONParseError
+
+                if not isinstance(group, list):
+                    raise JSONParseError
 
             q = q.group_by(*group)
 
         # Add ordering to query
         if order is not None:
             if isinstance(order, str):
-                order = json.loads(order)
+                try:
+                    order = json.loads(order)
+                except json.decoder.JSONDecodeError:
+                    raise JSONParseError
+                if not isinstance(order, list):
+                    raise JSONParseError
 
             q = q.order_by(*parse_order(order, self.model))
 
@@ -229,9 +248,17 @@ class CRUDParty(CRUDBase[models.Party, models.PartyCreate, models.PartyUpdate]):
             update_data = obj_in.dict(exclude_unset=True)
 
         for field in obj_data:
-            if field in update_data and field == "start_time":
+            if (
+                field in update_data
+                and field == "start_time"
+                and isinstance(update_data["start_time"], str)
+            ):
                 setattr(db_obj, field, dateutil.parser.parse(update_data["start_time"]))
-            elif field in update_data and field == "end_time":
+            elif (
+                field in update_data
+                and field == "end_time"
+                and isinstance(update_data["end_time"], str)
+            ):
                 setattr(db_obj, field, dateutil.parser.parse(update_data["end_time"]))
             elif field in update_data:
                 setattr(db_obj, field, update_data[field])

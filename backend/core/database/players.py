@@ -7,16 +7,18 @@ from sqlalchemy import (
     String,
 )
 
-from core.database import player_server_association
+from core.database import player_server_association, INTEGER_SIZE
 
 if TYPE_CHECKING:
-    from .models import Server, ServerShort
+    from .models import Server, ServerShort, Party
 
 
 class Player(SQLModel, table=True):
     id: Optional[int] = Field(
         sa_column=Column(Integer, primary_key=True, unique=True),
         description="ID of player",
+        gt=0,
+        le=INTEGER_SIZE,
     )
     discord_id: str = Field(
         sa_column=Column(String(64), nullable=False, unique=True),
@@ -81,7 +83,7 @@ class PlayerUpdate(SQLModel):
 
 
 class PlayerShort(SQLModel):
-    id: int = Field(description="ID of player")
+    id: int = Field(description="ID of player", gt=0, le=INTEGER_SIZE)
     discord_id: str = Field(alias="discordId", description="ID on discord")
     name: str = Field(description="Discord username of player")
     discriminator: str = Field(description="Discord user discriminator")
@@ -93,9 +95,7 @@ class PlayerShort(SQLModel):
 
 
 class PlayerRead(SQLModel):
-    id: int = Field(
-        description="ID of player",
-    )
+    id: int = Field(description="ID of player", gt=0, le=INTEGER_SIZE)
     discord_id: str = Field(
         alias="discordId",
         description="ID on discord",

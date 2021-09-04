@@ -3,6 +3,8 @@ from sqlmodel import Field, SQLModel, Relationship
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime, Boolean
 
+from core.database import INTEGER_SIZE
+
 if TYPE_CHECKING:
     from .models import (
         Channel,
@@ -22,6 +24,8 @@ class Party(SQLModel, table=True):
     id: Optional[int] = Field(
         sa_column=Column(Integer, primary_key=True, unique=True),
         description="ID of party",
+        gt=0,
+        le=INTEGER_SIZE,
     )
     title: str = Field(
         sa_column=Column(String(255), nullable=False), description="Title of party"
@@ -29,24 +33,29 @@ class Party(SQLModel, table=True):
     leader_id: int = Field(
         sa_column=Column(Integer, ForeignKey("player.id")),
         gt=0,
+        le=INTEGER_SIZE,
         alias="leaderId",
         description="ID of party leader",
     )
-    game_id: int = Field(
+    game_id: Optional[int] = Field(
+        None,
         sa_column=Column(Integer, ForeignKey("game.id")),
         gt=0,
+        le=INTEGER_SIZE,
         alias="gameId",
         description="ID of game to be played",
     )
     max_players: Optional[int] = Field(
         sa_column=Column(Integer),
         gt=0,
+        le=INTEGER_SIZE,
         alias="maxPlayers",
         description="Maximum number of players",
     )
     min_players: Optional[int] = Field(
         sa_column=Column(Integer),
         gt=0,
+        le=INTEGER_SIZE,
         alias="minPlayers",
         description="Minimum number of players",
     )
@@ -56,6 +65,7 @@ class Party(SQLModel, table=True):
     channel_id: Optional[int] = Field(
         sa_column=Column(Integer, ForeignKey("channel.id")),
         gt=0,
+        le=INTEGER_SIZE,
         alias="channelId",
         description="ID of channel",
     )
@@ -81,7 +91,7 @@ class Party(SQLModel, table=True):
         sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
     roles: List["Role"] = Relationship()
-    game: "Game" = Relationship(sa_relationship_kwargs={"lazy": "joined"})
+    game: Optional["Game"] = Relationship(sa_relationship_kwargs={"lazy": "joined"})
 
     #     @root_validator
     #     def check_min_and_max_players(cls, values):
@@ -106,17 +116,33 @@ class Party(SQLModel, table=True):
 
 class PartyCreate(SQLModel):
     title: str = Field(description="Title of party")
-    leader_id: int = Field(gt=0, alias="leaderId", description="ID of party leader")
-    game_id: int = Field(gt=0, alias="gameId", description="ID of game to be played")
+    leader_id: int = Field(
+        gt=0, le=INTEGER_SIZE, alias="leaderId", description="ID of party leader"
+    )
+    game_id: Optional[int] = Field(
+        None,
+        gt=0,
+        le=INTEGER_SIZE,
+        alias="gameId",
+        description="ID of game to be played",
+    )
     max_players: Optional[int] = Field(
-        None, gt=0, alias="maxPlayers", description="Maximum number of players"
+        None,
+        gt=0,
+        le=INTEGER_SIZE,
+        alias="maxPlayers",
+        description="Maximum number of players",
     )
     min_players: Optional[int] = Field(
-        None, gt=0, alias="minPlayers", description="Minimum number of players"
+        None,
+        gt=0,
+        le=INTEGER_SIZE,
+        alias="minPlayers",
+        description="Minimum number of players",
     )
     description: Optional[str] = Field(None, description="Description of party")
     channel_id: Optional[int] = Field(
-        None, gt=0, alias="channelId", description="ID of channel"
+        None, gt=0, le=INTEGER_SIZE, alias="channelId", description="ID of channel"
     )
     start_time: Optional[datetime] = Field(
         None, alias="startTime", description="Party search start time"
@@ -133,20 +159,32 @@ class PartyCreate(SQLModel):
 class PartyUpdate(SQLModel):
     title: Optional[str] = Field(None, description="Title of party")
     leader_id: Optional[int] = Field(
-        None, gt=0, alias="leaderId", description="ID of party leader"
+        None, gt=0, le=INTEGER_SIZE, alias="leaderId", description="ID of party leader"
     )
     game_id: Optional[int] = Field(
-        None, gt=0, alias="gameId", description="ID of game to be played"
+        None,
+        gt=0,
+        le=INTEGER_SIZE,
+        alias="gameId",
+        description="ID of game to be played",
     )
     max_players: Optional[int] = Field(
-        None, gt=0, alias="maxPlayers", description="Maximum number of players"
+        None,
+        gt=0,
+        le=INTEGER_SIZE,
+        alias="maxPlayers",
+        description="Maximum number of players",
     )
     min_players: Optional[int] = Field(
-        None, gt=0, alias="minPlayers", description="Minimum number of players"
+        None,
+        gt=0,
+        le=INTEGER_SIZE,
+        alias="minPlayers",
+        description="Minimum number of players",
     )
     description: Optional[str] = Field(None, description="Description of party")
     channel_id: Optional[int] = Field(
-        None, gt=0, alias="channelId", description="ID of channel"
+        None, gt=0, le=INTEGER_SIZE, alias="channelId", description="ID of channel"
     )
     start_time: Optional[datetime] = Field(
         None, alias="startTime", description="Party search start time"
@@ -161,19 +199,33 @@ class PartyUpdate(SQLModel):
 
 
 class PartyShort(SQLModel):
-    id: Optional[int] = Field(description="ID of party")
+    id: Optional[int] = Field(description="ID of party", gt=0, le=INTEGER_SIZE)
     title: str = Field(description="Title of party")
-    leader_id: int = Field(gt=0, alias="leaderId", description="ID of party leader")
-    game_id: int = Field(gt=0, alias="gameId", description="ID of game to be played")
+    leader_id: int = Field(
+        gt=0, le=INTEGER_SIZE, alias="leaderId", description="ID of party leader"
+    )
+    game_id: Optional[int] = Field(
+        None,
+        gt=0,
+        le=INTEGER_SIZE,
+        alias="gameId",
+        description="ID of game to be played",
+    )
     max_players: Optional[int] = Field(
-        gt=0, alias="maxPlayers", description="Maximum number of players"
+        gt=0,
+        le=INTEGER_SIZE,
+        alias="maxPlayers",
+        description="Maximum number of players",
     )
     min_players: Optional[int] = Field(
-        gt=0, alias="minPlayers", description="Minimum number of players"
+        gt=0,
+        le=INTEGER_SIZE,
+        alias="minPlayers",
+        description="Minimum number of players",
     )
     description: Optional[str] = Field(description="Description of party")
     channel_id: Optional[int] = Field(
-        gt=0, alias="channelId", description="ID of channel"
+        gt=0, le=INTEGER_SIZE, alias="channelId", description="ID of channel"
     )
     start_time: Optional[datetime] = Field(
         alias="startTime", description="Party search start time"
@@ -195,27 +247,33 @@ class PartyRead(SQLModel):
     title: str = Field(description="Title of party")
     leader_id: int = Field(
         gt=0,
+        le=INTEGER_SIZE,
         alias="leaderId",
         description="ID of party leader",
     )
-    game_id: int = Field(
+    game_id: Optional[int] = Field(
+        None,
         gt=0,
+        le=INTEGER_SIZE,
         alias="gameId",
         description="ID of game to be played",
     )
     max_players: Optional[int] = Field(
         gt=0,
+        le=INTEGER_SIZE,
         alias="maxPlayers",
         description="Maximum number of players",
     )
     min_players: Optional[int] = Field(
         gt=0,
+        le=INTEGER_SIZE,
         alias="minPlayers",
         description="Minimum number of players",
     )
     description: Optional[str] = Field(description="Description of party")
     channel_id: Optional[int] = Field(
         gt=0,
+        le=INTEGER_SIZE,
         alias="channelId",
         description="ID of channel",
     )
@@ -232,10 +290,10 @@ class PartyRead(SQLModel):
     )
 
     channel: Optional["ChannelShort"] = None
-    leader: "PlayerShort"
+    leader: Optional["PlayerShort"] = None
     members: List["MemberShort"] = []
     roles: List["RoleShort"] = []
-    game: "GameShort"
+    game: Optional["GameShort"] = None
 
     class Config:
         orm_mode = True
