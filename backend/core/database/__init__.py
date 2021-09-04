@@ -1,6 +1,6 @@
-from sqlalchemy import create_engine
+from sqlmodel import create_engine, Table, Column, Integer, ForeignKey, SQLModel, Field
 from sqlalchemy.orm import sessionmaker
-from typing import Any
+from typing import Any, Optional
 from sqlalchemy.ext.declarative import as_declarative
 from config import settings
 
@@ -20,3 +20,16 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 class Base:
     id: Any
     __name__: str
+
+
+# class PlayerServerLink(SQLModel, table=True):
+#     player_id: Optional[int] = Field(foreign_key="player.id")
+#     server_id: Optional[int] = Field(foreign_key="server.id")
+
+
+player_server_association = Table(
+    "players_servers",
+    SQLModel.metadata,
+    Column("player_id", Integer, ForeignKey("player.id")),
+    Column("server_id", Integer, ForeignKey("server.id")),
+)

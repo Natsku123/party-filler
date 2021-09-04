@@ -1,42 +1,48 @@
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 
 from config import settings
 
 from core import deps
-from core.database import crud, models, schemas
+from core.database import crud
+from core.database.models import (
+    Player,
+    Server,
+    Channel,
+    ChannelCreate,
+    ChannelUpdate,
+    ChannelRead,
+)
 from core.utils import is_superuser, get_channel_info
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.Channel], tags=["channels"])
+@router.get("/", response_model=List[ChannelRead], tags=["channels"])
 def get_channels(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
     filters: Optional[str] = Query(None, alias="filter"),
-    order: Optional[Union[str, List[str]]] = None,
-    group: Optional[Union[str, List[str]]] = None,
+    order: Optional[str] = Query(None),
+    group: Optional[str] = Query(None),
 ) -> Any:
     return crud.channel.get_multi(
         db, skip=skip, limit=limit, filters=filters, order=order, group=group
     )
 
 
-@router.post("/", response_model=schemas.Channel, tags=["channels"])
+@router.post("/", response_model=ChannelRead, tags=["channels"])
 def create_channel(
     *,
     db: Session = Depends(deps.get_db),
-    channel: schemas.ChannelCreate,
-    current_user: models.Player = Depends(deps.get_current_user)
+    channel: ChannelCreate,
+    current_user: Player = Depends(deps.get_current_user)
 ) -> Any:
     db_channel = (
-        db.query(models.Channel)
-        .filter(models.Channel.discord_id == str(channel.discord_id))
-        .first()
+        db.query(Channel).filter(Channel.discord_id == str(channel.discord_id)).first()
     )
 
     if db_channel is not None:
@@ -56,14 +62,14 @@ def create_channel(
 
             raise HTTPException(status_code=400, detail="Discord channel not found")
         server = (
-            db.query(models.Server)
-            .filter(models.Server.discord_id == str(channel_data.get("guild_id")))
+            db.query(Server)
+            .filter(Server.discord_id == str(channel_data.get("guild_id")))
             .first()
         )
 
         if server is None:
             raise HTTPException(status_code=404, detail="Server not found")
-        channel = schemas.ChannelCreate(
+        channel = ChannelCreate(
             discordId=channel.discord_id,
             name=channel_data.get("name"),
             serverId=server.id,
@@ -75,13 +81,13 @@ def create_channel(
     return crud.channel.create(db, obj_in=channel)
 
 
-@router.put("/{id}", response_model=schemas.Channel, tags=["channels"])
+@router.put("/{id}", response_model=ChannelRead, tags=["channels"])
 def update_channel(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    channel: schemas.ChannelUpdate,
-    current_user: models.Player = Depends(deps.get_current_user)
+    channel: ChannelUpdate,
+    current_user: Player = Depends(deps.get_current_user)
 ) -> Any:
     db_channel = crud.channel.get(db=db, id=id)
 
@@ -110,11 +116,11 @@ def update_channel(
 
             raise HTTPException(status_code=400, detail="Discord channel not found")
         server = (
-            db.query(models.Server)
-            .filter(models.Server.discord_id == str(channel_data.get("guild_id")))
+            db.query(Server)
+            .filter(Server.discord_id == str(channel_data.get("guild_id")))
             .first()
         )
-        channel = schemas.ChannelCreate(
+        channel = ChannelCreate(
             discordId=channel.discord_id,
             name=channel_data.get("name"),
             serverId=server.id,
@@ -124,7 +130,7 @@ def update_channel(
     return db_channel
 
 
-@router.get("/{id}", response_model=schemas.Channel, tags=["channels"])
+@router.get("/{id}", response_model=ChannelRead, tags=["channels"])
 def get_channel(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     channel = crud.channel.get(db=db, id=id)
 
@@ -134,12 +140,12 @@ def get_channel(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     return channel
 
 
-@router.delete("/{id}", response_model=schemas.Channel, tags=["channels"])
+@router.delete("/{id}", response_model=ChannelRead, tags=["channels"])
 def delete_channel(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    current_user: models.Player = Depends(deps.get_current_user)
+    current_user: Player = Depends(deps.get_current_user)
 ) -> Any:
     channel = crud.channel.get(db=db, id=id)
 

@@ -3,7 +3,7 @@ from __future__ import with_statement
 from logging.config import fileConfig
 
 from core.database import SQLALCHEMY_DATABASE_URL
-from core import Base
+from sqlmodel import SQLModel
 
 from sqlalchemy import pool, engine_from_config
 
@@ -21,7 +21,7 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = Base.metadata
+target_metadata = SQLModel.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

@@ -34,17 +34,6 @@ app.add_middleware(
 )
 
 
-@app.middleware("http")
-async def db_session_middleware(request: Request, call_next):
-    response = Response("Internal server error", status_code=500)
-    try:
-        request.state.db = SessionLocal()
-        response = await call_next(request)
-    finally:
-        request.state.db.close()
-    return response
-
-
 def update_token(name, token, refresh_token=None, access_token=None):
 
     db = SessionLocal()

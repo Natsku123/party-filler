@@ -1,11 +1,19 @@
 import datetime
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 
 from core import deps
-from core.database import crud, models, schemas
+from core.database import crud, schemas
+from core.database.models import (
+    PartyCreate,
+    PartyUpdate,
+    PartyRead,
+    Player,
+    MemberCreate,
+    MemberRead,
+)
 from core.utils import datetime_to_string, is_superuser
 
 from worker import send_webhook
@@ -13,26 +21,26 @@ from worker import send_webhook
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.Party], tags=["parties"])
+@router.get("/", response_model=List[PartyRead], tags=["parties"])
 def get_parties(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
     filters: Optional[str] = Query(None, alias="filter"),
-    order: Optional[Union[str, List[str]]] = None,
-    group: Optional[Union[str, List[str]]] = None,
+    order: Optional[str] = Query(None),
+    group: Optional[str] = Query(None),
 ) -> Any:
     return crud.party.get_multi(
         db, skip=skip, limit=limit, filters=filters, order=order, group=group
     )
 
 
-@router.post("/", response_model=schemas.Party, tags=["parties"])
+@router.post("/", response_model=PartyRead, tags=["parties"])
 def create_party(
     *,
     db: Session = Depends(deps.get_db),
-    party: schemas.PartyCreate,
-    current_user: models.Player = Depends(deps.get_current_user),
+    party: PartyCreate,
+    current_user: Player = Depends(deps.get_current_user),
     notify: bool = Query(False),
 ) -> Any:
     if not current_user:
@@ -40,7 +48,7 @@ def create_party(
     party = crud.party.create(db, obj_in=party)
 
     # Create leader as member
-    leader_member = schemas.MemberCreate(
+    leader_member = MemberCreate(
         party_id=party.id,
         player_id=party.leader_id,
     )
@@ -56,20 +64,20 @@ def create_party(
                 "timestamp": datetime_to_string(datetime.datetime.now()),
             },
         }
-        webhook = schemas.PartyCreateWebhook(**webhook_data)
+        webhook = schemas.PartyCreateWebhook.parse_obj(webhook_data)
 
         send_webhook.delay("http://bot:9080/webhook", webhook.json())
 
     return party
 
 
-@router.put("/{id}", response_model=schemas.Party, tags=["parties"])
+@router.put("/{id}", response_model=PartyRead, tags=["parties"])
 def update_party(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    party: schemas.PlayerUpdate,
-    current_user: models.Player = Depends(deps.get_current_user),
+    party: PartyUpdate,
+    current_user: Player = Depends(deps.get_current_user),
 ) -> Any:
     db_party = crud.party.get(db=db, id=id)
 
@@ -83,7 +91,7 @@ def update_party(
     return db_party
 
 
-@router.get("/{id}", response_model=schemas.Party, tags=["parties"])
+@router.get("/{id}", response_model=PartyRead, tags=["parties"])
 def get_party(
     *,
     db: Session = Depends(deps.get_db),
@@ -97,12 +105,12 @@ def get_party(
     return party
 
 
-@router.delete("/{id}", response_model=schemas.Party, tags=["parties"])
+@router.delete("/{id}", response_model=PartyRead, tags=["parties"])
 def delete_party(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    current_user: models.Player = Depends(deps.get_current_user),
+    current_user: Player = Depends(deps.get_current_user),
 ) -> Any:
     party = crud.party.get(db=db, id=id)
 
@@ -117,9 +125,7 @@ def delete_party(
     return party
 
 
-@router.get(
-    "/{id}/players", response_model=List[schemas.Member], tags=["parties", "members"]
-)
+@router.get("/{id}/players", response_model=List[MemberRead], tags=["parties"])
 def get_members(
     *, db: Session = Depends(deps.get_db), id: int, skip: int = 0, limit: int = 100
 ) -> Any:

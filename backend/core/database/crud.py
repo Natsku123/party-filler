@@ -1,21 +1,17 @@
 import dateutil.parser
 import json
-from sqlalchemy import asc, desc
-from sqlalchemy.orm import Session
+from sqlmodel import SQLModel, Session, asc, desc, col, select, func
 
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from core.utils import camel_dict_to_snake
 
-from pydantic import BaseModel
-from core.database import Base
+from core.database import models
 
-from core.database import models, schemas
-
-ModelType = TypeVar("ModelType", bound=Base)
-CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
-UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
+ModelType = TypeVar("ModelType", bound=SQLModel)
+CreateSchemaType = TypeVar("CreateSchemaType", bound=SQLModel)
+UpdateSchemaType = TypeVar("UpdateSchemaType", bound=SQLModel)
 
 FilterParseException = HTTPException(
     status_code=400, detail="Filter parsing failed. Invalid attributes present."
@@ -56,15 +52,15 @@ def parse_filter(filters: dict, parent: Any) -> list:
                 new_filters += parse_filter(v, attr.property.mapper.class_)
             else:
                 if gt:
-                    new_filters.append(attr > v)
+                    new_filters.append(col(attr) > v)
                 elif ge:
-                    new_filters.append(attr >= v)
+                    new_filters.append(col(attr) >= v)
                 elif lt:
-                    new_filters.append(attr < v)
+                    new_filters.append(col(attr) < v)
                 elif le:
-                    new_filters.append(attr <= v)
+                    new_filters.append(col(attr) <= v)
                 else:
-                    new_filters.append(attr == v)
+                    new_filters.append(col(attr) == v)
         except AttributeError:
             raise FilterParseException
 
@@ -89,7 +85,13 @@ def parse_order(order: List[str], parent) -> List[str]:
         if not hasattr(parent, v):
             raise OrderParseException
 
-        order[i] = asc(v) if a and not d else desc(v) if not a and d else v
+        order[i] = (
+            asc(col(getattr(parent, v)))
+            if a and not d
+            else desc(col(getattr(parent, v)))
+            if not a and d
+            else col(getattr(parent, v))
+        )
     return order
 
 
@@ -102,10 +104,12 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         Get total number of objects in database.
         :param db: Database Session to be used
         """
-        return db.query(self.model).count()
+        # return db.query(self.model).count()
+        return db.scalar(select(func.count()).select_from(self.model))
 
     def get(self, db: Session, id: Any) -> Optional[ModelType]:
-        return db.query(self.model).filter(self.model.id == id).first()
+        # return db.query(self.model).filter(self.model.id == id).first()
+        return db.exec(select(self.model).filter(self.model.id == id)).first()
 
     def get_multi(
         self,
@@ -118,7 +122,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         order: Optional[Union[List[str], str]] = None
     ) -> List[ModelType]:
 
-        q = db.query(self.model)
+        q = select(self.model)
 
         # Add filter to query
         if filters is not None:
@@ -141,7 +145,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
             q = q.order_by(*parse_order(order, self.model))
 
-        return q.offset(skip).limit(limit).all()
+        return db.exec(q.offset(skip).limit(limit)).all()
 
     def create(self, db: Session, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in_data = camel_dict_to_snake(jsonable_encoder(obj_in))
@@ -181,7 +185,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return obj
 
 
-class CRUDParty(CRUDBase[models.Party, schemas.PartyCreate, schemas.PartyUpdate]):
+class CRUDParty(CRUDBase[models.Party, models.PartyCreate, models.PartyUpdate]):
     def create(self, db: Session, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in_data = camel_dict_to_snake(jsonable_encoder(obj_in))
         start_time = None
@@ -252,61 +256,77 @@ class CRUDParty(CRUDBase[models.Party, schemas.PartyCreate, schemas.PartyUpdate]
         return db_obj
 
 
-class CRUDServer(CRUDBase[models.Server, schemas.ServerCreate, schemas.ServerUpdate]):
+class CRUDServer(CRUDBase[models.Server, models.ServerCreate, models.ServerUpdate]):
     def get_by_discord_id(self, db: Session, *, discord_id: str) -> models.Server:
         return (
             db.query(self.model).filter(models.Server.discord_id == discord_id).first()
         )
 
 
-class CRUDChannel(
-    CRUDBase[models.Channel, schemas.ChannelCreate, schemas.ChannelUpdate]
-):
+class CRUDChannel(CRUDBase[models.Channel, models.ChannelCreate, models.ChannelUpdate]):
     def get_multi_by_server(
         self, db: Session, *, server_id: int, skip: int = 0, limit: int = 100
     ) -> List[models.Channel]:
-        return (
-            db.query(self.model)
+        # return (
+        #     db.query(self.model)
+        #     .filter(channels.Channel.server_id == server_id)
+        #     .offset(skip)
+        #     .limit(limit)
+        #     .all()
+        # )
+        return db.exec(
+            select(self.model)
             .filter(models.Channel.server_id == server_id)
             .offset(skip)
             .limit(limit)
-            .all()
-        )
+        ).all()
 
     def get_multi_by_servers(
         self, db: Session, *, server_ids: List[int], skip: int = 0, limit: int = 100
     ) -> List[models.Channel]:
-        return (
-            db.query(self.model)
-            .filter(models.Channel.server_id.in_(server_ids))
+        # return (
+        #     db.query(self.model)
+        #     .filter(col(channels.Channel.server_id).in_(server_ids))
+        #     .offset(skip)
+        #     .limit(limit)
+        #     .all()
+        # )
+        return db.exec(
+            select(self.model)
+            .filter(col(models.Channel.server_id).in_(server_ids))
             .offset(skip)
             .limit(limit)
-            .all()
-        )
+        ).all()
 
 
-class CRUDPlayer(CRUDBase[models.Player, schemas.PlayerCreate, schemas.PlayerUpdate]):
+class CRUDPlayer(CRUDBase[models.Player, models.PlayerCreate, models.PlayerUpdate]):
     pass
 
 
-class CRUDMember(CRUDBase[models.Member, schemas.MemberCreate, schemas.MemberUpdate]):
+class CRUDMember(CRUDBase[models.Member, models.MemberCreate, models.MemberUpdate]):
     def get_multi_by_party(
         self, db: Session, *, party_id: int, skip: int = 0, limit: int = 100
     ) -> List[models.Member]:
-        return (
-            db.query(self.model)
+        # return (
+        #     db.query(self.model)
+        #     .filter(members.Member.party_id == party_id)
+        #     .offset(skip)
+        #     .limit(limit)
+        #     .all()
+        # )
+        return db.exec(
+            select(self.model)
             .filter(models.Member.party_id == party_id)
             .offset(skip)
             .limit(limit)
-            .all()
-        )
+        ).all()
 
 
-class CRUDRole(CRUDBase[models.Role, schemas.RoleCreate, schemas.RoleUpdate]):
+class CRUDRole(CRUDBase[models.Role, models.RoleCreate, models.RoleUpdate]):
     pass
 
 
-class CRUDGame(CRUDBase[models.Game, schemas.GameCreate, schemas.GameUpdate]):
+class CRUDGame(CRUDBase[models.Game, models.GameCreate, models.GameUpdate]):
     pass
 
 

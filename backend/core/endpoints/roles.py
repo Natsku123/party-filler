@@ -1,48 +1,49 @@
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 
 from core import deps
-from core.database import crud, models, schemas
+from core.database import crud
+from core.database.models import RoleCreate, RoleUpdate, RoleRead, Player
 from core.utils import is_superuser
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.Role], tags=["roles"])
+@router.get("/", response_model=List[RoleRead], tags=["roles"])
 def get_roles(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
     filters: Optional[str] = Query(None, alias="filter"),
-    order: Optional[Union[str, List[str]]] = None,
-    group: Optional[Union[str, List[str]]] = None,
+    order: Optional[str] = Query(None),
+    group: Optional[str] = Query(None),
 ) -> Any:
     return crud.role.get_multi(
         db, skip=skip, limit=limit, filters=filters, order=order, group=group
     )
 
 
-@router.post("/", response_model=schemas.Role, tags=["roles"])
+@router.post("/", response_model=RoleRead, tags=["roles"])
 def create_role(
     *,
     db: Session = Depends(deps.get_db),
-    role: schemas.RoleCreate,
-    current_user: models.Player = Depends(deps.get_current_user)
+    role: RoleCreate,
+    current_user: Player = Depends(deps.get_current_user)
 ) -> Any:
     if not current_user:
         raise HTTPException(status_code=401, detail="Not authorized")
     return crud.role.create(db, obj_in=role)
 
 
-@router.put("/{id}", response_model=schemas.Role, tags=["roles"])
+@router.put("/{id}", response_model=RoleRead, tags=["roles"])
 def update_role(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    role: schemas.RoleUpdate,
-    current_user: models.Player = Depends(deps.get_current_user)
+    role: RoleUpdate,
+    current_user: Player = Depends(deps.get_current_user)
 ) -> Any:
     db_role = crud.role.get(db=db, id=id)
 
@@ -60,7 +61,7 @@ def update_role(
     return db_role
 
 
-@router.get("/{id}", response_model=schemas.Role, tags=["roles"])
+@router.get("/{id}", response_model=RoleRead, tags=["roles"])
 def get_role(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     role = crud.role.get(db=db, id=id)
 
@@ -70,12 +71,12 @@ def get_role(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     return role
 
 
-@router.delete("/{id}", response_model=schemas.Role, tags=["roles"])
+@router.delete("/{id}", response_model=RoleRead, tags=["roles"])
 def delete_role(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    current_user: models.Player = Depends(deps.get_current_user)
+    current_user: Player = Depends(deps.get_current_user)
 ) -> Any:
     role = crud.role.get(db=db, id=id)
 

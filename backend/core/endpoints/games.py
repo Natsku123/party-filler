@@ -1,48 +1,49 @@
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 
 from core import deps
-from core.database import crud, models, schemas
+from core.database import crud
+from core.database.models import GameCreate, GameUpdate, GameRead, Player
 from core.utils import is_superuser
 
 router = APIRouter()
 
 
-@router.get("/", response_model=List[schemas.Game], tags=["games"])
+@router.get("/", response_model=List[GameRead], tags=["games"])
 def get_games(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
     filters: Optional[str] = Query(None, alias="filter"),
-    order: Optional[Union[str, List[str]]] = None,
-    group: Optional[Union[str, List[str]]] = None,
+    order: Optional[str] = Query(None),
+    group: Optional[str] = Query(None),
 ) -> Any:
     return crud.game.get_multi(
         db, skip=skip, limit=limit, filters=filters, order=order, group=group
     )
 
 
-@router.post("/", response_model=schemas.Game, tags=["games"])
+@router.post("/", response_model=GameRead, tags=["games"])
 def create_game(
     *,
     db: Session = Depends(deps.get_db),
-    game: schemas.GameCreate,
-    current_user: models.Player = Depends(deps.get_current_user)
+    game: GameCreate,
+    current_user: Player = Depends(deps.get_current_user)
 ) -> Any:
     if not current_user:
         raise HTTPException(status_code=401, detail="Not authorized")
     return crud.game.create(db, obj_in=game)
 
 
-@router.put("/{id}", response_model=schemas.Game, tags=["games"])
+@router.put("/{id}", response_model=GameRead, tags=["games"])
 def update_game(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    game: schemas.GameUpdate,
-    current_user: models.Player = Depends(deps.get_current_user)
+    game: GameUpdate,
+    current_user: Player = Depends(deps.get_current_user)
 ) -> Any:
     db_game = crud.game.get(db=db, id=id)
 
@@ -56,7 +57,7 @@ def update_game(
     return db_game
 
 
-@router.get("/{id}", response_model=schemas.Game, tags=["games"])
+@router.get("/{id}", response_model=GameRead, tags=["games"])
 def get_game(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     game = crud.game.get(db=db, id=id)
 
@@ -66,12 +67,12 @@ def get_game(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     return game
 
 
-@router.delete("/{id}", response_model=schemas.Game, tags=["games"])
+@router.delete("/{id}", response_model=GameRead, tags=["games"])
 def delete_game(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    current_user: models.Player = Depends(deps.get_current_user)
+    current_user: Player = Depends(deps.get_current_user)
 ) -> Any:
     game = crud.game.get(db=db, id=id)
 

@@ -1,18 +1,25 @@
-import asyncio
-from core.config import settings
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+# from sqlmodel import create_engine
+# from sqlalchemy.orm import sessionmaker
+from typing import Any
+from sqlalchemy.ext.declarative import as_declarative
+
+# from core.config import settings
 
 
-DATABASE_URL = (
-    f"mysql+pymysql://{settings.DB_USER}:{settings.DB_PASS}@"
-    f"{settings.DB_HOST}/{settings.DB_NAME}?charset=utf8mb4"
-)
+# SQLALCHEMY_DATABASE_URL = "mysql+pymysql://{username}:{password}@{server}/{db}".format(
+#     username=settings.DATABASE_USER,
+#     password=settings.DATABASE_PASSWORD,
+#     server=settings.DATABASE_SERVER,
+#     db=settings.DATABASE_NAME,
+# )
 
-engine = create_engine(DATABASE_URL)
+# engine = create_engine(SQLALCHEMY_DATABASE_URL)
+# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-Session = sessionmaker(autoflush=False, bind=engine)
+relationship_settings = {}
 
-Base = declarative_base()
 
-session_lock = asyncio.Lock()
+@as_declarative()
+class Base:
+    id: Any
+    __name__: str
