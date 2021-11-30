@@ -1,5 +1,7 @@
+import pytest
+from fastapi.testclient import TestClient
 from core.utils import *
-from test.test_main import client
+from core.database.models import Player
 
 
 def test_snake_to_camel():
@@ -100,7 +102,8 @@ def test_no_change():
     assert camel_dict == new_camel_dict
 
 
-def test_is_superuser():
+@pytest.mark.usefixtures("client")
+def test_is_superuser(client: TestClient):
     response = client.get("/players/superuser")
     assert response.status_code == 200, response.text
 

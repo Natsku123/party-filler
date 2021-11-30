@@ -1,11 +1,11 @@
 import main
 from typing import Any, List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Path
 from sqlmodel import Session
 
 from core import deps
-from core.database import crud, schemas
+from core.database import crud, schemas, INTEGER_SIZE
 from core.database.models import (
     Player,
     PlayerUpdate,
@@ -16,10 +16,12 @@ from core.database.models import (
 )
 from core.utils import is_superuser
 
+from core.endpoints import generic_responses as gr
+
 router = APIRouter()
 
 
-@router.get("/", response_model=PlayerRead, tags=["players"])
+@router.get("/", response_model=PlayerRead, tags=["players"], responses={**gr})
 def get_current_player(*, current_user: Player = Depends(deps.get_current_user)) -> Any:
     if not current_user:
         raise HTTPException(status_code=401, detail="Not authorized")
@@ -27,7 +29,9 @@ def get_current_player(*, current_user: Player = Depends(deps.get_current_user))
     return current_user
 
 
-@router.get("/superuser", response_model=schemas.IsSuperUser, tags=["players"])
+@router.get(
+    "/superuser", response_model=schemas.IsSuperUser, tags=["players"], responses={**gr}
+)
 def get_is_superuser(*, current_user: Player = Depends(deps.get_current_user)) -> Any:
     if not current_user:
         raise HTTPException(status_code=401, detail="Not authorized")
@@ -36,7 +40,9 @@ def get_is_superuser(*, current_user: Player = Depends(deps.get_current_user)) -
     return schemas.IsSuperUser(**data)
 
 
-@router.get("/channels", response_model=List[ChannelRead], tags=["channels"])
+@router.get(
+    "/channels", response_model=List[ChannelRead], tags=["channels"], responses={**gr}
+)
 def get_visible_channels(
     *,
     db: Session = Depends(deps.get_db),
@@ -50,8 +56,12 @@ def get_visible_channels(
     return channels
 
 
-@router.get("/{id}", response_model=PlayerRead, tags=["players"])
-def get_player(*, db: Session = Depends(deps.get_db), id: int) -> Any:
+@router.get("/{id}", response_model=PlayerRead, tags=["players"], responses={**gr})
+def get_player(
+    *,
+    db: Session = Depends(deps.get_db),
+    id: int = Path(..., le=INTEGER_SIZE, gt=0, description="ID of player")
+) -> Any:
     player = crud.player.get(db=db, id=id)
 
     if not player:
@@ -60,11 +70,11 @@ def get_player(*, db: Session = Depends(deps.get_db), id: int) -> Any:
     return player
 
 
-@router.put("/{id}", response_model=PlayerRead, tags=["players"])
+@router.put("/{id}", response_model=PlayerRead, tags=["players"], responses={**gr})
 def update_player(
     *,
     db: Session = Depends(deps.get_db),
-    id: int,
+    id: int = Path(..., le=INTEGER_SIZE, gt=0, description="ID of player"),
     player: PlayerUpdate,
     current_user: Player = Depends(deps.get_current_user)
 ) -> Any:
@@ -80,11 +90,11 @@ def update_player(
     return db_player
 
 
-@router.put("/{id}", response_model=PlayerRead, tags=["players"])
+@router.put("/{id}", response_model=PlayerRead, tags=["players"], responses={**gr})
 def update_player(
     *,
     db: Session = Depends(deps.get_db),
-    id: int,
+    id: int = Path(..., le=INTEGER_SIZE, gt=0, description="ID of player"),
     current_user: Player = Depends(deps.get_current_user)
 ) -> Any:
     db_player = crud.player.get(db=db, id=id)
@@ -140,11 +150,11 @@ def update_player(
         db.refresh(db_player)
 
 
-@router.delete("/{id}", response_model=PlayerRead, tags=["players"])
+@router.delete("/{id}", response_model=PlayerRead, tags=["players"], responses={**gr})
 def delete_player(
     *,
     db: Session = Depends(deps.get_db),
-    id: int,
+    id: int = Path(..., le=INTEGER_SIZE, gt=0, description="ID of player"),
     current_user: Player = Depends(deps.get_current_user)
 ) -> Any:
     player = crud.player.get(db=db, id=id)

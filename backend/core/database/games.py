@@ -1,12 +1,15 @@
 from typing import Optional
 from sqlmodel import Field, SQLModel
 from sqlalchemy import Column, Integer, String
+from core.database import INTEGER_SIZE
 
 
 class Game(SQLModel, table=True):
     id: Optional[int] = Field(
         sa_column=Column(Integer, primary_key=True, unique=True),
         description="ID of game",
+        gt=0,
+        le=INTEGER_SIZE,
     )
     name: str = Field(
         sa_column=Column(String(255), nullable=False), description="Name of game"
@@ -14,6 +17,7 @@ class Game(SQLModel, table=True):
     default_max_players: Optional[int] = Field(
         sa_column=Column(Integer),
         gt=0,
+        le=INTEGER_SIZE,
         alias="defaultMaxPlayers",
         description="Default number of maximum players for this game",
     )
@@ -28,6 +32,7 @@ class GameCreate(SQLModel):
     default_max_players: Optional[int] = Field(
         None,
         gt=0,
+        le=INTEGER_SIZE,
         alias="defaultMaxPlayers",
         description="Default number of maximum players for this game",
     )
@@ -42,6 +47,7 @@ class GameUpdate(SQLModel):
     default_max_players: Optional[int] = Field(
         None,
         gt=0,
+        le=INTEGER_SIZE,
         alias="defaultMaxPlayers",
         description="Default number of maximum players for this game",
     )
@@ -52,11 +58,12 @@ class GameUpdate(SQLModel):
 
 
 class GameShort(SQLModel):
-    id: int = Field(description="ID of game")
+    id: int = Field(description="ID of game", gt=0, le=INTEGER_SIZE)
     name: str = Field(description="Name of game")
     default_max_players: Optional[int] = Field(
         None,
         gt=0,
+        le=INTEGER_SIZE,
         alias="defaultMaxPlayers",
         description="Default number of maximum players for this game",
     )
@@ -67,13 +74,12 @@ class GameShort(SQLModel):
 
 
 class GameRead(SQLModel):
-    id: int = Field(
-        description="ID of game",
-    )
+    id: int = Field(description="ID of game", gt=0, le=INTEGER_SIZE)
     name: str = Field(description="Name of game")
     default_max_players: Optional[int] = Field(
         None,
         gt=0,
+        le=INTEGER_SIZE,
         alias="defaultMaxPlayers",
         description="Default number of maximum players for this game",
     )

@@ -7,7 +7,7 @@ from sqlalchemy import (
     String,
 )
 
-from core.database import player_server_association
+from core.database import player_server_association, INTEGER_SIZE
 
 if TYPE_CHECKING:
     from .models import Player, PlayerShort, Channel, ChannelShort
@@ -17,6 +17,8 @@ class Server(SQLModel, table=True):
     id: Optional[int] = Field(
         sa_column=Column(Integer, primary_key=True, unique=True),
         description="ID of server",
+        gt=0,
+        le=INTEGER_SIZE,
     )
     name: str = Field(
         sa_column=Column(String(255), nullable=False),
@@ -31,7 +33,9 @@ class Server(SQLModel, table=True):
         description="Discord ID of server",
     )
     channels: List["Channel"] = Relationship(
-        sa_relationship=relationship("Channel", back_populates="server")
+        sa_relationship=relationship(
+            "Channel", back_populates="server", cascade="all, delete-orphan"
+        )
     )
     players: List["Player"] = Relationship(
         sa_relationship=relationship(
@@ -67,7 +71,7 @@ class ServerUpdate(SQLModel):
 
 
 class ServerShort(SQLModel):
-    id: int = Field(description="ID of server")
+    id: int = Field(description="ID of server", gt=0, le=INTEGER_SIZE)
     name: str = Field(description="Name of server from Discord")
     icon: Optional[str] = Field(None, description="Icon of server from Discord")
     discord_id: str = Field(alias="discordId", description="Discord ID of server")
@@ -78,9 +82,7 @@ class ServerShort(SQLModel):
 
 
 class ServerRead(SQLModel):
-    id: int = Field(
-        description="ID of server",
-    )
+    id: int = Field(description="ID of server", gt=0, le=INTEGER_SIZE)
     name: str = Field(
         description="Name of server from Discord",
     )

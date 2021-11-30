@@ -2,6 +2,8 @@ from typing import Optional, TYPE_CHECKING
 from sqlmodel import Field, SQLModel, Relationship
 from sqlalchemy import Column, Integer, String, ForeignKey
 
+from core.database import INTEGER_SIZE
+
 if TYPE_CHECKING:
     from .models import Player
 
@@ -11,10 +13,13 @@ class OAuth2Token(SQLModel, table=True):
         sa_column=Column(Integer, primary_key=True, nullable=False),
         alias="tokenId",
         description="ID of token",
+        gt=0,
+        le=INTEGER_SIZE,
     )
     player_id: int = Field(
         sa_column=Column(Integer, ForeignKey("player.id"), nullable=False),
         gt=0,
+        le=INTEGER_SIZE,
         alias="playerId",
         description="ID of player",
     )
@@ -41,6 +46,7 @@ class OAuth2Token(SQLModel, table=True):
     expires_at: Optional[int] = Field(
         sa_column=Column(Integer, default=0),
         ge=0,
+        le=INTEGER_SIZE,
         alias="expiresAt",
         description="Token expiration",
     )
@@ -59,7 +65,9 @@ class OAuth2Token(SQLModel, table=True):
 
 
 class OAuth2TokenCreate(SQLModel):
-    player_id: int = Field(gt=0, alias="playerId", description="ID of player")
+    player_id: int = Field(
+        gt=0, le=INTEGER_SIZE, alias="playerId", description="ID of player"
+    )
     name: str = Field(description="Name of token OAuth provider")
     token_type: Optional[str] = Field(
         None, alias="tokenType", description="Type of token"
@@ -71,7 +79,7 @@ class OAuth2TokenCreate(SQLModel):
         None, alias="refreshToken", description="Refresh token from OAuth provider"
     )
     expires_at: Optional[int] = Field(
-        0, ge=0, alias="expiresAt", description="Token expiration"
+        0, ge=0, le=INTEGER_SIZE, alias="expiresAt", description="Token expiration"
     )
 
     class Config:
@@ -81,7 +89,7 @@ class OAuth2TokenCreate(SQLModel):
 
 class OAuth2TokenUpdate(SQLModel):
     player_id: Optional[int] = Field(
-        None, gt=0, alias="playerId", description="ID of player"
+        None, gt=0, le=INTEGER_SIZE, alias="playerId", description="ID of player"
     )
     name: Optional[str] = Field(None, description="Name of token OAuth provider")
     token_type: Optional[str] = Field(
@@ -94,7 +102,7 @@ class OAuth2TokenUpdate(SQLModel):
         None, alias="refreshToken", description="Refresh token from OAuth provider"
     )
     expires_at: Optional[int] = Field(
-        None, ge=0, alias="expiresAt", description="Token expiration"
+        None, ge=0, le=INTEGER_SIZE, alias="expiresAt", description="Token expiration"
     )
 
     class Config:
@@ -103,8 +111,12 @@ class OAuth2TokenUpdate(SQLModel):
 
 
 class OAuth2TokenShort(SQLModel):
-    token_id: int = Field(alias="tokenId", description="ID of token")
-    player_id: int = Field(gt=0, alias="playerId", description="ID of player")
+    token_id: int = Field(
+        alias="tokenId", description="ID of token", gt=0, le=INTEGER_SIZE
+    )
+    player_id: int = Field(
+        gt=0, le=INTEGER_SIZE, alias="playerId", description="ID of player"
+    )
     name: str = Field(description="Name of token OAuth provider")
     token_type: Optional[str] = Field(
         None, alias="tokenType", description="Type of token"
@@ -116,7 +128,7 @@ class OAuth2TokenShort(SQLModel):
         None, alias="refreshToken", description="Refresh token from OAuth provider"
     )
     expires_at: Optional[int] = Field(
-        0, ge=0, alias="expiresAt", description="Token expiration"
+        0, ge=0, le=INTEGER_SIZE, alias="expiresAt", description="Token expiration"
     )
 
     class Config:

@@ -1,4 +1,3 @@
-import secrets
 import os
 from typing import List, Union
 from pydantic import BaseSettings, AnyHttpUrl, validator
@@ -6,6 +5,10 @@ from pydantic import BaseSettings, AnyHttpUrl, validator
 
 class Settings(BaseSettings):
     SERVER_NAME: str = os.environ.get("SERVER_NAME", "PartyFiller Backend")
+    SERVER_DESCRIPTION: str = os.environ.get(
+        "SERVER_DESCRIPTION",
+        "Fill you parties with friends from Discord using this API!",
+    )
     SECRET_KEY: str = os.environ.get("SECRET_KEY")
     API_HOSTNAME: AnyHttpUrl = os.environ.get("API_HOSTNAME", "http://localhost:8000")
     REDIRECT_URL: AnyHttpUrl = os.environ.get("REDIRECT_URL", API_HOSTNAME)
